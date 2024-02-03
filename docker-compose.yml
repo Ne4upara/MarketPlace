@@ -9,3 +9,12 @@ services:
       POSTGRES_DB: database_marketplace
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - postgres
