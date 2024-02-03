@@ -35,6 +35,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./docker-compose.yml
+          file: ./Dockerfile
           push: true
           tags: ne4upara/project:tag
