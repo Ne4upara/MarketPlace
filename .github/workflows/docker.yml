@@ -28,19 +28,19 @@ jobs:
 #        run: ./gradlew build --exclude-task test --warning-mode=all
 
       - name: Log in to Docker Hub
-        uses: docker/login-action
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action
+        uses: docker/metadata-action@v3
         with:
           images: my-docker-hub-namespace/my-docker-hub-repository
 
       - name: Build and push Docker image
-        uses: docker/build-push-action
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: ./docker-compose.yml
