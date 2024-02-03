@@ -19,12 +19,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-#      - name: Make Gradlew Executable
-#        run: chmod +x ./gradlew
-#
-#      - name: Build with Gradle
-#        run: ./gradlew build --exclude-task test --warning-mode=all
-
       - name: Log in to Docker Hub
         uses: docker/login-action
         with:
