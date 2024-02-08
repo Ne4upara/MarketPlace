@@ -75,5 +75,4 @@ task runPmd(type: Pmd) {
 	group = 'verification'
 	source = sourceSets.main.allJava
 	include '**/*.java'
-	exclude '**/MarketplaceApplication.java'
 }
