@@ -2,6 +2,8 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.2'
 	id 'io.spring.dependency-management' version '1.1.4'
+	id 'jacoco'
+	id 'pmd'
 }
 
 group = 'ua'
@@ -9,6 +11,16 @@ version = '0.0.1'
 
 java {
 	sourceCompatibility = '17'
+}
+
+jacoco {
+	toolVersion = "0.8.7"
+}
+
+pmd {
+	toolVersion = '6.33.0'
+	ruleSets = ['java-basic', 'java-design', 'java-unusedcode']
+	ignoreFailures = false
 }
 
 configurations {
@@ -29,14 +41,39 @@ dependencies {
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+	implementation 'org.jacoco:org.jacoco.core:0.8.7'
+	implementation 'org.jacoco:org.jacoco.report:0.8.7'
+	implementation 'com.h2database:h2'
 	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 	runtimeOnly 'org.postgresql:postgresql'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'net.sourceforge.pmd:pmd:6.33.0'
+	testImplementation 'net.sourceforge.pmd:pmd-java:6.33.0'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.required = true
+		html.required = true
+	}
+	afterEvaluate {
+		classDirectories = files(classDirectories.files.collect {
+			fileTree(dir: it,)
+		})
+	}
+}
+
+task runPmd(type: Pmd) {
+	description = 'Run PMD analysis on the Java source code'
+	group = 'verification'
+	source = sourceSets.main.allJava
+	include '**/*.java'
+	exclude '**/MarketplaceApplication.java'
 }
