@@ -37,7 +37,7 @@ class CustomUserDetailsServiceTest {
         //Given
         User user = User.builder()
                 .phone("1111111111")
-                .password("test1111")
+                .password("test1234")
                 .build();
 
         when(repository.findByPhone(any())).thenReturn(Optional.of(user));

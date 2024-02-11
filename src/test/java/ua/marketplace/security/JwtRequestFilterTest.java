@@ -46,7 +46,7 @@ class JwtRequestFilterTest {
         // Given
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username("Test111")
-                .password("test1111")
+                .password("test1234")
                 .build();
 
         when(jwtUtil.extractUsername(anyString())).thenReturn("Test111");

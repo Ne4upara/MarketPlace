@@ -13,24 +13,23 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthDto {
+public class CodeDto {
 
-    private UserDto user;
     private String token;
 
     /**
      * Compares this AuthDto with the specified object for equality.
      * Two AuthDto objects are considered equal if they have the same user and token.
      *
-     * @param o the object to be compared for equality with this AuthDto
+     * @param object the object to be compared for equality with this AuthDto
      * @return true if the specified object is equal to this AuthDto, otherwise false
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AuthDto authDto = (AuthDto) o;
-        return Objects.equals(user, authDto.user) && Objects.equals(token, authDto.token);
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        CodeDto codeDto = (CodeDto) object;
+        return Objects.equals(token, codeDto.token);
     }
 
     /**
@@ -40,6 +39,6 @@ public class AuthDto {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(user, token);
+        return Objects.hash(token);
     }
 }

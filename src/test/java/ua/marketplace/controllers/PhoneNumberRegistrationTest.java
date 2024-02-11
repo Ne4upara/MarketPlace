@@ -15,14 +15,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.MapBindingResult;
-import ua.marketplace.dto.AuthDto;
-import ua.marketplace.dto.UserDto;
+
+import ua.marketplace.dto.CodeDto;
+import ua.marketplace.dto.PhoneNumberDto;
+
 import ua.marketplace.entitys.User;
 import ua.marketplace.repositoryes.UserRepository;
-import ua.marketplace.requests.LoginRequest;
-import ua.marketplace.requests.RegisterRequest;
+
+import ua.marketplace.requests.PhoneCodeRequest;
+import ua.marketplace.requests.PhoneNumberRequest;
+
 import ua.marketplace.responses.CustomResponse;
-import ua.marketplace.services.AuthService;
+
+import ua.marketplace.services.PhoneNumberRegistrationService;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,16 +42,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-class AuthControllerTest {
+class PhoneNumberRegistrationTest {
 
     @Autowired
     private MockMvc mockMvc;
     @Mock
-    private AuthService authService;
+    private PhoneNumberRegistrationService regService;
     @Mock
     private UserRepository userRepository;
     @InjectMocks
-    private AuthController authController;
+    private PhoneNumberRegistrationController regController;
 
     /**
      * Test for successful user registration.
@@ -57,34 +62,32 @@ class AuthControllerTest {
     void testRegisterSuccessfully() throws Exception {
 
         //Given
-        RegisterRequest request = RegisterRequest.builder()
-                .phone("1111111111")
-                .password("test1111")
+        PhoneNumberRequest request = PhoneNumberRequest.builder()
+                .phoneNumber("+123456789012")
                 .build();
 
         User user = User
                 .builder()
-                .phone(request.getPhone())
-                .password(request.getPassword())
+                .phone(request.getPhoneNumber())
                 .build();
 
         BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
 
-        ResponseEntity<CustomResponse<UserDto>> expect = ResponseEntity
+        ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity
                 .ok()
-                .body(CustomResponse.successfully(new UserDto(),
+                .body(CustomResponse.successfully(new PhoneNumberDto(),
                         HttpStatus.OK.value()));
 
-        when(authService.registration(request)).thenReturn(expect);
-        when(userRepository.findByPhone(request.getPhone())).thenReturn(Optional.of(user));
+        when(regService.inputPhoneNumber(request)).thenReturn(expect);
+        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
 
         //When
-        ResponseEntity<CustomResponse<UserDto>> result = authController
-                .register(request, bindingResult);
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regController
+                .inputPhoneNumber(request, bindingResult);
 
         //Then
         Assertions.assertEquals(expect, result);
-        mockMvc.perform(post("/api/v1/auth/reg")
+        mockMvc.perform(post("/api/v1/auth//phonenumber/registration")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isOk())
@@ -101,16 +104,14 @@ class AuthControllerTest {
     void testRegistrationWithInvalidRequest() throws Exception {
 
         //Given
-        RegisterRequest request = RegisterRequest
+        PhoneNumberRequest request = PhoneNumberRequest
                 .builder()
-                .phone("")
-                .password("")
+                .phoneNumber("")
                 .build();
 
         User user = User
                 .builder()
-                .phone(request.getPhone())
-                .password(request.getPassword())
+                .phone(request.getPhoneNumber())
                 .build();
 
         BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
@@ -119,20 +120,20 @@ class AuthControllerTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .toList();
 
-        ResponseEntity<CustomResponse<UserDto>> expect = ResponseEntity
+        ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity
                 .badRequest()
                 .body(CustomResponse.failed(errorList,
                         HttpStatus.BAD_REQUEST.value()));
 
-        when(authService.registration(request)).thenReturn(expect);
-        when(userRepository.findByPhone(request.getPhone())).thenReturn(Optional.of(user));
+        when(regService.inputPhoneNumber(request)).thenReturn(expect);
+        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
 
         //When
-        ResponseEntity<CustomResponse<UserDto>> result = authController.register(request, bindingResult);
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regController.inputPhoneNumber(request, bindingResult);
 
         //Then
         Assertions.assertEquals(expect, result);
-        mockMvc.perform(post("/api/v1/auth/reg")
+        mockMvc.perform(post("/api/v1/auth//phonenumber/registration")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())
@@ -149,26 +150,27 @@ class AuthControllerTest {
     void testLogin() throws Exception {
 
         //Given
-        LoginRequest request = LoginRequest
+        PhoneCodeRequest request = PhoneCodeRequest
                 .builder()
-                .phone("111111111")
-                .password("test1111")
+                .phoneNumber("111111111")
+                .inputCode("999999")
                 .build();
 
-        ResponseEntity<CustomResponse<AuthDto>> expect = ResponseEntity
+        BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
+        ResponseEntity<CustomResponse<CodeDto>> expect = ResponseEntity
                 .ok()
-                .body(CustomResponse.successfully(new AuthDto(),
+                .body(CustomResponse.successfully(new CodeDto(),
                         HttpStatus.OK.value()));
 
-        when(userRepository.findByPhone(request.getPhone())).thenReturn(Optional.of(new User()));
-        when(authService.login(request)).thenReturn(expect);
+        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(new User()));
+        when(regService.inputPhoneCode(request)).thenReturn(expect);
 
         //When
-        ResponseEntity<CustomResponse<AuthDto>> result = authController.login(request);
+        ResponseEntity<CustomResponse<CodeDto>> result = regController.inputCode(request, bindingResult);
 
         //Then
         Assertions.assertEquals(expect, result);
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/api/v1/auth/phonenumber/code/registration")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())

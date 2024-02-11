@@ -13,23 +13,23 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class PhoneNumberDto {
 
-    private String phone;
+    private String phoneNumber;
 
     /**
      * Compares this UserDto with the specified object for equality.
      * Two UserDto objects are considered equal if they have the same phone number.
      *
-     * @param o the object to be compared for equality with this UserDto
+     * @param object the object to be compared for equality with this UserDto
      * @return true if the specified object is equal to this UserDto, otherwise false
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserDto userDto = (UserDto) o;
-        return Objects.equals(phone, userDto.phone);
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        PhoneNumberDto phoneNumberDto = (PhoneNumberDto) object;
+        return Objects.equals(phoneNumber, phoneNumberDto.phoneNumber);
     }
 
     /**
@@ -39,6 +39,6 @@ public class UserDto {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(phone);
+        return Objects.hash(phoneNumber);
     }
 }

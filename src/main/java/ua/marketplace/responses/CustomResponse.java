@@ -68,14 +68,14 @@ public class CustomResponse<T> {
      * Compares this CustomResponse with the specified object for equality.
      * Two CustomResponse objects are considered equal if they have the same success, code, message, and body.
      *
-     * @param o the object to be compared for equality with this CustomResponse
+     * @param object the object to be compared for equality with this CustomResponse
      * @return true if the specified object is equal to this CustomResponse, otherwise false
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CustomResponse<?> that = (CustomResponse<?>) o;
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        CustomResponse<?> that = (CustomResponse<?>) object;
         return code == that.code && Objects.equals(success, that.success) && Objects.equals(message, that.message) && Objects.equals(body, that.body);
     }
 

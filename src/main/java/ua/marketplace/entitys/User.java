@@ -3,6 +3,7 @@ package ua.marketplace.entitys;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -29,19 +30,31 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "code")
+    private String code;
+
+    @Column(name = "created_code")
+    private LocalDateTime createdCode;
+
+    @Column(name = "role")
+    private String role;
+
+    @Column(name = "is_enabled")
+    private Boolean isEnabled;
+
     /**
      * Compares this User with the specified object for equality.
      * Two User objects are considered equal if they have the same id, phone, and password.
      *
-     * @param o the object to be compared for equality with this User
+     * @param object the object to be compared for equality with this User
      * @return true if the specified object is equal to this User, otherwise false
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(phone, user.phone) && Objects.equals(password, user.password);
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        User user = (User) object;
+        return Objects.equals(id, user.id) && Objects.equals(phone, user.phone);
     }
 
     /**
@@ -51,6 +64,6 @@ public class User {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone, password);
+        return Objects.hash(id, phone);
     }
 }
