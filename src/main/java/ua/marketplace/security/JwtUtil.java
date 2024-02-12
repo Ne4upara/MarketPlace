@@ -23,7 +23,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    private static final String secretKey = "${{ secrets.JWT_SECRET }}";
+    private static final String secretKey = System.getenv("JWT_SECRET");
     private final UserDetailsService userDetailsService;
 
     /**
