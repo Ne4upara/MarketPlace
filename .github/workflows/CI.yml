@@ -37,6 +37,9 @@ jobs:
     needs: build
     runs-on: ubuntu-20.04
 
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
     steps:
     - uses: actions/checkout@v3
 
