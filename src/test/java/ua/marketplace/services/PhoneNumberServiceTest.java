@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 /**
  * Unit tests for the AuthService class.
  */
+@SuppressWarnings("PMD")
 @SpringBootTest
 class PhoneNumberServiceTest {
 
