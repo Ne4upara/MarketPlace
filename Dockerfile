@@ -19,4 +19,4 @@ FROM openjdk:17-alpine
 EXPOSE 80
 COPY --from=build /build/libs/marketplace-0.0.1.jar /app/marketplace-0.0.1.jar
 
-ENTRYPOINT ["java", "-jar", "marketplace-0.0.1.jar"]
+ENTRYPOINT ["java", "-jar", "app/marketplace-0.0.1.jar"]
