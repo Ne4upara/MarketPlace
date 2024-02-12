@@ -22,6 +22,7 @@ import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.responses.CustomResponse;
 import ua.marketplace.security.JwtUtil;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,6 +41,8 @@ class PhoneNumberServiceTest {
     private UserRepository userRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private JwtUtil jwtUtil;
     @InjectMocks
     private PhoneNumberRegistrationService regService;
 
@@ -99,39 +102,40 @@ class PhoneNumberServiceTest {
     /**
      * Test for successful user login.
      */
-//    @Test
-//    void testLoginSuccessfully() {
-//
-//        //Given
-//        PhoneCodeRequest request = PhoneCodeRequest
-//                .builder()
-//                .phoneNumber("+123456789012")
-//                .inputCode("111111")
-//                .build();
-//
-//        User user = User
-//                .builder()
-//                .phone(request.getPhoneNumber())
-//                .code(request.getInputCode())
-//                .build();
-//
-//        CodeDto authDto = CodeDto
-//                .builder()
-//                .token("test")
-//                .build();
-//
-//        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
-//        when(passwordEncoder.matches(any(), any())).thenReturn(true);
-//
-//        //When
-//        ResponseEntity<CustomResponse<CodeDto>> result = regService.inputPhoneCode(request);
-//        authDto.setToken(Objects.requireNonNull(result.getBody()).getBody().getToken());
-//
-//        //Then
-//        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-//        assertThat(result.getBody()).isNotNull();
-//        assertThat(result.getBody().getBody()).isEqualTo(authDto);
-//    }
+    @Test
+    void testLoginSuccessfully() {
+
+        //Given
+        PhoneCodeRequest request = PhoneCodeRequest
+                .builder()
+                .phoneNumber("+123456789012")
+                .inputCode("111111")
+                .build();
+
+        User user = User
+                .builder()
+                .phone(request.getPhoneNumber())
+                .code(request.getInputCode())
+                .createdTimeCode(LocalDateTime.now())
+                .build();
+
+        CodeDto authDto = CodeDto
+                .builder()
+                .token("test")
+                .build();
+
+        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(any(), any())).thenReturn(true);
+
+        //When
+        ResponseEntity<CustomResponse<CodeDto>> result = regService.inputPhoneCode(request);
+        authDto.setToken(Objects.requireNonNull(result.getBody()).getBody().getToken());
+
+        //Then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().getBody()).isEqualTo(authDto);
+    }
 
     /**
      * Test for user login with user not found.
