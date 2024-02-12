@@ -23,14 +23,7 @@ public class JwtRequestFilter extends BasicAuthenticationFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-
-    /**
-     * Constructs a JwtRequestFilter with the provided dependencies.
-     *
-     * @param authenticationManager the AuthenticationManager to use for authentication
-     * @param userDetailsService    the UserDetailsService to retrieve user details
-     * @param jwtUtil               the JwtUtil for working with JWT tokens
-     */
+    
     public JwtRequestFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService,
                             JwtUtil jwtUtil) {
 
