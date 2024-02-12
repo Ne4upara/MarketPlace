@@ -16,6 +16,6 @@ RUN ./gradlew bootJar --no-daemon
 
 FROM openjdk:17-alpine
 EXPOSE 80
-COPY --from-build /build/libs/marketplace-0.0.1.jar app.jar
+COPY --from=build /build/libs/marketplace-0.0.1.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "marketplace-0.0.1.jar"]
