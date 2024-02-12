@@ -4,6 +4,5 @@ ext {
             '**/ua/marketplace/dto/**',
             '**/ua/marketplace/entities/**',
             '**/ua/marketplace/requests/**'
-
     ]
 }
