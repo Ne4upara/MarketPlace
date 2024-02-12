@@ -50,7 +50,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
                 .code("999999")
                 .role("USER")
                 .isEnabled(true)
-                .createdCode(LocalDateTime.now())
+                .createdTimeCode(LocalDateTime.now())
                 .build();
         userRepository.save(createdUser);
 
@@ -83,7 +83,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
             return ResponseEntity.badRequest().body(response);
         }
 
-        LocalDateTime userTimeAccess = user.getCreatedCode().plusMinutes(5);
+        LocalDateTime userTimeAccess = user.getCreatedTimeCode().plusMinutes(5);
         if (userTimeAccess.isBefore(LocalDateTime.now())) {
             CustomResponse<CodeDto> response = CustomResponse.failed(
                     Collections.singletonList(Error.TIME_IS_UP.getMessage()),

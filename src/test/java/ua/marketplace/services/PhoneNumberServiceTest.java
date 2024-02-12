@@ -37,13 +37,9 @@ import static org.mockito.Mockito.when;
 class PhoneNumberServiceTest {
 
     @Mock
-    private JwtUtil jwtUtil;
-    @Mock
     private UserRepository userRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
-//    @Mock
-//    private UserService userService;
     @InjectMocks
     private PhoneNumberRegistrationService regService;
 

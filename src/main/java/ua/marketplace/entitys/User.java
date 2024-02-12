@@ -34,7 +34,7 @@ public class User {
     private String code;
 
     @Column(name = "created_code")
-    private LocalDateTime createdCode;
+    private LocalDateTime createdTimeCode;
 
     @Column(name = "role")
     private String role;

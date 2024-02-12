@@ -11,6 +11,8 @@ import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.FacebookDto;
 import ua.marketplace.dto.GoogleDto;
 import ua.marketplace.dto.PhoneNumberDto;
+import ua.marketplace.requests.FaceBookRequest;
+import ua.marketplace.requests.GoogleRequest;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.responses.CustomResponse;
@@ -24,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class PhoneNumberRegistrationController{
+public class RegistrationController {
 
     private final PhoneNumberRegistrationService phoneNumberService;
 
@@ -57,7 +59,7 @@ public class PhoneNumberRegistrationController{
      */
     @PostMapping("/phonenumber/code/registration")
     public ResponseEntity<CustomResponse<CodeDto>> inputCode
-    (@Valid @RequestBody PhoneCodeRequest request, BindingResult result){
+    (@Valid @RequestBody PhoneCodeRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
             List<String> errorList = result.getAllErrors().stream()
@@ -70,7 +72,7 @@ public class PhoneNumberRegistrationController{
 
     @PostMapping("google/registration")
     public ResponseEntity<CustomResponse<GoogleDto>> googleRegistration
-            (@Valid @RequestBody PhoneCodeRequest request, BindingResult result){
+            (@Valid @RequestBody GoogleRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
             List<String> errorList = result.getAllErrors().stream()
@@ -83,7 +85,7 @@ public class PhoneNumberRegistrationController{
 
     @PostMapping("facebook/registration")
     public ResponseEntity<CustomResponse<FacebookDto>> facebookRegistration
-            (@Valid @RequestBody PhoneCodeRequest request, BindingResult result){
+            (@Valid @RequestBody FaceBookRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
             List<String> errorList = result.getAllErrors().stream()

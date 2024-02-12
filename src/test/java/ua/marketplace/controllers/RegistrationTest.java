@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-class PhoneNumberRegistrationTest {
+class RegistrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,7 +51,7 @@ class PhoneNumberRegistrationTest {
     @Mock
     private UserRepository userRepository;
     @InjectMocks
-    private PhoneNumberRegistrationController regController;
+    private RegistrationController regController;
 
     /**
      * Test for successful user registration.
