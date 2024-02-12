@@ -3,6 +3,7 @@ ext {
             '**/ua/marketplace/data/**',
             '**/ua/marketplace/dto/**',
             '**/ua/marketplace/entities/**',
-            '**/ua/marketplace/requests/**'
+            '**/ua/marketplace/requests/**',
+            '**/java/ua/marketplace/MarketplaceApplication.java'
     ]
 }
