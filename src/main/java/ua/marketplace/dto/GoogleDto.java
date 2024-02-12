@@ -1,11 +1,10 @@
 package ua.marketplace.dto;
 
-import lombok.*;
-
 //@Builder
 //@Getter
 //@ToString
 //@Setter
+//@EqualsAndHashCode
 //@NoArgsConstructor
 //@AllArgsConstructor
 public class GoogleDto {

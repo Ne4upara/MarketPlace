@@ -15,18 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.MapBindingResult;
-
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
-
 import ua.marketplace.entitys.User;
 import ua.marketplace.repositoryes.UserRepository;
-
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
-
 import ua.marketplace.responses.CustomResponse;
-
 import ua.marketplace.services.PhoneNumberRegistrationService;
 
 import java.util.Collections;

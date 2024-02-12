@@ -9,16 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ua.marketplace.data.Error;
-
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
-
 import ua.marketplace.entitys.User;
 import ua.marketplace.repositoryes.UserRepository;
-
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
-
 import ua.marketplace.responses.CustomResponse;
 import ua.marketplace.security.JwtUtil;
 

@@ -1,8 +1,8 @@
 package ua.marketplace.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ua.marketplace.data.Error;
 import ua.marketplace.dto.CodeDto;
