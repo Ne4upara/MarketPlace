@@ -2,7 +2,7 @@ package ua.marketplace.repositoryes;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ua.marketplace.entitys.User;
+import ua.marketplace.entities.User;
 
 import java.util.Optional;
 

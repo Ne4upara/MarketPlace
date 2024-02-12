@@ -1,0 +1,9 @@
+ext {
+    jacocoExcludes = [
+            '**/ua/marketplace/data/**',
+            '**/ua/marketplace/dto/**',
+            '**/ua/marketplace/entities/**',
+            '**/ua/marketplace/requests/**'
+
+    ]
+}
