@@ -12,6 +12,7 @@ FROM ubuntu:latest AS build
 RUN apt-get update
 RUN apt-get install -y openjdk-17-jdk
 COPY . .
+RUN chmod +x gradlew
 RUN ./gradlew bootJar --no-daemon
 
 FROM openjdk:17-alpine
