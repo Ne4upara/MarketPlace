@@ -13,7 +13,6 @@ import java.util.List;
  */
 @Builder
 @Getter
-@Setter
 @EqualsAndHashCode(exclude = "timestamp")
 @ToString
 public class CustomResponse<T> {

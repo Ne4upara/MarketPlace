@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import ua.marketplace.data.Error;
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
-import ua.marketplace.entitys.User;
+import ua.marketplace.entities.User;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
@@ -183,6 +183,40 @@ class PhoneNumberServiceTest {
 
         // Then
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(result.getBody()).getMessage().contains(Error.INVALID_CODE.getMessage()));
+        Assertions.assertTrue(Objects.requireNonNull(result
+                        .getBody())
+                .getMessage()
+                .contains(Error.INVALID_CODE.getMessage()));
+    }
+
+    @Test
+    void testLoginWithTimeIsUp() {
+
+        //Given
+        PhoneCodeRequest request = PhoneCodeRequest
+                .builder()
+                .phoneNumber("+123456789012")
+                .inputCode("123456")
+                .build();
+
+        User user = User
+                .builder()
+                .phone(request.getPhoneNumber())
+                .code("123456")
+                .createdTimeCode(LocalDateTime.now().minusDays(1))
+                .build();
+
+        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(any(), any())).thenReturn(true);
+
+        //When
+        ResponseEntity<CustomResponse<CodeDto>> result = regService.inputPhoneCode(request);
+
+        //Then
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(result
+                        .getBody())
+                .getMessage()
+                .contains(Error.TIME_IS_UP.getMessage()));
     }
 }

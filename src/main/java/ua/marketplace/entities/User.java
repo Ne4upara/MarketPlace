@@ -1,4 +1,4 @@
-package ua.marketplace.entitys;
+package ua.marketplace.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
