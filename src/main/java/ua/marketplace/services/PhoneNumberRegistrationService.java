@@ -45,7 +45,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
         }
 
         User createdUser = User.builder()
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .password(UUID.randomUUID().toString().substring(0, 10))
                 .code("999999")
                 .role("USER")
@@ -54,7 +54,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
                 .build();
         userRepository.save(createdUser);
 
-        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(createdUser.getPhone()).build();
+        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(createdUser.getPhoneNumber()).build();
         CustomResponse<PhoneNumberDto> response = CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
@@ -92,7 +92,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
         }
 
         CodeDto codeDto = CodeDto.builder()
-                .token(jwtUtil.generateToken(user.getPhone()))
+                .token(jwtUtil.generateToken(user.getPhoneNumber()))
                 .build();
         CustomResponse<CodeDto> response = CustomResponse.successfully(codeDto, HttpStatus.OK.value());
         return ResponseEntity.ok(response);

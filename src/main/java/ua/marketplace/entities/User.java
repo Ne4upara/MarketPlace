@@ -24,8 +24,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "phone")
-    private String phone;
+    @Column(name = "phone_numeber")
+    private String phoneNumber;
 
     @Column(name = "password")
     private String password;
@@ -54,7 +54,7 @@ public class User {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         User user = (User) object;
-        return Objects.equals(id, user.id) && Objects.equals(phone, user.phone);
+        return Objects.equals(id, user.id) && Objects.equals(phoneNumber, user.phoneNumber);
     }
 
     /**
@@ -64,6 +64,6 @@ public class User {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone);
+        return Objects.hash(id, phoneNumber);
     }
 }

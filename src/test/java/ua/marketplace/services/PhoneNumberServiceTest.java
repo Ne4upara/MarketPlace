@@ -57,13 +57,13 @@ class PhoneNumberServiceTest {
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .build();
 
         when(userRepository.existsByPhone(request.getPhoneNumber())).thenReturn(false);
         when(userRepository.save(user)).thenReturn(user);
 
-        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(user.getPhone()).build();
+        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(user.getPhoneNumber()).build();
         ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity.ok
                 (CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value()));
 
@@ -111,7 +111,7 @@ class PhoneNumberServiceTest {
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .code(request.getInputCode())
                 .createdTimeCode(LocalDateTime.now())
                 .build();
@@ -172,7 +172,7 @@ class PhoneNumberServiceTest {
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .code("Invalid Code")
                 .build();
 
@@ -202,7 +202,7 @@ class PhoneNumberServiceTest {
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .code("123456")
                 .createdTimeCode(LocalDateTime.now().minusDays(1))
                 .build();

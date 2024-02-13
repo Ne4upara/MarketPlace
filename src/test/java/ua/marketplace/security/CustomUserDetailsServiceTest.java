@@ -36,19 +36,19 @@ class CustomUserDetailsServiceTest {
 
         //Given
         User user = User.builder()
-                .phone("1111111111")
+                .phoneNumber("1111111111")
                 .password("test1234")
                 .build();
 
         when(repository.findByPhone(any())).thenReturn(Optional.of(user));
 
         UserDetails expect = org.springframework.security.core.userdetails.User.builder()
-                .username(user.getPhone())
+                .username(user.getPhoneNumber())
                 .password(user.getPassword())
                 .build();
 
         //When
-        UserDetails result = service.loadUserByUsername(user.getPhone());
+        UserDetails result = service.loadUserByUsername(user.getPhoneNumber());
 
         //Then
         Assertions.assertEquals(expect, result);
