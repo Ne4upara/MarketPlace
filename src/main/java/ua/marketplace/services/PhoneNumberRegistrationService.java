@@ -37,7 +37,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      */
     @Override
     public ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(PhoneNumberRequest request) {
-        if (Boolean.TRUE.equals(userRepository.existsByPhone(request.getPhoneNumber()))) {
+        if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(request.getPhoneNumber()))) {
             CustomResponse<PhoneNumberDto> response = CustomResponse.failed(
                     Collections.singletonList(Error.PHONE_ALREADY_EXIST.getMessage()),
                     HttpStatus.BAD_REQUEST.value());
@@ -67,7 +67,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      */
     @Override
     public ResponseEntity<CustomResponse<CodeDto>> inputPhoneCode(PhoneCodeRequest request) {
-        Optional<User> byPhone = userRepository.findByPhone(request.getPhoneNumber());
+        Optional<User> byPhone = userRepository.findByPhoneNumber(request.getPhoneNumber());
         if (byPhone.isEmpty()) {
             CustomResponse<CodeDto> response = CustomResponse.failed(
                     Collections.singletonList(Error.USER_NOT_FOUND.getMessage()),

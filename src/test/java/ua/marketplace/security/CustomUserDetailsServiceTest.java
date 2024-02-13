@@ -40,7 +40,7 @@ class CustomUserDetailsServiceTest {
                 .password("test1234")
                 .build();
 
-        when(repository.findByPhone(any())).thenReturn(Optional.of(user));
+        when(repository.findByPhoneNumber(any())).thenReturn(Optional.of(user));
 
         UserDetails expect = org.springframework.security.core.userdetails.User.builder()
                 .username(user.getPhoneNumber())
@@ -61,7 +61,7 @@ class CustomUserDetailsServiceTest {
     void testLoadUserByUsernameWithUserNotFound() {
 
         // Given
-        when(repository.findByPhone(any())).thenReturn(Optional.empty());
+        when(repository.findByPhoneNumber(any())).thenReturn(Optional.empty());
 
         // When/Then
         assertThrows(UsernameNotFoundException.class, () -> service.loadUserByUsername("test"));

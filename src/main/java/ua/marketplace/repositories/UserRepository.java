@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param phone the phone number of the user to retrieve
      * @return an Optional containing the user with the specified phone number, if found
      */
-    Optional<User> findByPhone(String phone);
+    Optional<User> findByPhoneNumber(String phone);
 
     /**
      * Checks if a user with the specified phone number exists in the database.
@@ -27,5 +27,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param phone the phone number to check
      * @return true if a user with the specified phone number exists, false otherwise
      */
-    Boolean existsByPhone(String phone);
+    Boolean existsByPhoneNumber(String phone);
 }

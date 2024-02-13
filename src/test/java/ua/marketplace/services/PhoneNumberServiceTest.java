@@ -60,7 +60,7 @@ class PhoneNumberServiceTest {
                 .phoneNumber(request.getPhoneNumber())
                 .build();
 
-        when(userRepository.existsByPhone(request.getPhoneNumber())).thenReturn(false);
+        when(userRepository.existsByPhoneNumber(request.getPhoneNumber())).thenReturn(false);
         when(userRepository.save(user)).thenReturn(user);
 
         PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(user.getPhoneNumber()).build();
@@ -81,7 +81,7 @@ class PhoneNumberServiceTest {
     void testRegistrationWithPhoneExist() {
 
         //Given
-        when(userRepository.existsByPhone(any())).thenReturn(true);
+        when(userRepository.existsByPhoneNumber(any())).thenReturn(true);
 
         ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity
                 .badRequest()
@@ -121,7 +121,7 @@ class PhoneNumberServiceTest {
                 .token("test")
                 .build();
 
-        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
 
         //When
@@ -147,7 +147,7 @@ class PhoneNumberServiceTest {
                 .inputCode("123456")
                 .build();
 
-        when(userRepository.findByPhone(any())).thenReturn(Optional.empty());
+        when(userRepository.findByPhoneNumber(any())).thenReturn(Optional.empty());
 
         // When
         ResponseEntity<CustomResponse<CodeDto>> result = regService.inputPhoneCode(request);
@@ -176,7 +176,7 @@ class PhoneNumberServiceTest {
                 .code("Invalid Code")
                 .build();
 
-        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(request.getInputCode(), user.getPassword())).thenReturn(false);
 
         // When
@@ -207,7 +207,7 @@ class PhoneNumberServiceTest {
                 .createdTimeCode(LocalDateTime.now().minusDays(1))
                 .build();
 
-        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
 
         //When

@@ -74,7 +74,7 @@ class RegistrationTest {
                         HttpStatus.OK.value()));
 
         when(regService.inputPhoneNumber(request)).thenReturn(expect);
-        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
 
         //When
         ResponseEntity<CustomResponse<PhoneNumberDto>> result = regController
@@ -121,7 +121,7 @@ class RegistrationTest {
                         HttpStatus.BAD_REQUEST.value()));
 
         when(regService.inputPhoneNumber(request)).thenReturn(expect);
-        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
 
         //When
         ResponseEntity<CustomResponse<PhoneNumberDto>> result = regController.inputPhoneNumber(request, bindingResult);
@@ -157,7 +157,7 @@ class RegistrationTest {
                 .body(CustomResponse.successfully(new CodeDto(),
                         HttpStatus.OK.value()));
 
-        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(new User()));
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(new User()));
         when(regService.inputPhoneCode(request)).thenReturn(expect);
 
         //When
