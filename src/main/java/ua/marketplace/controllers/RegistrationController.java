@@ -40,7 +40,7 @@ public class RegistrationController {
      * @param result  BindingResult for validating the request.
      * @return ResponseEntity with CustomResponse containing the registered phone number or validation errors.
      */
-    @PostMapping("/phonenumber/registration")
+    @PostMapping("/phone-number/registration")
     public ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(
             @Valid @RequestBody PhoneNumberRequest request, BindingResult result) {
 
@@ -60,7 +60,7 @@ public class RegistrationController {
      * @param result  BindingResult for validating the request.
      * @return ResponseEntity with CustomResponse containing the JWT token or validation errors.
      */
-    @PostMapping("/phonenumber/code/registration")
+    @PostMapping("/phone-number/code/registration")
     public ResponseEntity<CustomResponse<CodeDto>> inputCode
     (@Valid @RequestBody PhoneCodeRequest request, BindingResult result) {
 
