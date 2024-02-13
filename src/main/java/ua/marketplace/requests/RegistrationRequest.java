@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+/**
+ * Request object for user registration.
+ */
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -25,6 +28,6 @@ public class RegistrationRequest {
     @NotEmpty(message = "Phone should not be empty")
     @NotNull(message = "Phone should not be null")
     @Size(min = 9, max = 13, message = "Phone should be between 9 and 13 digits")
-    @Pattern(regexp = "^[0-9+]+$", message = "Phone should contain only digits and may start with '+'")
+    @Pattern(regexp = "^[0-9+]+$", message = "Phone should contain only digits")
     private String phoneNumber;
 }

@@ -2,6 +2,9 @@ package ua.marketplace.dto;
 
 import lombok.*;
 
+/**
+ * Data Transfer Object (DTO) representing user details.
+ */
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -9,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class UserDto {
+
     private String name;
     private String phoneNumber;
 }

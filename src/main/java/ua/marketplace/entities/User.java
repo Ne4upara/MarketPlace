@@ -32,6 +32,12 @@ public class User {
     @Column(name = "code")
     private String code;
 
+    /**
+     * Overrides equals method to compare User objects based on their attributes.
+     *
+     * @param o Object to compare with.
+     * @return True if the objects are equal, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -40,6 +46,11 @@ public class User {
         return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(code, user.code);
     }
 
+    /**
+     * Generates hash code for User object based on its attributes.
+     *
+     * @return Hash code value.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id, name, phoneNumber, code);

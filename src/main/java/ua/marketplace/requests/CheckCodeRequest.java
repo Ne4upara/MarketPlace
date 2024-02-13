@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+/**
+ * Request object for checking the verification code.
+ */
 @Getter
 @Setter
 @EqualsAndHashCode
