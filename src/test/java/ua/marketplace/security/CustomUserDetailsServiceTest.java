@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import ua.marketplace.entities.User;
-import ua.marketplace.repositoryes.UserRepository;
+import ua.marketplace.repositories.UserRepository;
 
 import java.util.Optional;
 
