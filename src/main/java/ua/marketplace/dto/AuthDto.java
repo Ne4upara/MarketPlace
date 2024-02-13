@@ -2,17 +2,13 @@ package ua.marketplace.dto;
 
 import lombok.*;
 
-/**
- * A DTO (Data Transfer Object) class representing authentication information.
- */
-@Builder
 @Getter
-@ToString
 @Setter
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class CodeDto {
-
+@Builder
+public class AuthDto {
+    private UserDto user;
     private String token;
 }

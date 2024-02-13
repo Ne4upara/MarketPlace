@@ -10,39 +10,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ua.marketplace.dto.CodeDto;
-import ua.marketplace.dto.FacebookDto;
-import ua.marketplace.dto.GoogleDto;
-import ua.marketplace.dto.PhoneNumberDto;
-import ua.marketplace.requests.FaceBookRequest;
-import ua.marketplace.requests.GoogleRequest;
-import ua.marketplace.requests.PhoneCodeRequest;
-import ua.marketplace.requests.PhoneNumberRequest;
+import ua.marketplace.dto.AuthDto;
+import ua.marketplace.dto.UserDto;
+import ua.marketplace.requests.CheckCodeRequest;
+import ua.marketplace.requests.LoginRequest;
+import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.responses.CustomResponse;
-import ua.marketplace.services.PhoneNumberRegistrationService;
+import ua.marketplace.services.PhoneAuthService;
 
 import java.util.List;
 
-/**
- * Controller class for handling authentication-related requests.
- */
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class RegistrationController {
 
-    private final PhoneNumberRegistrationService phoneNumberService;
+    private final PhoneAuthService service;
 
-    /**
-     * Handling the registration of a new phone number.
-     *
-     * @param request PhoneNumberRequest containing the phone number to be registered.
-     * @param result  BindingResult for validating the request.
-     * @return ResponseEntity with CustomResponse containing the registered phone number or validation errors.
-     */
-    @PostMapping("/phonenumber/registration")
-    public ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(
-            @Valid @RequestBody PhoneNumberRequest request, BindingResult result) {
+    @PostMapping("/reg")
+    public ResponseEntity<CustomResponse<UserDto>> registration
+            (@RequestBody @Valid RegistrationRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
             List<String> errorList = result.getAllErrors().stream()
@@ -50,19 +37,12 @@ public class RegistrationController {
                     .toList();
             return ResponseEntity.badRequest().body(CustomResponse.failed(errorList, HttpStatus.BAD_REQUEST.value()));
         }
-        return phoneNumberService.inputPhoneNumber(request);
+        return service.registration(request);
     }
 
-    /**
-     * Handling the input of a phone code for registration.
-     *
-     * @param request PhoneCodeRequest containing the phone number and input code.
-     * @param result  BindingResult for validating the request.
-     * @return ResponseEntity with CustomResponse containing the JWT token or validation errors.
-     */
-    @PostMapping("/phonenumber/code/registration")
-    public ResponseEntity<CustomResponse<CodeDto>> inputCode
-    (@Valid @RequestBody PhoneCodeRequest request, BindingResult result) {
+    @PostMapping("/log")
+    public ResponseEntity<CustomResponse<UserDto>> login
+            (@RequestBody @Valid LoginRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
             List<String> errorList = result.getAllErrors().stream()
@@ -70,12 +50,13 @@ public class RegistrationController {
                     .toList();
             return ResponseEntity.badRequest().body(CustomResponse.failed(errorList, HttpStatus.BAD_REQUEST.value()));
         }
-        return phoneNumberService.inputPhoneCode(request);
+
+        return service.login(request);
     }
 
-    @PostMapping("google/registration")
-    public ResponseEntity<CustomResponse<GoogleDto>> googleRegistration
-            (@Valid @RequestBody GoogleRequest request, BindingResult result) {
+    @PostMapping("/log/code")
+    public ResponseEntity<CustomResponse<AuthDto>> checkCode
+            (@RequestBody @Valid CheckCodeRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
             List<String> errorList = result.getAllErrors().stream()
@@ -83,19 +64,7 @@ public class RegistrationController {
                     .toList();
             return ResponseEntity.badRequest().body(CustomResponse.failed(errorList, HttpStatus.BAD_REQUEST.value()));
         }
-        return null;
-    }
 
-    @PostMapping("facebook/registration")
-    public ResponseEntity<CustomResponse<FacebookDto>> facebookRegistration
-            (@Valid @RequestBody FaceBookRequest request, BindingResult result) {
-
-        if (result.hasErrors()) {
-            List<String> errorList = result.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(CustomResponse.failed(errorList, HttpStatus.BAD_REQUEST.value()));
-        }
-        return null;
+        return service.checkCode(request);
     }
 }
