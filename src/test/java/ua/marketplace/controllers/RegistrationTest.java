@@ -63,7 +63,7 @@ class RegistrationTest {
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .build();
 
         BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
@@ -106,7 +106,7 @@ class RegistrationTest {
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .build();
 
         BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
