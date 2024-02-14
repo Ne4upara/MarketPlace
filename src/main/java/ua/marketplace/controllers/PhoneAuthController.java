@@ -36,11 +36,11 @@ public class PhoneAuthController {
      * @param request RegistrationRequest object containing user's registration data.
      * @param result  BindingResult for validating the request body.
      * @return ResponseEntity containing CustomResponse with UserDto if registration is successful,
-     *         or a bad request response with error messages if validation fails.
+     * or a bad request response with error messages if validation fails.
      */
     @PostMapping("/registration")
     public ResponseEntity<CustomResponse<UserDto>> registration
-            (@RequestBody @Valid RegistrationRequest request, BindingResult result) {
+    (@RequestBody @Valid RegistrationRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
             List<String> errorList = result.getAllErrors().stream()
@@ -57,11 +57,11 @@ public class PhoneAuthController {
      * @param request LoginRequest object containing user's login data.
      * @param result  BindingResult for validating the request body.
      * @return ResponseEntity containing CustomResponse with UserDto if login is successful,
-     *         or a bad request response with error messages if validation fails.
+     * or a bad request response with error messages if validation fails.
      */
     @PostMapping("/login")
     public ResponseEntity<CustomResponse<UserDto>> login
-            (@RequestBody @Valid LoginRequest request, BindingResult result) {
+    (@RequestBody @Valid LoginRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
 
@@ -78,11 +78,11 @@ public class PhoneAuthController {
      * @param request CheckCodeRequest object containing the code to be verified.
      * @param result  BindingResult for validating the request body.
      * @return ResponseEntity containing CustomResponse with AuthDto if code verification is successful,
-     *         or a bad request response with error messages if validation fails.
+     * or a bad request response with error messages if validation fails.
      */
     @PostMapping("/login/code")
     public ResponseEntity<CustomResponse<AuthDto>> checkCode
-            (@RequestBody @Valid CheckCodeRequest request, BindingResult result) {
+    (@RequestBody @Valid CheckCodeRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
 

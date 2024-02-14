@@ -36,7 +36,7 @@ public class PhoneAuthService {
      *
      * @param request RegistrationRequest object containing user's registration data.
      * @return ResponseEntity containing CustomResponse with UserDto if registration is successful,
-     *         or a bad request response with error message if phone number already exists.
+     * or a bad request response with error message if phone number already exists.
      */
     @Transactional
     public ResponseEntity<CustomResponse<UserDto>> registration(RegistrationRequest request) {
@@ -56,7 +56,7 @@ public class PhoneAuthService {
      *
      * @param request LoginRequest object containing user's login data.
      * @return ResponseEntity containing CustomResponse with UserDto if login is successful,
-     *         or a bad request response with error message if user is not found.
+     * or a bad request response with error message if user is not found.
      */
     public ResponseEntity<CustomResponse<UserDto>> login(LoginRequest request) {
 
@@ -78,7 +78,7 @@ public class PhoneAuthService {
      *
      * @param request CheckCodeRequest object containing the code to be verified.
      * @return ResponseEntity containing CustomResponse with AuthDto if code verification is successful,
-     *         or a bad request response with error message if user is not found.
+     * or a bad request response with error message if user is not found.
      */
     public ResponseEntity<CustomResponse<AuthDto>> checkCode(CheckCodeRequest request) {
 
@@ -93,7 +93,7 @@ public class PhoneAuthService {
         userRepository.save(user);
         String token = jwtUtil.generateToken(user.getPhoneNumber());
 
-        AuthDto authDto = createAuthDto(user,token);
+        AuthDto authDto = createAuthDto(user, token);
 
         return checkCodeOk(authDto);
     }
@@ -104,7 +104,7 @@ public class PhoneAuthService {
      * @param error Error enum indicating the type of error.
      * @return Bad request response entity with error message.
      */
-    private ResponseEntity<CustomResponse<UserDto>> authBadRequest(Error error){
+    private ResponseEntity<CustomResponse<UserDto>> authBadRequest(Error error) {
         return ResponseEntity
                 .badRequest()
                 .body(CustomResponse.failed(Collections.singletonList(error.getMessage()),
@@ -117,7 +117,7 @@ public class PhoneAuthService {
      * @param user User object containing user information.
      * @return Ok response entity with user information.
      */
-    private ResponseEntity<CustomResponse<UserDto>> authOk(User user){
+    private ResponseEntity<CustomResponse<UserDto>> authOk(User user) {
         return ResponseEntity
                 .ok()
                 .body(CustomResponse.successfully(userService.convertToDto(user),
@@ -142,7 +142,7 @@ public class PhoneAuthService {
      * @param authDto AuthDto object containing authentication information.
      * @return Ok response entity with authentication information.
      */
-    private ResponseEntity<CustomResponse<AuthDto>> checkCodeOk(AuthDto authDto){
+    private ResponseEntity<CustomResponse<AuthDto>> checkCodeOk(AuthDto authDto) {
         return ResponseEntity
                 .ok()
                 .body(CustomResponse.successfully(authDto,
