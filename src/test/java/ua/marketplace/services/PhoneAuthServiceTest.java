@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 /**
  * Unit tests for {@link PhoneAuthService}.
  */
+@SuppressWarnings("PMD")
 @SpringBootTest
 class PhoneAuthServiceTest {
 
