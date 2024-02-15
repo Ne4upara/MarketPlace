@@ -1,5 +1,6 @@
 package ua.marketplace.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -31,11 +32,11 @@ public class PhoneAuthController {
     private final PhoneAuthService service;
 
     /**
-     * Endpoint for user registration via phone number.
+     * Endpoint for user registerUser via phone number.
      *
-     * @param request RegistrationRequest object containing user's registration data.
+     * @param request RegistrationRequest object containing user's registerUser data.
      * @param result  BindingResult for validating the request body.
-     * @return ResponseEntity containing CustomResponse with UserDto if registration is successful,
+     * @return ResponseEntity containing CustomResponse with UserDto if registerUser is successful,
      * or a bad request response with error messages if validation fails.
      */
     @PostMapping("/registration")
@@ -46,51 +47,58 @@ public class PhoneAuthController {
             List<String> errorList = result.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .toList();
+
             return ResponseEntity.badRequest().body(CustomResponse.failed(errorList, HttpStatus.BAD_REQUEST.value()));
         }
-        return service.registration(request);
+
+        return service.registerUser(request);
     }
 
     /**
-     * Endpoint for user login via phone number.
+     * Endpoint for user loginUser via phone number.
      *
-     * @param request LoginRequest object containing user's login data.
+     * @param request LoginRequest object containing user's loginUser data.
      * @param result  BindingResult for validating the request body.
-     * @return ResponseEntity containing CustomResponse with UserDto if login is successful,
+     * @param httpServletRequest HttpServletRequest to access the session.
+     * @return ResponseEntity containing CustomResponse with UserDto if loginUser is successful,
      * or a bad request response with error messages if validation fails.
      */
     @PostMapping("/login")
     public ResponseEntity<CustomResponse<UserDto>> login
-    (@RequestBody @Valid LoginRequest request, BindingResult result) {
+    (@RequestBody @Valid LoginRequest request, BindingResult result, HttpServletRequest httpServletRequest) {
 
         if (result.hasErrors()) {
-
             return ResponseEntity.badRequest().body(CustomResponse.failed(getErrorMessageList(result),
                     HttpStatus.BAD_REQUEST.value()));
         }
 
-        return service.login(request);
+        httpServletRequest.getSession().setAttribute("phoneNumber", request.getPhoneNumber());
+
+        return service.loginUser(request);
     }
 
     /**
-     * Endpoint for verifying login code sent to the user's phone number.
+     * Endpoint for verifying loginUser code sent to the user's phone number.
      *
      * @param request CheckCodeRequest object containing the code to be verified.
      * @param result  BindingResult for validating the request body.
+     * @param httpServletRequest HttpServletRequest to access the session.
      * @return ResponseEntity containing CustomResponse with AuthDto if code verification is successful,
      * or a bad request response with error messages if validation fails.
      */
     @PostMapping("/login/code")
     public ResponseEntity<CustomResponse<AuthDto>> checkCode
-    (@RequestBody @Valid CheckCodeRequest request, BindingResult result) {
+    (@RequestBody @Valid CheckCodeRequest request, BindingResult result, HttpServletRequest httpServletRequest) {
 
         if (result.hasErrors()) {
-
             return ResponseEntity.badRequest().body(CustomResponse.failed(getErrorMessageList(result),
                     HttpStatus.BAD_REQUEST.value()));
         }
 
-        return service.checkCode(request);
+        String phoneNumber = (String) httpServletRequest.getSession().getAttribute("phoneNumber");
+        request.setPhoneNumber(phoneNumber);
+
+        return service.checkVerificationCode(request);
     }
 
     /**

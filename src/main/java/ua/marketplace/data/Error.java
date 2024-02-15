@@ -9,7 +9,9 @@ import lombok.Getter;
 public enum Error {
 
     PHONE_ALREADY_EXIST("Phone already exist"),
-    USER_NOT_FOUND("User with this phone number not found");
+    USER_NOT_FOUND("User with this phone number not found"),
+    INVALID_CODE("Invalid code"),
+    CODE_TIME_IS_OUT("Code time is out");
 
     private final String message;
 

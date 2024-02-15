@@ -3,7 +3,7 @@ package ua.marketplace.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 /**
  * An entity class representing a user in the system.
@@ -14,6 +14,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @Builder
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
@@ -23,36 +24,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "first_name")
+    private String firstName;
 
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "code")
-    private String code;
+    @Column(name = "sms_code")
+    private String smsCode;
 
-    /**
-     * Overrides equals method to compare User objects based on their attributes.
-     *
-     * @param o Object to compare with.
-     * @return True if the objects are equal, false otherwise.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(code, user.code);
-    }
-
-    /**
-     * Generates hash code for User object based on its attributes.
-     *
-     * @return Hash code value.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, phoneNumber, code);
-    }
+    @Column(name = "sms_code_create_at")
+    private LocalDateTime smsCodeCreateAt;
 }

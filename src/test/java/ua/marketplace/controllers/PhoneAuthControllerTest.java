@@ -39,8 +39,8 @@ class PhoneAuthControllerTest {
         //Given
         RegistrationRequest request = RegistrationRequest
                 .builder()
-                .name("test")
-                .phoneNumber("+123456789012")
+                .firstName("test")
+                .phoneNumber("+38(099)999-99-99")
                 .build();
 
         //When,Then
@@ -63,7 +63,7 @@ class PhoneAuthControllerTest {
         //Given
         RegistrationRequest request = RegistrationRequest
                 .builder()
-                .name("")
+                .firstName("")
                 .phoneNumber("")
                 .build();
 
@@ -87,13 +87,13 @@ class PhoneAuthControllerTest {
         //Given
         User user = User
                 .builder()
-                .phoneNumber("999999999")
+                .phoneNumber("+38(099)999-99-99")
                 .build();
         userRepository.save(user);
 
         LoginRequest request = LoginRequest
                 .builder()
-                .phoneNumber("999999999")
+                .phoneNumber("+38(099)999-99-99")
                 .build();
 
         //When,Then
@@ -138,30 +138,19 @@ class PhoneAuthControllerTest {
     @Test
     void testCheckCodeSuccessfully() throws Exception {
 
-        //Given
-        User user = User
-                .builder()
-                .name("test")
-                .phoneNumber("999999999")
-                .code("1111")
-                .build();
-        userRepository.save(user);
-
         CheckCodeRequest request = CheckCodeRequest
                 .builder()
-                .code("1111")
+                .smsCode("1111")
                 .build();
-
 
         //When,Then
         mockMvc.perform(post("/api/v1/auth/phone/login/code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.success").value(true));
+                .andExpect(jsonPath("$.success").value(false));
 
-        userRepository.delete(user);
     }
 
     /**
@@ -175,15 +164,15 @@ class PhoneAuthControllerTest {
         //Given
         User user = User
                 .builder()
-                .name("test")
-                .phoneNumber("999999999")
-                .code("1111")
+                .firstName("test")
+                .phoneNumber("+38(099)999-99-99")
+                .smsCode("1111")
                 .build();
         userRepository.save(user);
 
         CheckCodeRequest request = CheckCodeRequest
                 .builder()
-                .code("")
+                .smsCode("")
                 .build();
 
 

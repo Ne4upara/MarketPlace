@@ -18,6 +18,7 @@ import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.responses.CustomResponse;
 import ua.marketplace.security.JwtUtil;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,7 +45,7 @@ class PhoneAuthServiceTest {
     private PhoneAuthService phoneAuthService;
 
     /**
-     * Test for successful user registration.
+     * Test for successful user registerUser.
      */
     @Test
     void testRegistrationSuccessfully() {
@@ -52,8 +53,8 @@ class PhoneAuthServiceTest {
         // Given
         RegistrationRequest request = RegistrationRequest
                 .builder()
-                .name("Test")
-                .phoneNumber("999999999")
+                .firstName("Test")
+                .phoneNumber("+38(099)999-99-99")
                 .build();
 
         when(userRepository.existsByPhoneNumber(request.getPhoneNumber())).thenReturn(false);
@@ -63,14 +64,14 @@ class PhoneAuthServiceTest {
                         HttpStatus.OK.value()));
 
         //When
-        ResponseEntity<CustomResponse<UserDto>> result = phoneAuthService.registration(request);
+        ResponseEntity<CustomResponse<UserDto>> result = phoneAuthService.registerUser(request);
 
         //Then
         Assertions.assertEquals(expect, result);
     }
 
     /**
-     * Test for registration with an existing phone number.
+     * Test for registerUser with an existing phone number.
      */
     @Test
     void testRegistrationWithExistPhone() {
@@ -83,14 +84,14 @@ class PhoneAuthServiceTest {
                         HttpStatus.BAD_REQUEST.value()));
 
         //When
-        ResponseEntity<CustomResponse<UserDto>> result = phoneAuthService.registration(new RegistrationRequest());
+        ResponseEntity<CustomResponse<UserDto>> result = phoneAuthService.registerUser(new RegistrationRequest());
 
         //Then
         Assertions.assertEquals(expect, result);
     }
 
     /**
-     * Test for successful user login.
+     * Test for successful user loginUser.
      */
     @Test
     void testLoginSuccessfully() {
@@ -98,13 +99,13 @@ class PhoneAuthServiceTest {
         //Given
         LoginRequest request = LoginRequest
                 .builder()
-                .phoneNumber("999999999")
+                .phoneNumber("+38(099)999-99-99")
                 .build();
 
         User user = User
                 .builder()
                 .phoneNumber(request.getPhoneNumber())
-                .name("Test")
+                .firstName("Test")
                 .build();
 
         when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.ofNullable(user));
@@ -114,14 +115,14 @@ class PhoneAuthServiceTest {
                         HttpStatus.OK.value()));
 
         //When
-        ResponseEntity<CustomResponse<UserDto>> result = phoneAuthService.login(request);
+        ResponseEntity<CustomResponse<UserDto>> result = phoneAuthService.loginUser(request);
 
         //Then
         Assertions.assertEquals(expect, result);
     }
 
     /**
-     * Test for login with a user not found.
+     * Test for loginUser with a user not found.
      */
     @Test
     void testLoginWithUserNotFound() {
@@ -134,7 +135,7 @@ class PhoneAuthServiceTest {
                         HttpStatus.BAD_REQUEST.value()));
 
         //When
-        ResponseEntity<CustomResponse<UserDto>> result = phoneAuthService.login(new LoginRequest());
+        ResponseEntity<CustomResponse<UserDto>> result = phoneAuthService.loginUser(new LoginRequest());
 
         //Then
         Assertions.assertEquals(expect, result);
@@ -149,14 +150,15 @@ class PhoneAuthServiceTest {
         //Given
         CheckCodeRequest request = CheckCodeRequest
                 .builder()
-                .code("1111")
+                .smsCode("1111")
                 .build();
 
         User user = User
                 .builder()
-                .phoneNumber("999999999")
-                .name("Test")
-                .code("1111")
+                .phoneNumber("+38(099)999-99-99")
+                .firstName("Test")
+                .smsCode("1111")
+                .smsCodeCreateAt(LocalDateTime.now())
                 .build();
 
         AuthDto authDto = AuthDto
@@ -165,14 +167,14 @@ class PhoneAuthServiceTest {
                 .user(userService.convertToDto(user))
                 .build();
 
-        when(userRepository.findByCode(request.getCode())).thenReturn(Optional.of(user));
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
         ResponseEntity<CustomResponse<AuthDto>> expect = ResponseEntity
                 .ok()
                 .body(CustomResponse.successfully(authDto,
                         HttpStatus.OK.value()));
 
         //When
-        ResponseEntity<CustomResponse<AuthDto>> result = phoneAuthService.checkCode(request);
+        ResponseEntity<CustomResponse<AuthDto>> result = phoneAuthService.checkVerificationCode(request);
 
         //Then
         Assertions.assertEquals(expect, result);
@@ -185,14 +187,80 @@ class PhoneAuthServiceTest {
     void testCheckCodeWithUserNotFound() {
 
         //Given
-        when(userRepository.findByCode(any())).thenReturn(Optional.empty());
+        when(userRepository.findBySmsCode(any())).thenReturn(Optional.empty());
         ResponseEntity<CustomResponse<Object>> expect = ResponseEntity
                 .badRequest()
                 .body(CustomResponse.failed(Collections.singletonList(Error.USER_NOT_FOUND.getMessage()),
                         HttpStatus.BAD_REQUEST.value()));
 
         //When
-        ResponseEntity<CustomResponse<AuthDto>> result = phoneAuthService.checkCode(new CheckCodeRequest());
+        ResponseEntity<CustomResponse<AuthDto>> result = phoneAuthService.checkVerificationCode(new CheckCodeRequest());
+
+        //Then
+        Assertions.assertEquals(expect, result);
+    }
+
+    /**
+     * Test for code verification with a timed-out code.
+     */
+    @Test
+    void testCheckCodeWithTimeOutCode() {
+
+        //Given
+        CheckCodeRequest request = CheckCodeRequest
+                .builder()
+                .smsCode("1111")
+                .build();
+
+        User user = User
+                .builder()
+                .phoneNumber("+38(099)999-99-99")
+                .firstName("Test")
+                .smsCode("1111")
+                .smsCodeCreateAt(LocalDateTime.now().minusMinutes(10))
+                .build();
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        ResponseEntity<CustomResponse<AuthDto>> expect = ResponseEntity
+                .badRequest()
+                .body(CustomResponse.failed(Collections.singletonList(Error.CODE_TIME_IS_OUT.getMessage()),
+                        HttpStatus.BAD_REQUEST.value()));
+
+        //When
+        ResponseEntity<CustomResponse<AuthDto>> result = phoneAuthService.checkVerificationCode(request);
+
+        //Then
+        Assertions.assertEquals(expect, result);
+    }
+
+    /**
+     * Test for code verification with an invalid code.
+     */
+    @Test
+    void testCheckCodeWithInvalidCode() {
+
+        //Given
+        CheckCodeRequest request = CheckCodeRequest
+                .builder()
+                .smsCode("2222")
+                .build();
+
+        User user = User
+                .builder()
+                .phoneNumber("+38(099)999-99-99")
+                .firstName("Test")
+                .smsCode("1111")
+                .smsCodeCreateAt(LocalDateTime.now())
+                .build();
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        ResponseEntity<CustomResponse<AuthDto>> expect = ResponseEntity
+                .badRequest()
+                .body(CustomResponse.failed(Collections.singletonList(Error.INVALID_CODE.getMessage()),
+                        HttpStatus.BAD_REQUEST.value()));
+
+        //When
+        ResponseEntity<CustomResponse<AuthDto>> result = phoneAuthService.checkVerificationCode(request);
 
         //Then
         Assertions.assertEquals(expect, result);

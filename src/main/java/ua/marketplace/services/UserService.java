@@ -19,7 +19,7 @@ public class UserService {
     public UserDto convertToDto(User user) {
         return UserDto
                 .builder()
-                .name(user.getName())
+                .firstName(user.getFirstName())
                 .phoneNumber(user.getPhoneNumber())
                 .build();
     }

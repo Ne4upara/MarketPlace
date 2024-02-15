@@ -13,6 +13,6 @@ import lombok.*;
 @Builder
 public class UserDto {
 
-    private String name;
+    private String firstName;
     private String phoneNumber;
 }

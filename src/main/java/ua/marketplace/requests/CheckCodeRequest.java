@@ -17,9 +17,11 @@ import lombok.*;
 @Builder
 public class CheckCodeRequest {
 
+    private String phoneNumber;
+
     @NotEmpty(message = "Code should not be empty")
     @NotNull(message = "Code should not be null")
     @Size(min = 4, max = 4, message = "Code should be 4 symbols")
     @Pattern(regexp = "^[0-9]+$", message = "Code should contain only digits")
-    private String code;
+    private String smsCode;
 }

@@ -26,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param code Verification code associated with the user's phone number.
      * @return Optional containing the user if found, otherwise empty.
      */
-    Optional<User> findByCode(String code);
+    Optional<User> findBySmsCode(String code);
 
     /**
      * Checks if a user exists with the given phone number.

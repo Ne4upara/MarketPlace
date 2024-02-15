@@ -19,7 +19,8 @@ public class LoginRequest {
 
     @NotEmpty(message = "Phone should not be empty")
     @NotNull(message = "Phone should not be null")
-    @Size(min = 9, max = 13, message = "Phone should be between 9 and 13 digits")
-    @Pattern(regexp = "^[0-9+]+$", message = "Phone should contain only digits")
+    @Size(min = 17, max = 17, message = "Phone should be 16 characters")
+    @Pattern(regexp = "^\\+38\\(0\\d{2}\\)\\d{3}-\\d{2}-\\d{2}$",
+            message = "Phone should be in the format +38(0**)***-**-**")
     private String phoneNumber;
 }
