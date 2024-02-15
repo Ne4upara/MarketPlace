@@ -20,7 +20,7 @@ public class RegistrationRequest {
 
     @NotEmpty(message = "Name should not be empty")
     @NotNull(message = "Name should not be null")
-    @Size(min = 2, max = 20, message = "Name should be between 2 and 20 characters")
+    @Size(min = 2, max = 15, message = "Name should be between 2 and 20 characters")
     @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄґҐ]+$", message = "Name should contain only letters (Latin or Cyrillic)")
     private String firstName;
 
