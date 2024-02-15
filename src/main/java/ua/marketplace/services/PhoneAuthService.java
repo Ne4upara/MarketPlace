@@ -1,6 +1,5 @@
 package ua.marketplace.services;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +38,6 @@ public class PhoneAuthService {
      * @return ResponseEntity containing CustomResponse with UserDto if registerUser is successful,
      * or a bad request response with error message if phone number already exists.
      */
-    @Transactional
     public ResponseEntity<CustomResponse<UserDto>> registerUser(RegistrationRequest request) {
 
         if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(request.getPhoneNumber()))) {
