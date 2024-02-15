@@ -87,13 +87,13 @@ class PhoneAuthControllerTest {
         //Given
         User user = User
                 .builder()
-                .phoneNumber("+38(099)999-99-99")
+                .phoneNumber("+38(099)999-99-91")
                 .build();
         userRepository.save(user);
 
         LoginRequest request = LoginRequest
                 .builder()
-                .phoneNumber("+38(099)999-99-99")
+                .phoneNumber("+38(099)999-99-91")
                 .build();
 
         //When,Then
