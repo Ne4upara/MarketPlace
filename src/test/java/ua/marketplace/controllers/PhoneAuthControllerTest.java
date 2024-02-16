@@ -87,6 +87,7 @@ class PhoneAuthControllerTest {
         //Given
         User user = User
                 .builder()
+                .firstName("test")
                 .phoneNumber("+38(099)999-99-91")
                 .build();
         userRepository.save(user);
