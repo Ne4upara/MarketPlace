@@ -20,15 +20,16 @@ import lombok.*;
 @AllArgsConstructor
 public class PhoneCodeRequest {
 
+
     @NotEmpty(message = "Phone should not be empty")
     @NotNull(message = "Phone should not be null")
-    @Size(min = 4, max = 4, message = "Phone should be between 6 digits")
+    @Size(min = 4, max = 4, message = "Phone should be between 4 digits")
     @Pattern(regexp = "^\\d+$", message = "Phone should contain only digits")
     private String inputCode;
 
     @NotEmpty(message = "Phone should not be empty")
     @NotNull(message = "Phone should not be null")
     @Size(min = 13, max = 13, message = "Phone should be between 13 digits")
-    @Pattern(regexp = "^\\+\\d+$", message = "Phone should contain only digits")
+    @Pattern(regexp = "^\\+380\\d+$", message = "Phone should contain only digits")
     private String phoneNumber;
 }

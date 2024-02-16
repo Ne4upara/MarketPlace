@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 /**
  * Unit testing for the JwtRequestFilter class.
  */
+@SuppressWarnings("PMD")
 @SpringBootTest
 class JwtRequestFilterTest {
 
