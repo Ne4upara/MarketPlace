@@ -6,18 +6,18 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-/**
- * DTO representing a registration request.
- * Validation constraints:
- * - The phone number should not be empty, not null, and contain only digits. It should be between + and 12 digits. * -
- * It should be between 8 and 64 characters.
- */
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhoneNumberRequest {
+public class RegistrationRequest {
+
+    @NotEmpty(message = "Name should not be empty")
+    @NotNull(message = "Name should not be null")
+    @Size(min = 2, max = 15, message = "Name should be between 2 and 15 characters")
+    @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄґҐ]+$", message = "Name should contain only letters (Latin or Cyrillic)")
+    private String firstName;
 
     @NotEmpty(message = "Phone should not be empty")
     @NotNull(message = "Phone should not be null")

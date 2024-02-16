@@ -5,6 +5,7 @@ import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
+import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.responses.CustomResponse;
 
 /**
@@ -27,4 +28,6 @@ public interface IPhoneNumberRegistrationService {
      * @return ResponseEntity with CustomResponse containing the JWT token or error message.
      */
     ResponseEntity<CustomResponse<CodeDto>> inputPhoneCode(PhoneCodeRequest request);
+
+    ResponseEntity<CustomResponse<PhoneNumberDto>> registrationUser(RegistrationRequest request);
 }

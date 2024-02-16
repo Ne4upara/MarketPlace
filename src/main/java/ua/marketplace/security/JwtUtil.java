@@ -23,7 +23,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    private static final String secretKey = System.getenv("JWT_SECRET");
+    private static final String SECRET_KEY = System.getenv("JWT_SECRET");
     private final UserDetailsService userDetailsService;
 
     /**
@@ -79,7 +79,7 @@ public class JwtUtil {
     }
 
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

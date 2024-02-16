@@ -8,16 +8,18 @@ import ua.marketplace.data.Error;
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
+import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.repositoryes.UserRepository;
+import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
+import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.responses.CustomResponse;
 import ua.marketplace.security.JwtUtil;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Service class responsible for handling phone number registration operations.
@@ -27,6 +29,7 @@ import java.util.UUID;
 public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationService {
 
     private final UserRepository userRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
     private final JwtUtil jwtUtil;
 
     /**
@@ -37,24 +40,14 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      */
     @Override
     public ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(PhoneNumberRequest request) {
-        if (Boolean.TRUE.equals(userRepository.existsByPhone(request.getPhoneNumber()))) {
-            CustomResponse<PhoneNumberDto> response = CustomResponse.failed(
-                    Collections.singletonList(Error.PHONE_ALREADY_EXIST.getMessage()),
-                    HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
+        Optional<User> byPhoneNumber = userRepository.findByPhoneNumber(request.getPhoneNumber());
+        if(byPhoneNumber.isEmpty()){
+            return ResponseEntity.badRequest().body(getErrorMessage(PhoneNumberDto.class, Error.USER_NOT_FOUND));
         }
 
-        User createdUser = User.builder()
-                .phone(request.getPhoneNumber())
-                .password(UUID.randomUUID().toString().substring(0, 10))
-                .code("999999")
-                .role("USER")
-                .isEnabled(true)
-                .createdTimeCode(LocalDateTime.now())
-                .build();
-        userRepository.save(createdUser);
-
-        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(createdUser.getPhone()).build();
+        User user = byPhoneNumber.get();
+        updateVerificationCode(user);
+        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(request.getPhoneNumber()).build();
         CustomResponse<PhoneNumberDto> response = CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
@@ -67,34 +60,98 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      */
     @Override
     public ResponseEntity<CustomResponse<CodeDto>> inputPhoneCode(PhoneCodeRequest request) {
-        Optional<User> byPhone = userRepository.findByPhone(request.getPhoneNumber());
+        Optional<User> byPhone = userRepository.findByPhoneNumber(request.getPhoneNumber());
         if (byPhone.isEmpty()) {
-            CustomResponse<CodeDto> response = CustomResponse.failed(
-                    Collections.singletonList(Error.USER_NOT_FOUND.getMessage()),
-                    HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.USER_NOT_FOUND));
         }
 
         User user = byPhone.get();
-        if (!user.getCode().equals(request.getInputCode())) {
-            CustomResponse<CodeDto> response = CustomResponse.failed(
-                    Collections.singletonList(Error.INVALID_CODE.getMessage()),
-                    HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
+        VerificationCode verificationCode = user.getVerificationCode();
+        if(Boolean.FALSE.equals(verificationCode.getIsEntryByCode())){
+            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.ACCESS_FALSE));
         }
 
-        LocalDateTime userTimeAccess = user.getCreatedTimeCode().plusMinutes(5);
+        if (!verificationCode.getCode().equals(request.getInputCode())){
+            if(verificationCode.getLoginAttempt() == 3){
+                return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.MAX_INPUT_CODE));
+            }
+
+            verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + 1);
+            verificationCodeRepository.save(verificationCode);
+            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.INVALID_CODE));
+        }
+
+        LocalDateTime userTimeAccess = verificationCode.getCreatedTimeCode().plusMinutes(5);
         if (userTimeAccess.isBefore(LocalDateTime.now())) {
-            CustomResponse<CodeDto> response = CustomResponse.failed(
-                    Collections.singletonList(Error.TIME_IS_UP.getMessage()),
-                    HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.TIME_IS_UP));
         }
 
         CodeDto codeDto = CodeDto.builder()
-                .token(jwtUtil.generateToken(user.getPhone()))
+                .token(jwtUtil.generateToken(user.getPhoneNumber()))
+                .firstName(user.getFirstName())
                 .build();
         CustomResponse<CodeDto> response = CustomResponse.successfully(codeDto, HttpStatus.OK.value());
+        verificationCode.setIsEntryByCode(false);
+        verificationCodeRepository.save(verificationCode);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public ResponseEntity<CustomResponse<PhoneNumberDto>> registrationUser(RegistrationRequest request) {
+        if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(request.getPhoneNumber()))) {
+            return ResponseEntity.badRequest().body(getErrorMessage(PhoneNumberDto.class, Error.PHONE_ALREADY_EXIST));
+        }
+
+        User user = User.builder()
+                .firstName(request.getFirstName())
+                .phoneNumber(request.getPhoneNumber())
+                .isEnabled(true)
+                .role("USER")
+                .build();
+        createdVerificationCode(user);
+        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(request.getPhoneNumber()).build();
+        CustomResponse<PhoneNumberDto> response = CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     *
+     * @param ignoredDtoClass - enter class
+     * @param error
+     * @param <T>
+     */
+
+    private <T> CustomResponse<T> getErrorMessage(Class<T> ignoredDtoClass, Error error) {
+        return CustomResponse.failed(
+                Collections.singletonList(error.getMessage()),
+                HttpStatus.BAD_REQUEST.value());
+    }
+
+    private void updateVerificationCode(User user){
+        VerificationCode verificationCode = user.getVerificationCode();
+        verificationCode.setCode("2222");//метод генерации кода
+        verificationCode.setCreatedTimeCode(LocalDateTime.now());
+        verificationCode.setLoginAttempt(0);
+        verificationCode.setIsEntryByCode(true);
+        user.setVerificationCode(verificationCode);
+        userRepository.save(user);
+    }
+
+    private void createdVerificationCode(User user){
+        VerificationCode verificationCode = VerificationCode.builder()
+                .code("1111") //Вставить метод генерации кода
+                .createdTimeCode(LocalDateTime.now())
+                .isEntryByCode(true)
+                .loginAttempt(0)
+                .user(user)
+                .build();
+        user.setVerificationCode(verificationCode);
+        userRepository.save(user);
+    }
+
 }

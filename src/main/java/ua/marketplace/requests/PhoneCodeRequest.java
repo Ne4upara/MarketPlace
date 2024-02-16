@@ -22,7 +22,7 @@ public class PhoneCodeRequest {
 
     @NotEmpty(message = "Phone should not be empty")
     @NotNull(message = "Phone should not be null")
-    @Size(min = 6, max = 6, message = "Phone should be between 6 digits")
+    @Size(min = 4, max = 4, message = "Phone should be between 6 digits")
     @Pattern(regexp = "^\\d+$", message = "Phone should contain only digits")
     private String inputCode;
 

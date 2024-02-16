@@ -3,7 +3,6 @@ package ua.marketplace.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -24,17 +23,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "phone")
-    private String phone;
+    @Column(name = "phone_number", unique = true)
+    private String phoneNumber;
 
-    @Column(name = "password")
-    private String password;
+    @Column(name = "firstName")
+    private String firstName;
 
-    @Column(name = "code")
-    private String code;
-
-    @Column(name = "created_code")
-    private LocalDateTime createdTimeCode;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private VerificationCode verificationCode;
 
     @Column(name = "role")
     private String role;
@@ -54,7 +50,7 @@ public class User {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         User user = (User) object;
-        return Objects.equals(id, user.id) && Objects.equals(phone, user.phone);
+        return Objects.equals(id, user.id) && Objects.equals(phoneNumber, user.phoneNumber);
     }
 
     /**
@@ -64,6 +60,6 @@ public class User {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone);
+        return Objects.hash(id, phoneNumber);
     }
 }
