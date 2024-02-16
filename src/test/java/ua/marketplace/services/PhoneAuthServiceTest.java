@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import ua.marketplace.data.Error;
 import ua.marketplace.dto.AuthDto;
 import ua.marketplace.dto.UserDto;
+import ua.marketplace.entities.SmsCode;
 import ua.marketplace.entities.User;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.CheckCodeRequest;
@@ -155,10 +156,15 @@ class PhoneAuthServiceTest {
 
         User user = User
                 .builder()
+                .firstName("test")
                 .phoneNumber("+38(099)999-99-99")
-                .firstName("Test")
-                .smsCode("1111")
-                .smsCodeCreateAt(LocalDateTime.now())
+                .smsCode(SmsCode
+                        .builder()
+                        .code("1111")
+                        .createAt(LocalDateTime.now())
+                        .isEnable(true)
+                        .verificationAttempts(3)
+                        .build())
                 .build();
 
         AuthDto authDto = AuthDto
@@ -187,7 +193,7 @@ class PhoneAuthServiceTest {
     void testCheckCodeWithUserNotFound() {
 
         //Given
-        when(userRepository.findBySmsCode(any())).thenReturn(Optional.empty());
+        when(userRepository.findByPhoneNumber(any())).thenReturn(Optional.empty());
         ResponseEntity<CustomResponse<Object>> expect = ResponseEntity
                 .badRequest()
                 .body(CustomResponse.failed(Collections.singletonList(Error.USER_NOT_FOUND.getMessage()),
@@ -214,11 +220,16 @@ class PhoneAuthServiceTest {
 
         User user = User
                 .builder()
+                .firstName("test")
                 .phoneNumber("+38(099)999-99-99")
-                .firstName("Test")
-                .smsCode("1111")
-                .smsCodeCreateAt(LocalDateTime.now().minusMinutes(10))
+                .smsCode(SmsCode
+                        .builder()
+                        .code("1111")
+                        .isEnable(true)
+                        .createAt(LocalDateTime.now().minusMinutes(10))
+                        .build())
                 .build();
+
 
         when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
         ResponseEntity<CustomResponse<AuthDto>> expect = ResponseEntity
@@ -247,16 +258,96 @@ class PhoneAuthServiceTest {
 
         User user = User
                 .builder()
+                .firstName("test")
                 .phoneNumber("+38(099)999-99-99")
-                .firstName("Test")
-                .smsCode("1111")
-                .smsCodeCreateAt(LocalDateTime.now())
+                .smsCode(SmsCode
+                        .builder()
+                        .code("1111")
+                        .isEnable(true)
+                        .verificationAttempts(3)
+                        .createAt(LocalDateTime.now())
+                        .build())
                 .build();
 
         when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
         ResponseEntity<CustomResponse<AuthDto>> expect = ResponseEntity
                 .badRequest()
                 .body(CustomResponse.failed(Collections.singletonList(Error.INVALID_CODE.getMessage()),
+                        HttpStatus.BAD_REQUEST.value()));
+
+        //When
+        ResponseEntity<CustomResponse<AuthDto>> result = phoneAuthService.checkVerificationCode(request);
+
+        //Then
+        Assertions.assertEquals(expect, result);
+    }
+
+    /**
+     * Test for code verification with a used code.
+     */
+    @Test
+    void testCheckCodeWithUsedCode() {
+
+        //Given
+        CheckCodeRequest request = CheckCodeRequest
+                .builder()
+                .smsCode("1111")
+                .build();
+
+        User user = User
+                .builder()
+                .firstName("test")
+                .phoneNumber("+38(099)999-99-99")
+                .smsCode(SmsCode
+                        .builder()
+                        .code("1111")
+                        .isEnable(false)
+                        .createAt(LocalDateTime.now())
+                        .build())
+                .build();
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        ResponseEntity<CustomResponse<AuthDto>> expect = ResponseEntity
+                .badRequest()
+                .body(CustomResponse.failed(Collections.singletonList(Error.CODE_NOT_ENABLE.getMessage()),
+                        HttpStatus.BAD_REQUEST.value()));
+
+        //When
+        ResponseEntity<CustomResponse<AuthDto>> result = phoneAuthService.checkVerificationCode(request);
+
+        //Then
+        Assertions.assertEquals(expect, result);
+    }
+
+    /**
+     * A test to verify the code when all attempts are over.
+     */
+    @Test
+    void testCheckCodeWithOutAttempts() {
+
+        //Given
+        CheckCodeRequest request = CheckCodeRequest
+                .builder()
+                .smsCode("1111")
+                .build();
+
+        User user = User
+                .builder()
+                .firstName("test")
+                .phoneNumber("+38(099)999-99-99")
+                .smsCode(SmsCode
+                        .builder()
+                        .code("1111")
+                        .isEnable(true)
+                        .verificationAttempts(0)
+                        .createAt(LocalDateTime.now())
+                        .build())
+                .build();
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        ResponseEntity<CustomResponse<AuthDto>> expect = ResponseEntity
+                .badRequest()
+                .body(CustomResponse.failed(Collections.singletonList(Error.TRY_IS_OUT.getMessage()),
                         HttpStatus.BAD_REQUEST.value()));
 
         //When

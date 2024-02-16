@@ -3,8 +3,6 @@ package ua.marketplace.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 /**
  * An entity class representing a user in the system.
  */
@@ -30,9 +28,7 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "sms_code")
-    private String smsCode;
-
-    @Column(name = "sms_code_create_at")
-    private LocalDateTime smsCodeCreateAt;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "sms_code_id", referencedColumnName = "id")
+    private SmsCode smsCode;
 }

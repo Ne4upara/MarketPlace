@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import ua.marketplace.data.Error;
 import ua.marketplace.dto.AuthDto;
 import ua.marketplace.dto.UserDto;
+import ua.marketplace.entities.SmsCode;
 import ua.marketplace.entities.User;
+import ua.marketplace.repositoryes.SmsCodeRepository;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.CheckCodeRequest;
 import ua.marketplace.requests.LoginRequest;
@@ -27,6 +29,7 @@ import java.util.Optional;
 public class PhoneAuthService {
 
     private final UserRepository userRepository;
+    private final SmsCodeRepository smsCodeRepository;
     private final UserService userService;
     private final CodeService codeService;
     private final JwtUtil jwtUtil;
@@ -66,9 +69,7 @@ public class PhoneAuthService {
         }
 
         User user = byPhoneNumber.get();
-        user.setSmsCode(codeService.sendCode(request.getPhoneNumber()));
-        user.setSmsCodeCreateAt(LocalDateTime.now());
-        userRepository.save(user);
+        updateUserSmsCode(user, codeService.sendCode(request.getPhoneNumber()));
 
         return authOk(user);
     }
@@ -90,16 +91,28 @@ public class PhoneAuthService {
 
         User user = byPhoneNumber.get();
 
+        if (!user.getSmsCode().isEnable()) {
+            return checkCodeBadRequest(Error.CODE_NOT_ENABLE);
+        }
+
         if (isCodeTimeOut(user)) {
             return checkCodeBadRequest(Error.CODE_TIME_IS_OUT);
         }
 
-        if (!request.getSmsCode().equals(user.getSmsCode())) {
+        int attempts = user.getSmsCode().getVerificationAttempts();
+
+        if (attempts <= 0) {
+            return checkCodeBadRequest(Error.TRY_IS_OUT);
+        }
+
+        if (!request.getSmsCode().equals(user.getSmsCode().getCode())) {
+            user.getSmsCode().setVerificationAttempts(attempts - 1);
+            userRepository.save(user);
             return checkCodeBadRequest(Error.INVALID_CODE);
         }
 
         AuthDto authDto = createAuthDto(user);
-        updateUserSmsCodeInfo(user);
+        disableSmsCode(user);
 
         return checkCodeOk(authDto);
     }
@@ -186,12 +199,12 @@ public class PhoneAuthService {
     }
 
     /**
-     * Updates the SMS code information for the user.
+     * Disable the SMS code for the user
      *
-     * @param user User object whose SMS code information needs to be updated.
+     * @param user User object whose SMS code information needs to be disabled.
      */
-    private void updateUserSmsCodeInfo(User user) {
-        user.setSmsCode(null);
+    private void disableSmsCode(User user) {
+        user.getSmsCode().setEnable(false);
         userRepository.save(user);
     }
 
@@ -202,7 +215,38 @@ public class PhoneAuthService {
      * @return True if the code has timed out, otherwise false.
      */
     private boolean isCodeTimeOut(User user) {
-        LocalDateTime expirationTime = user.getSmsCodeCreateAt().plusMinutes(1); //
+        LocalDateTime expirationTime = user.getSmsCode().getCreateAt().plusMinutes(1);
         return LocalDateTime.now().isAfter(expirationTime);
+    }
+
+    /**
+     * Update SMS code information for user.
+     *
+     * @param user User object for whom updated SMS code information.
+     * @param code SMS code for updating information.
+     */
+    private void updateUserSmsCode(User user, String code) {
+
+        if (user.getSmsCode() == null) {
+            SmsCode smsCode = SmsCode
+                    .builder()
+                    .code(code)
+                    .createAt(LocalDateTime.now())
+                    .isEnable(true)
+                    .verificationAttempts(3)
+                    .build();
+
+            user.setSmsCode(smsCode);
+            userRepository.save(user);
+
+        } else {
+            SmsCode smsCode = user.getSmsCode();
+            smsCode.setCode(code);
+            smsCode.setCreateAt(LocalDateTime.now());
+            smsCode.setEnable(true);
+            smsCode.setVerificationAttempts(3);
+
+            smsCodeRepository.save(smsCode);
+        }
     }
 }

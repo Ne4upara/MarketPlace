@@ -7,11 +7,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ua.marketplace.entities.SmsCode;
 import ua.marketplace.entities.User;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.CheckCodeRequest;
 import ua.marketplace.requests.LoginRequest;
 import ua.marketplace.requests.RegistrationRequest;
+
+import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -167,7 +170,11 @@ class PhoneAuthControllerTest {
                 .builder()
                 .firstName("test")
                 .phoneNumber("+38(099)999-99-99")
-                .smsCode("1111")
+                .smsCode(SmsCode
+                        .builder()
+                        .code("1111")
+                        .createAt(LocalDateTime.now())
+                        .build())
                 .build();
         userRepository.save(user);
 
