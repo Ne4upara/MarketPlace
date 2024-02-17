@@ -65,12 +65,13 @@ public class PhoneAuthController {
     }
 
     /**
-     * @param request
-     * @param result
-     * @return
+     * Endpoint for handling user registration.
+     *
+     * @param request The registration request containing user details.
+     * @param result The binding result for validation errors.
+     * @return ResponseEntity containing the response for the registration request.
      */
-
-    @PostMapping("/reg")
+    @PostMapping("/registration")
     public ResponseEntity<CustomResponse<PhoneNumberDto>> registration
     (@Valid @RequestBody RegistrationRequest request, BindingResult result) {
         if (result.hasErrors()) {
