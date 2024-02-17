@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 /**
- * The class of service responsible for processing phone number registration and login transactions.
+ * Service class responsible for handling phone number registration operations.
  */
 @Service
 @RequiredArgsConstructor
@@ -33,11 +33,10 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
     private final JwtUtil jwtUtil;
 
     /**
-     * Processes a request to enter a phone number to log in to the system.
+     * Handles the registration of a new phone number.
      *
-     * @param request PhoneNumberRequest containing the phone number to be log in to the system.
-     * @return ResponseEntity containing CustomResponse with UserDto if registerUser is successful,
-     *      * or a bad request response with error message user not found, access stop for 1 minute.
+     * @param request PhoneNumberRequest containing the phone number to be registered.
+     * @return ResponseEntity with CustomResponse containing the registered phone number or error message.
      */
     @Override
     public ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(PhoneNumberRequest request) {
@@ -47,25 +46,17 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
         }
 
         User user = byPhoneNumber.get();
-        if(isTimeUp(user.getVerificationCode(), 1, false)){
-            return ResponseEntity.badRequest()
-                    .body(getErrorMessage(PhoneNumberDto.class, Error.ACCESS_STOP_FOR_1_MINUTE));
-        }
-
-        user.setVerificationCode(updateVerificationCode(user));
-        userRepository.save(user);
+        updateVerificationCode(user);
         PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(request.getPhoneNumber()).build();
         CustomResponse<PhoneNumberDto> response = CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Checks the verification code for a user's loginUser.
+     * Handles the input of a phone code during registration.
      *
-     * @param request PhoneCodeRequest object containing the code to be verified and phone number.
-     * @return ResponseEntity containing CustomResponse with CodeDto if code verification is successful,
-     * or a bad request response with error message if user is not found, access false, max input code, invalid code
-     * time is up.
+     * @param request PhoneCodeRequest containing the phone number and input code.
+     * @return ResponseEntity with CustomResponse containing the JWT token or error message.
      */
     @Override
     public ResponseEntity<CustomResponse<CodeDto>> inputPhoneCode(PhoneCodeRequest request) {
@@ -90,7 +81,8 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
             return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.INVALID_CODE));
         }
 
-        if (isTimeUp(verificationCode, 5, true)) {
+        LocalDateTime userTimeAccess = verificationCode.getCreatedTimeCode().plusMinutes(5);
+        if (userTimeAccess.isBefore(LocalDateTime.now())) {
             return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.TIME_IS_UP));
         }
 
@@ -105,11 +97,9 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
     }
 
     /**
-     * Registers a new user with the provided registerUser request.
      *
-     * @param request RegistrationRequest object containing user's registerUser data.
-     * @return ResponseEntity containing CustomResponse with PhoneNumberDto if registerUser is successful,
-     * or a bad request response with error message if phone number already exists.
+     * @param request
+     * @return
      */
     @Override
     public ResponseEntity<CustomResponse<PhoneNumberDto>> registrationUser(RegistrationRequest request) {
@@ -123,52 +113,45 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
                 .isEnabled(true)
                 .role("USER")
                 .build();
-        user.setVerificationCode(createdVerificationCode(user));
-        userRepository.save(user);
+        createdVerificationCode(user);
         PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(request.getPhoneNumber()).build();
         CustomResponse<PhoneNumberDto> response = CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Generates a custom error response based on the provided error message and HTTP status code.
      *
-     * @param ignoredDtoClass The ignored class type (not used in the method logic).
-     * @param error The error enumeration representing the error message.
-     * @param <T> The type of the DTO in the custom response.
-     * @return A custom response containing the error message and HTTP status code.
+     * @param ignoredDtoClass - enter class
+     * @param error
+     * @param <T>
      */
-    private <T> CustomResponse<T> getErrorMessage(Class<?> ignoredDtoClass, Error error) {
+
+    private <T> CustomResponse<T> getErrorMessage(Class<T> ignoredDtoClass, Error error) {
         return CustomResponse.failed(
                 Collections.singletonList(error.getMessage()),
                 HttpStatus.BAD_REQUEST.value());
     }
 
-    private VerificationCode updateVerificationCode(User user){
+    private void updateVerificationCode(User user){
         VerificationCode verificationCode = user.getVerificationCode();
-        verificationCode.setCode("2222");  //Вставить метод генерации кода
+        verificationCode.setCode("2222");//метод генерации кода
         verificationCode.setCreatedTimeCode(LocalDateTime.now());
         verificationCode.setLoginAttempt(0);
         verificationCode.setIsEntryByCode(true);
-        return verificationCode;
+        user.setVerificationCode(verificationCode);
+        userRepository.save(user);
     }
 
-    private VerificationCode createdVerificationCode(User user){
-        return VerificationCode.builder()
-                .code("1111")   //Вставить метод генерации кода
+    private void createdVerificationCode(User user){
+        VerificationCode verificationCode = VerificationCode.builder()
+                .code("1111") //Вставить метод генерации кода
                 .createdTimeCode(LocalDateTime.now())
                 .isEntryByCode(true)
                 .loginAttempt(0)
                 .user(user)
                 .build();
+        user.setVerificationCode(verificationCode);
+        userRepository.save(user);
     }
 
-    private boolean isTimeUp(VerificationCode verificationCode, int minutes, boolean isBefore){
-        LocalDateTime userTimeAccess = verificationCode.getCreatedTimeCode().plusMinutes(minutes);
-        if (isBefore) {
-            return userTimeAccess.isBefore(LocalDateTime.now());
-        } else {
-            return userTimeAccess.isAfter(LocalDateTime.now());
-        }
-    }
 }

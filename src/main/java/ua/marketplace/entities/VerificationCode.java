@@ -5,11 +5,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * An entity class representing a verification code in the user.
- */
 @Entity
-@Table(name = "verification_code")
+@Table(name = "registration_code")
 @Getter
 @Setter
 @ToString
@@ -38,4 +35,6 @@ public class VerificationCode {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "phone_number", referencedColumnName = "phone_number")
     private User user;
+
+
 }

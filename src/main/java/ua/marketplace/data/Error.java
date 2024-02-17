@@ -14,8 +14,7 @@ public enum Error {
     INVALID_CODE("The code was entered incorrectly"),
     TIME_IS_UP("Time is up"),
     MAX_INPUT_CODE("You've used up all your attempts"),
-    ACCESS_FALSE("There was already a code entry."),
-    ACCESS_STOP_FOR_1_MINUTE("Time to send a repeat code 1 minute");
+    ACCESS_FALSE("НЕзя войти");
 
     private final String message;
 
