@@ -31,9 +31,9 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private VerificationCode verificationCode;
 
-    @Column(name = "role")
+    @Column(name = "role", insertable = false)
     private String role;
 
-    @Column(name = "is_enabled")
+    @Column(name = "is_enabled", insertable = false)
     private Boolean isEnabled;
 }

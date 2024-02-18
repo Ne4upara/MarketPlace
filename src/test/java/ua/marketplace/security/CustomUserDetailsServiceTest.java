@@ -31,28 +31,28 @@ class CustomUserDetailsServiceTest {
     /**
      * Testing the loadUserByUsername method with a successful scenario.
      */
-//    @Test
-//    void testLoadUserByUsernameSuccessfully() {
-//
-//        //Given
-//        User user = User.builder()
-//                .phoneNumber("1111111111")
-//                .verificationCode("1234")
-//                .build();
-//
-//        when(repository.findByPhone(any())).thenReturn(Optional.of(user));
-//
-//        UserDetails expect = org.springframework.security.core.userdetails.User.builder()
-//                .username(user.getPhoneNumber())
-//                .password(user.getPassword())
-//                .build();
-//
-//        //When
-//        UserDetails result = service.loadUserByUsername(user.getPhoneNumber());
-//
-//        //Then
-//        Assertions.assertEquals(expect, result);
-//    }
+    @Test
+    void testLoadUserByUsernameSuccessfully() {
+
+        //Given
+        User user = User.builder()
+                .phoneNumber("1111111111")
+                .firstName("Test")
+                .build();
+
+        when(repository.findByPhoneNumber(any())).thenReturn(Optional.of(user));
+
+        UserDetails expect = org.springframework.security.core.userdetails.User.builder()
+                .username(user.getPhoneNumber())
+                .password(user.getFirstName())
+                .build();
+
+        //When
+        UserDetails result = service.loadUserByUsername(user.getPhoneNumber());
+
+        //Then
+        Assertions.assertEquals(expect, result);
+    }
 
     /**
      * Testing the loadUserByUsername method when the user is not found.

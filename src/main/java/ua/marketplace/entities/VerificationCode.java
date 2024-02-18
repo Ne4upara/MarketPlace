@@ -26,13 +26,13 @@ public class VerificationCode {
     @Column(name = "code")
     private String code;
 
-    @Column(name = "created_code")
+    @Column(name = "created_code", insertable = false)
     private LocalDateTime createdTimeCode;
 
-    @Column(name = "entry_by_code")
+    @Column(name = "entry_by_code", insertable = false)
     private Boolean isEntryByCode;
 
-    @Column(name = "login_attempt", columnDefinition = "0")
+    @Column(name = "login_attempt", columnDefinition = "0", insertable = false)
     private int loginAttempt;
 
     @OneToOne(fetch = FetchType.LAZY)

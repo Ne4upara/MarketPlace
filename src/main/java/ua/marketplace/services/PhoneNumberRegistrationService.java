@@ -80,7 +80,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
         }
         int maxLoginAttempt = 3;
         if (!verificationCode.getCode().equals(request.getInputCode())){
-            if(verificationCode.getLoginAttempt() == maxLoginAttempt){
+            if(verificationCode.getLoginAttempt() >= maxLoginAttempt){
                 return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.MAX_INPUT_CODE));
             }
             int countAttempt = 1;
@@ -145,8 +145,6 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
     private VerificationCode createdVerificationCode(User user){
         return VerificationCode.builder()
                 .code("1111")   //Вставить метод генерации кода
-                .createdTimeCode(LocalDateTime.now())
-                .isEntryByCode(true)
                 .user(user)
                 .build();
     }
@@ -164,8 +162,6 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
         return User.builder()
                 .firstName(firstName)
                 .phoneNumber(phoneNumber)
-                .isEnabled(true)
-                .role("USER")
                 .build();
     }
 }

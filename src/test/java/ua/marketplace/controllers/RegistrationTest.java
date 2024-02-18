@@ -18,9 +18,11 @@ import org.springframework.validation.MapBindingResult;
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
+import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
+import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.responses.CustomResponse;
 import ua.marketplace.services.PhoneNumberRegistrationService;
 
@@ -53,42 +55,38 @@ class RegistrationTest {
      *
      * @throws Exception if an error occurs during the test
      */
-//    @Test
-//    void testRegisterSuccessfully() throws Exception {
-//
-//        //Given
-//        PhoneNumberRequest request = PhoneNumberRequest.builder()
-//                .phoneNumber("+380123456789")
-//                .build();
-//
-//        User user = User
-//                .builder()
-//                .phoneNumber(request.getPhoneNumber())
-//                .build();
-//
-//        BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
-//
-//        ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity
-//                .ok()
-//                .body(CustomResponse.successfully(new PhoneNumberDto(),
-//                        HttpStatus.OK.value()));
-//
-//        when(regService.inputPhoneNumber(request)).thenReturn(expect);
-//        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
-//
-//        //When
-//        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regController
-//                .inputPhoneNumber(request, bindingResult);
-//
-//        //Then
-//        Assertions.assertEquals(expect, result);
-//        mockMvc.perform(post("/api/v1/auth/login")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(request)))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(jsonPath("$.success").value(true));
-//    }
+    @Test
+    void testRegisterSuccessfully() throws Exception {
+
+        //Given
+        RegistrationRequest request = RegistrationRequest.builder()
+                .phoneNumber("+380123456785")
+                .firstName("Test")
+                .build();
+
+        BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
+
+        ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity
+                .ok()
+                .body(CustomResponse.successfully(new PhoneNumberDto(),
+                        HttpStatus.OK.value()));
+
+        when(regService.registrationUser(request)).thenReturn(expect);
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(new User()));
+
+        //When
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regController
+                .registration(request, bindingResult);
+
+        //Then
+        Assertions.assertEquals(expect, result);
+        mockMvc.perform(post("/api/v1/auth/registration")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true));
+    }
 
     /**
      * Test for registration with invalid request data.
@@ -97,6 +95,181 @@ class RegistrationTest {
      */
     @Test
     void testRegistrationWithInvalidRequest() throws Exception {
+
+        //Given
+        RegistrationRequest request = RegistrationRequest
+                .builder()
+                .phoneNumber("")
+                .firstName("Test1")
+                .build();
+
+        BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
+
+        List<String> errorList = bindingResult.getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+
+        ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity
+                .badRequest()
+                .body(CustomResponse.failed(errorList,
+                        HttpStatus.BAD_REQUEST.value()));
+
+        when(regService.registrationUser(request)).thenReturn(expect);
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(new User()));
+
+        //When
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regController.registration(request, bindingResult);
+
+        //Then
+        Assertions.assertEquals(expect, result);
+        mockMvc.perform(post("/api/v1/auth/registration")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    /**
+     * Test for user login.
+     *
+     * @throws Exception if an error occurs during the test
+     */
+    @Test
+    void testLoginCodeSuccessfully() throws Exception {
+
+        //Given
+        PhoneCodeRequest request = PhoneCodeRequest
+                .builder()
+                .phoneNumber("+380123456786")
+                .inputCode("9999")
+                .build();
+
+        User user = User
+                .builder()
+                .firstName("Test")
+                .phoneNumber(request.getPhoneNumber())
+                .verificationCode(VerificationCode.builder().code(request.getInputCode()).build())
+                .build();
+
+        BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
+        ResponseEntity<CustomResponse<CodeDto>> expect = ResponseEntity
+                .ok()
+                .body(CustomResponse.successfully(new CodeDto(),
+                        HttpStatus.OK.value()));
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(regService.inputPhoneCode(request)).thenReturn(expect);
+
+        //When
+        ResponseEntity<CustomResponse<CodeDto>> result = regController.inputCode(request, bindingResult);
+
+        //Then
+        Assertions.assertEquals(expect, result);
+        mockMvc.perform(post("/api/v1/auth/login/code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    /**
+     * Test for successful user registration.
+     *
+     * @throws Exception if an error occurs during the test
+     */
+    @Test
+    void testLoginCodeFailed() throws Exception {
+
+        //Given
+        PhoneCodeRequest request = PhoneCodeRequest
+                .builder()
+                .phoneNumber("+380123456789")
+                .inputCode("12345")
+                .build();
+
+        User user = User
+                .builder()
+                .phoneNumber(request.getPhoneNumber())
+                .verificationCode(VerificationCode.builder().code(request.getInputCode()).build())
+                .build();
+
+        BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
+
+        List<String> errorList = bindingResult.getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+
+        ResponseEntity<CustomResponse<CodeDto>> expect = ResponseEntity
+                .badRequest()
+                .body(CustomResponse.failed(errorList,
+                        HttpStatus.BAD_REQUEST.value()));
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(regService.inputPhoneCode(request)).thenReturn(expect);
+
+        //When
+        ResponseEntity<CustomResponse<CodeDto>> result = regController.inputCode(request, bindingResult);
+
+        //Then
+        Assertions.assertEquals(expect, result);
+        mockMvc.perform(post("/api/v1/auth/login/code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    /**
+     * Test for successful user registration.
+     *
+     * @throws Exception if an error occurs during the test
+     */
+    @Test
+    void testLoginSuccessfully() throws Exception {
+
+        //Given
+        PhoneNumberRequest request = PhoneNumberRequest
+                .builder()
+                .phoneNumber("+380123456787")
+                .build();
+
+        User user = User
+                .builder()
+                .phoneNumber(request.getPhoneNumber())
+                .build();
+
+        BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
+        ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity
+                .ok()
+                .body(CustomResponse.successfully(new PhoneNumberDto(),
+                        HttpStatus.OK.value()));
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(regService.inputPhoneNumber(request)).thenReturn(expect);
+
+        //When
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regController.inputPhoneNumber(request, bindingResult);
+
+        //Then
+        Assertions.assertEquals(expect, result);
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    /**
+     * Test for successful user registration.
+     *
+     * @throws Exception if an error occurs during the test
+     */
+    @Test
+    void testLoginFailed() throws Exception {
 
         //Given
         PhoneNumberRequest request = PhoneNumberRequest
@@ -120,52 +293,15 @@ class RegistrationTest {
                 .body(CustomResponse.failed(errorList,
                         HttpStatus.BAD_REQUEST.value()));
 
-        when(regService.inputPhoneNumber(request)).thenReturn(expect);
         when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(regService.inputPhoneNumber(request)).thenReturn(expect);
 
         //When
         ResponseEntity<CustomResponse<PhoneNumberDto>> result = regController.inputPhoneNumber(request, bindingResult);
 
         //Then
         Assertions.assertEquals(expect, result);
-        mockMvc.perform(post("/api/v1/auth/reg")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.success").value(false));
-    }
-
-    /**
-     * Test for user login.
-     *
-     * @throws Exception if an error occurs during the test
-     */
-    @Test
-    void testLogin() throws Exception {
-
-        //Given
-        PhoneCodeRequest request = PhoneCodeRequest
-                .builder()
-                .phoneNumber("111111111")
-                .inputCode("9999")
-                .build();
-
-        BindingResult bindingResult = new MapBindingResult(Collections.emptyMap(), "");
-        ResponseEntity<CustomResponse<CodeDto>> expect = ResponseEntity
-                .ok()
-                .body(CustomResponse.successfully(new CodeDto(),
-                        HttpStatus.OK.value()));
-
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(new User()));
-        when(regService.inputPhoneCode(request)).thenReturn(expect);
-
-        //When
-        ResponseEntity<CustomResponse<CodeDto>> result = regController.inputCode(request, bindingResult);
-
-        //Then
-        Assertions.assertEquals(expect, result);
-        mockMvc.perform(post("/api/v1/auth/login/code")
+        mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())

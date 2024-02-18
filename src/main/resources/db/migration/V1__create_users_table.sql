@@ -2,7 +2,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     phone_number VARCHAR(13) UNIQUE NOT NULL,
     first_name VARCHAR(15) NOT NULL,
-    role VARCHAR(20) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
     is_enabled BOOLEAN DEFAULT TRUE
 );
 
