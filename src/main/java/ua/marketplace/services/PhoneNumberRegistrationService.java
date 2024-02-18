@@ -78,13 +78,13 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
         if(Boolean.FALSE.equals(verificationCode.getIsEntryByCode())){
             return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.ACCESS_FALSE));
         }
-
+        int maxLoginAttempt = 3;
         if (!verificationCode.getCode().equals(request.getInputCode())){
-            if(verificationCode.getLoginAttempt() == 3){
+            if(verificationCode.getLoginAttempt() == maxLoginAttempt){
                 return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.MAX_INPUT_CODE));
             }
-
-            verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + 1);
+            int countAttempt = 1;
+            verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + countAttempt);
             verificationCodeRepository.save(verificationCode);
             return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.INVALID_CODE));
         }
