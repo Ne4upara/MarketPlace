@@ -43,20 +43,19 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
     public ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(PhoneNumberRequest request) {
         Optional<User> byPhoneNumber = userRepository.findByPhoneNumber(request.getPhoneNumber());
         if(byPhoneNumber.isEmpty()){
-            return ResponseEntity.badRequest().body(getErrorMessage(PhoneNumberDto.class, Error.USER_NOT_FOUND));
+            return ResponseEntity.badRequest().body(getErrorMessage(PhoneCodeRequest.class, Error.USER_NOT_FOUND));
         }
 
         User user = byPhoneNumber.get();
-        if(isTimeUp(user.getVerificationCode(), 1, false)){
-            return ResponseEntity.badRequest()
-                    .body(getErrorMessage(PhoneNumberDto.class, Error.ACCESS_STOP_FOR_1_MINUTE));
+        int timeAfterAccess = 1;
+        if(isTimeUp(user.getVerificationCode(), timeAfterAccess, false)){
+            return ResponseEntity.badRequest().body(getErrorMessage(
+                    PhoneNumberDto.class, Error.ACCESS_STOP_FOR_1_MINUTE));
         }
 
-        user.setVerificationCode(updateVerificationCode(user));
-        userRepository.save(user);
-        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(request.getPhoneNumber()).build();
-        CustomResponse<PhoneNumberDto> response = CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value());
-        return ResponseEntity.ok(response);
+        userRepository.save(updateVerificationCode(user));
+        return ResponseEntity.ok(CustomResponse.successfully(new PhoneNumberDto(request.getPhoneNumber()),
+                                HttpStatus.OK.value()));
     }
 
     /**
@@ -90,18 +89,15 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
             return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.INVALID_CODE));
         }
 
-        if (isTimeUp(verificationCode, 5, true)) {
+        int timeBeforeAccess = 5;
+        if (isTimeUp(verificationCode, timeBeforeAccess, true)) {
             return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.TIME_IS_UP));
         }
 
-        CodeDto codeDto = CodeDto.builder()
-                .token(jwtUtil.generateToken(user.getPhoneNumber()))
-                .firstName(user.getFirstName())
-                .build();
-        CustomResponse<CodeDto> response = CustomResponse.successfully(codeDto, HttpStatus.OK.value());
         verificationCode.setIsEntryByCode(false);
         verificationCodeRepository.save(verificationCode);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(CustomResponse.successfully(
+                new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()), user.getFirstName()), HttpStatus.OK.value()));
     }
 
     /**
@@ -117,17 +113,11 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
             return ResponseEntity.badRequest().body(getErrorMessage(PhoneNumberDto.class, Error.PHONE_ALREADY_EXIST));
         }
 
-        User user = User.builder()
-                .firstName(request.getFirstName())
-                .phoneNumber(request.getPhoneNumber())
-                .isEnabled(true)
-                .role("USER")
-                .build();
+        User user = createdUser(request.getFirstName(), request.getPhoneNumber());
         user.setVerificationCode(createdVerificationCode(user));
         userRepository.save(user);
-        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(request.getPhoneNumber()).build();
-        CustomResponse<PhoneNumberDto> response = CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(CustomResponse.successfully(
+                new PhoneNumberDto(request.getPhoneNumber()), HttpStatus.OK.value()));
     }
 
     /**
@@ -144,13 +134,12 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
                 HttpStatus.BAD_REQUEST.value());
     }
 
-    private VerificationCode updateVerificationCode(User user){
-        VerificationCode verificationCode = user.getVerificationCode();
-        verificationCode.setCode("2222");  //Вставить метод генерации кода
-        verificationCode.setCreatedTimeCode(LocalDateTime.now());
-        verificationCode.setLoginAttempt(0);
-        verificationCode.setIsEntryByCode(true);
-        return verificationCode;
+    private User updateVerificationCode(User user){
+        user.getVerificationCode().setCode("2222");  //Вставить метод генерации кода
+        user.getVerificationCode().setCreatedTimeCode(LocalDateTime.now());
+        user.getVerificationCode().setLoginAttempt(0);
+        user.getVerificationCode().setIsEntryByCode(true);
+        return user;
     }
 
     private VerificationCode createdVerificationCode(User user){
@@ -158,17 +147,25 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
                 .code("1111")   //Вставить метод генерации кода
                 .createdTimeCode(LocalDateTime.now())
                 .isEntryByCode(true)
-                .loginAttempt(0)
                 .user(user)
                 .build();
     }
 
-    private boolean isTimeUp(VerificationCode verificationCode, int minutes, boolean isBefore){
+    private boolean isTimeUp(VerificationCode verificationCode, int minutes, boolean isBefore) {
         LocalDateTime userTimeAccess = verificationCode.getCreatedTimeCode().plusMinutes(minutes);
         if (isBefore) {
             return userTimeAccess.isBefore(LocalDateTime.now());
-        } else {
-            return userTimeAccess.isAfter(LocalDateTime.now());
         }
+
+        return userTimeAccess.isAfter(LocalDateTime.now());
+    }
+
+    private User createdUser(String firstName, String phoneNumber){
+        return User.builder()
+                .firstName(firstName)
+                .phoneNumber(phoneNumber)
+                .isEnabled(true)
+                .role("USER")
+                .build();
     }
 }

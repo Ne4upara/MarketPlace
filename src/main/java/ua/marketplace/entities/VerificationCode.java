@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * An entity class representing a verification code in the user.
  */
 @Entity
-@Table(name = "verification_code")
+@Table(name = "verification_codes")
 @Getter
 @Setter
 @ToString
@@ -32,7 +32,7 @@ public class VerificationCode {
     @Column(name = "entry_by_code")
     private Boolean isEntryByCode;
 
-    @Column(name = "login_attempt")
+    @Column(name = "login_attempt", columnDefinition = "0")
     private int loginAttempt;
 
     @OneToOne(fetch = FetchType.LAZY)
