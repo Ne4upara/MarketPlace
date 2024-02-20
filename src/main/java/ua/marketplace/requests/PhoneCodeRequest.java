@@ -7,11 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 /**
- * DTO representing a registration request.
- * Validation constraints:
- * - The phone number should not be empty, not null, and contain only digits. It should be between + and 12 digits.
- * - The сode should not be empty, not null, and contain only digits. It should be between 6 digits.
- * It should be between 8 and 64 characters.
+ * Represents a request to enter a code for authorization.
  */
 @Getter
 @Setter
@@ -20,15 +16,22 @@ import lombok.*;
 @AllArgsConstructor
 public class PhoneCodeRequest {
 
-    @NotEmpty(message = "The code should not be empty")
-    @NotNull(message = "The code should not be null")
-    @Size(min = 6, max = 6, message = "The code should be between 6 digits")
-    @Pattern(regexp = "^\\d+$", message = "The code should contain only digits")
+    @NotEmpty(message = "Phone should not be empty")
+    @NotNull(message = "Phone should not be null")
+    @Size(min = 4, max = 4, message = "Phone should be between 4 digits")
+    @Pattern(regexp = "^\\d+$", message = "Phone should contain only digits")
     private String inputCode;
 
+    /**
+     * The phone number of the user.
+     * Validation constraints:
+     * - The phone number should not be empty and not null.
+     * - The phone number should contain exactly 13 digits.
+     * - The phone number should be in the format +380xxxxxxxxx.
+     */
     @NotEmpty(message = "Phone should not be empty")
     @NotNull(message = "Phone should not be null")
     @Size(min = 13, max = 13, message = "Phone should be between 13 digits")
-    @Pattern(regexp = "^\\+\\d+$", message = "Phone should contain only digits")
+    @Pattern(regexp = "^\\+380\\d+$", message = "Phone should contain only digits and should be in the format +380..")
     private String phoneNumber;
 }

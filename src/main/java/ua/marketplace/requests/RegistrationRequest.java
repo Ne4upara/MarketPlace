@@ -7,14 +7,27 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 /**
- * Represents an authorization request.
+ * Represents a registration request.
  */
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhoneNumberRequest {
+public class RegistrationRequest {
+
+    /**
+     * The first name of the user.
+     * Validation constraints:
+     * - The username should not be empty and not null.
+     * - The username must contain exactly a minimum of 2, maximum of 15 characters.
+     * - The phone number should contain only letters Latin or Cyrillic.
+     */
+    @NotEmpty(message = "Name should not be empty")
+    @NotNull(message = "Name should not be null")
+    @Size(min = 2, max = 15, message = "Name should be between 2 and 15 characters")
+    @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄґҐ]+$", message = "Name should contain only letters (Latin or Cyrillic)")
+    private String firstName;
 
     /**
      * The phone number of the user.

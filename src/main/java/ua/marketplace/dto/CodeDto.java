@@ -15,4 +15,5 @@ import lombok.*;
 public class CodeDto {
 
     private String token;
+    private String firstName;
 }

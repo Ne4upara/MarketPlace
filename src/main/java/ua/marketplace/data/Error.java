@@ -13,7 +13,9 @@ public enum Error {
     USER_NOT_FOUND("User with this phone not found"),
     INVALID_CODE("The code was entered incorrectly"),
     TIME_IS_UP("Time is up"),
-    INVALID_PASSWORD("Invalid password");
+    MAX_INPUT_CODE("You've used up all your attempts"),
+    ACCESS_FALSE("There was already a code entry."),
+    ACCESS_STOP_FOR_1_MINUTE("Time to send a repeat code 1 minute");
 
     private final String message;
 

@@ -12,9 +12,12 @@ import ua.marketplace.data.Error;
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
+import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.repositoryes.UserRepository;
+import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
+import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.responses.CustomResponse;
 import ua.marketplace.security.JwtUtil;
 
@@ -30,7 +33,6 @@ import static org.mockito.Mockito.when;
 /**
  * Unit tests for the AuthService class.
  */
-@SuppressWarnings("PMD")
 @SpringBootTest
 class PhoneNumberServiceTest {
 
@@ -38,6 +40,8 @@ class PhoneNumberServiceTest {
     private UserRepository userRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private VerificationCodeRepository verificationCodeRepository;
     @Mock
     private JwtUtil jwtUtil;
     @InjectMocks
@@ -50,25 +54,27 @@ class PhoneNumberServiceTest {
     void testRegistrationSuccessfully() {
 
         //Given
-        PhoneNumberRequest request = PhoneNumberRequest
+        RegistrationRequest request = RegistrationRequest
                 .builder()
                 .phoneNumber("111111111")
+                .firstName("Test")
                 .build();
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
+                .firstName(request.getFirstName())
                 .build();
 
-        when(userRepository.existsByPhone(request.getPhoneNumber())).thenReturn(false);
+        when(userRepository.existsByPhoneNumber(request.getPhoneNumber())).thenReturn(false);
         when(userRepository.save(user)).thenReturn(user);
 
-        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(user.getPhone()).build();
+        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(user.getPhoneNumber()).build();
         ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity.ok
                 (CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value()));
 
         //When
-        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regService.inputPhoneNumber(request);
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regService.registrationUser(request);
 
         //Then
         assertThat(result).isEqualTo(expect);
@@ -81,7 +87,7 @@ class PhoneNumberServiceTest {
     void testRegistrationWithPhoneExist() {
 
         //Given
-        when(userRepository.existsByPhone(any())).thenReturn(true);
+        when(userRepository.existsByPhoneNumber(any())).thenReturn(true);
 
         ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity
                 .badRequest()
@@ -90,7 +96,7 @@ class PhoneNumberServiceTest {
                                 HttpStatus.BAD_REQUEST.value()));
 
         //When
-        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regService.inputPhoneNumber(new PhoneNumberRequest());
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regService.registrationUser(new RegistrationRequest());
 
         //Then
         assertThat(result).isEqualTo(expect);
@@ -100,28 +106,35 @@ class PhoneNumberServiceTest {
      * Test for successful user login.
      */
     @Test
-    void testLoginSuccessfully() {
+    void testLoginCodeSuccessfully() {
 
         //Given
         PhoneCodeRequest request = PhoneCodeRequest
                 .builder()
-                .phoneNumber("+123456789012")
-                .inputCode("111111")
+                .phoneNumber("+380123456789")
+                .inputCode("1111")
                 .build();
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
-                .code(request.getInputCode())
-                .createdTimeCode(LocalDateTime.now())
+                .phoneNumber(request.getPhoneNumber())
                 .build();
+
+        VerificationCode verificationCode = VerificationCode.builder()
+                .code("1111")
+                .createdTimeCode(LocalDateTime.now())
+                .isEntryByCode(true)
+                .loginAttempt(0)
+                .build();
+
+        user.setVerificationCode(verificationCode);
 
         CodeDto authDto = CodeDto
                 .builder()
                 .token("test")
                 .build();
 
-        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
 
         //When
@@ -138,16 +151,16 @@ class PhoneNumberServiceTest {
      * Test for user login with user not found.
      */
     @Test
-    void testLoginWithUserNotFound() {
+    void testLoginCodeWithUserNotFound() {
 
         //Given
         PhoneCodeRequest request = PhoneCodeRequest
                 .builder()
                 .phoneNumber("+123456789012")
-                .inputCode("123456")
+                .inputCode("1234")
                 .build();
 
-        when(userRepository.findByPhone(any())).thenReturn(Optional.empty());
+        when(userRepository.findByPhoneNumber(any())).thenReturn(Optional.empty());
 
         // When
         ResponseEntity<CustomResponse<CodeDto>> result = regService.inputPhoneCode(request);
@@ -161,23 +174,30 @@ class PhoneNumberServiceTest {
      * Test for user login with an invalid password.
      */
     @Test
-    void testLoginWithInvalidPassword() {
+    void testLoginWithInvalidCode() {
 
         //Given
         PhoneCodeRequest request = PhoneCodeRequest
                 .builder()
                 .phoneNumber("+123456789012")
-                .inputCode("123456")
+                .inputCode("1234")
                 .build();
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
-                .code("Invalid Code")
+                .phoneNumber(request.getPhoneNumber())
                 .build();
 
-        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(request.getInputCode(), user.getPassword())).thenReturn(false);
+        VerificationCode verificationCode = VerificationCode.builder()
+                .code("1111")
+                .createdTimeCode(LocalDateTime.now())
+                .isEntryByCode(true)
+                .loginAttempt(0)
+                .build();
+
+        user.setVerificationCode(verificationCode);
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
 
         // When
         ResponseEntity<CustomResponse<CodeDto>> result = regService.inputPhoneCode(request);
@@ -191,33 +211,203 @@ class PhoneNumberServiceTest {
     }
 
     @Test
-    void testLoginWithTimeIsUp() {
+    void testLoginCodeWithAccessFalse() {
 
         //Given
         PhoneCodeRequest request = PhoneCodeRequest
                 .builder()
                 .phoneNumber("+123456789012")
-                .inputCode("123456")
+                .inputCode("1234")
                 .build();
 
         User user = User
                 .builder()
-                .phone(request.getPhoneNumber())
-                .code("123456")
-                .createdTimeCode(LocalDateTime.now().minusDays(1))
+                .phoneNumber(request.getPhoneNumber())
                 .build();
 
-        when(userRepository.findByPhone(request.getPhoneNumber())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(any(), any())).thenReturn(true);
+        VerificationCode verificationCode = VerificationCode.builder()
+                .code("1234")
+                .createdTimeCode(LocalDateTime.now())
+                .isEntryByCode(false)
+                .loginAttempt(0)
+                .build();
 
-        //When
+        user.setVerificationCode(verificationCode);
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+
+        // When
         ResponseEntity<CustomResponse<CodeDto>> result = regService.inputPhoneCode(request);
 
-        //Then
+        // Then
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(result
+                        .getBody())
+                .getMessage()
+                .contains(Error.ACCESS_FALSE.getMessage()));
+    }
+
+    @Test
+    void testLoginCodeWithTimeIsUp() {
+
+        //Given
+        PhoneCodeRequest request = PhoneCodeRequest
+                .builder()
+                .phoneNumber("+123456789012")
+                .inputCode("1234")
+                .build();
+
+        User user = User
+                .builder()
+                .phoneNumber(request.getPhoneNumber())
+                .build();
+
+        VerificationCode verificationCode = VerificationCode.builder()
+                .code("1234")
+                .createdTimeCode(LocalDateTime.now().minusMinutes(10))
+                .isEntryByCode(true)
+                .loginAttempt(0)
+                .build();
+
+        user.setVerificationCode(verificationCode);
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+
+        // When
+        ResponseEntity<CustomResponse<CodeDto>> result = regService.inputPhoneCode(request);
+
+        // Then
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
         Assertions.assertTrue(Objects.requireNonNull(result
                         .getBody())
                 .getMessage()
                 .contains(Error.TIME_IS_UP.getMessage()));
+    }
+
+    @Test
+    void testLoginCodeWithMaxInputCode() {
+
+        //Given
+        PhoneCodeRequest request = PhoneCodeRequest
+                .builder()
+                .phoneNumber("+123456789012")
+                .inputCode("1234")
+                .build();
+
+        User user = User
+                .builder()
+                .phoneNumber(request.getPhoneNumber())
+                .build();
+
+        VerificationCode verificationCode = VerificationCode.builder()
+                .code("1111")
+                .createdTimeCode(LocalDateTime.now())
+                .isEntryByCode(true)
+                .loginAttempt(3)
+                .build();
+
+        user.setVerificationCode(verificationCode);
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+
+        // When
+        ResponseEntity<CustomResponse<CodeDto>> result = regService.inputPhoneCode(request);
+
+        // Then
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(result
+                        .getBody())
+                .getMessage()
+                .contains(Error.MAX_INPUT_CODE.getMessage()));
+    }
+
+    @Test
+    void testLoginSuccessfully() {
+
+        //Given
+        PhoneNumberRequest request = PhoneNumberRequest
+                .builder()
+                .phoneNumber("+380987654321")
+                .build();
+
+        User user = User
+                .builder()
+                .phoneNumber(request.getPhoneNumber())
+                .build();
+
+        VerificationCode verificationCode = VerificationCode.builder()
+                .code("1111")
+                .createdTimeCode(LocalDateTime.now().minusMinutes(2))
+                .isEntryByCode(true)
+                .loginAttempt(0)
+                .build();
+
+        user.setVerificationCode(verificationCode);
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+
+        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(user.getPhoneNumber()).build();
+        ResponseEntity<CustomResponse<PhoneNumberDto>> expect = ResponseEntity.ok
+                (CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value()));
+
+        //When
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regService.inputPhoneNumber(request);
+
+        //Then
+        assertThat(result).isEqualTo(expect);
+    }
+
+    @Test
+    void testLoginFailedWithUserNotFound() {
+
+        //Given
+        PhoneNumberRequest request = PhoneNumberRequest
+                .builder()
+                .phoneNumber("+380987654321")
+                .build();
+
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.empty());
+
+        // When
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regService.inputPhoneNumber(request);
+
+        // Then
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(result
+                        .getBody())
+                .getMessage()
+                .contains(Error.USER_NOT_FOUND.getMessage()));
+    }
+
+    @Test
+    void testLoginFailedWithTimeAccess() {
+
+        //Given
+        PhoneNumberRequest request = PhoneNumberRequest
+                .builder()
+                .phoneNumber("+380987654321")
+                .build();
+
+        User user = User
+                .builder()
+                .phoneNumber("+380987654321")
+                .build();
+
+        VerificationCode verificationCode = VerificationCode.builder()
+                .code("1111")
+                .createdTimeCode(LocalDateTime.now())
+                .isEntryByCode(true)
+                .loginAttempt(0)
+                .build();
+
+        user.setVerificationCode(verificationCode);
+        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+
+        // When
+        ResponseEntity<CustomResponse<PhoneNumberDto>> result = regService.inputPhoneNumber(request);
+
+        // Then
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(result
+                        .getBody())
+                .getMessage()
+                .contains(Error.ACCESS_STOP_FOR_1_MINUTE.getMessage()));
     }
 }

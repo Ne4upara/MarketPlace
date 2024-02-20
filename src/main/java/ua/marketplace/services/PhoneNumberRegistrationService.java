@@ -8,93 +8,160 @@ import ua.marketplace.data.Error;
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
+import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.repositoryes.UserRepository;
+import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
+import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.responses.CustomResponse;
 import ua.marketplace.security.JwtUtil;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
- * Service class responsible for handling phone number registration operations.
+ * The class of service responsible for processing phone number registration and login transactions.
  */
 @Service
 @RequiredArgsConstructor
 public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationService {
 
     private final UserRepository userRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
     private final JwtUtil jwtUtil;
 
     /**
-     * Handles the registration of a new phone number.
+     * Processes a request to enter a phone number to log in to the system.
      *
-     * @param request PhoneNumberRequest containing the phone number to be registered.
-     * @return ResponseEntity with CustomResponse containing the registered phone number or error message.
+     * @param request PhoneNumberRequest containing the phone number to be log in to the system.
+     * @return ResponseEntity containing CustomResponse with UserDto if registerUser is successful,
+     *      * or a bad request response with error message user not found, access stop for 1 minute.
      */
     @Override
     public ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(PhoneNumberRequest request) {
-        if (Boolean.TRUE.equals(userRepository.existsByPhone(request.getPhoneNumber()))) {
-            CustomResponse<PhoneNumberDto> response = CustomResponse.failed(
-                    Collections.singletonList(Error.PHONE_ALREADY_EXIST.getMessage()),
-                    HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
+        Optional<User> byPhoneNumber = userRepository.findByPhoneNumber(request.getPhoneNumber());
+        if(byPhoneNumber.isEmpty()){
+            return ResponseEntity.badRequest().body(getErrorMessage(PhoneCodeRequest.class, Error.USER_NOT_FOUND));
         }
 
-        User createdUser = User.builder()
-                .phone(request.getPhoneNumber())
-                .password(UUID.randomUUID().toString().substring(0, 10))
-                .code("999999")
-                .role("USER")
-                .isEnabled(true)
-                .createdTimeCode(LocalDateTime.now())
-                .build();
-        userRepository.save(createdUser);
+        User user = byPhoneNumber.get();
+        int timeAfterAccess = 1;
+        if(isTimeUp(user.getVerificationCode(), timeAfterAccess, false)){
+            return ResponseEntity.badRequest().body(getErrorMessage(
+                    PhoneNumberDto.class, Error.ACCESS_STOP_FOR_1_MINUTE));
+        }
 
-        PhoneNumberDto phoneNumberDto = PhoneNumberDto.builder().phoneNumber(createdUser.getPhone()).build();
-        CustomResponse<PhoneNumberDto> response = CustomResponse.successfully(phoneNumberDto, HttpStatus.OK.value());
-        return ResponseEntity.ok(response);
+        userRepository.save(updateVerificationCode(user));
+        return ResponseEntity.ok(CustomResponse.successfully(new PhoneNumberDto(request.getPhoneNumber()),
+                                HttpStatus.OK.value()));
     }
 
     /**
-     * Handles the input of a phone code during registration.
+     * Checks the verification code for a user's loginUser.
      *
-     * @param request PhoneCodeRequest containing the phone number and input code.
-     * @return ResponseEntity with CustomResponse containing the JWT token or error message.
+     * @param request PhoneCodeRequest object containing the code to be verified and phone number.
+     * @return ResponseEntity containing CustomResponse with CodeDto if code verification is successful,
+     * or a bad request response with error message if user is not found, access false, max input code, invalid code
+     * time is up.
      */
     @Override
     public ResponseEntity<CustomResponse<CodeDto>> inputPhoneCode(PhoneCodeRequest request) {
-        Optional<User> byPhone = userRepository.findByPhone(request.getPhoneNumber());
+        Optional<User> byPhone = userRepository.findByPhoneNumber(request.getPhoneNumber());
         if (byPhone.isEmpty()) {
-            CustomResponse<CodeDto> response = CustomResponse.failed(
-                    Collections.singletonList(Error.USER_NOT_FOUND.getMessage()),
-                    HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.USER_NOT_FOUND));
         }
 
         User user = byPhone.get();
-        if (!user.getCode().equals(request.getInputCode())) {
-            CustomResponse<CodeDto> response = CustomResponse.failed(
-                    Collections.singletonList(Error.INVALID_CODE.getMessage()),
-                    HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
+        VerificationCode verificationCode = user.getVerificationCode();
+        if(Boolean.FALSE.equals(verificationCode.getIsEntryByCode())){
+            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.ACCESS_FALSE));
+        }
+        int maxLoginAttempt = 3;
+        if (!verificationCode.getCode().equals(request.getInputCode())){
+            if(verificationCode.getLoginAttempt() >= maxLoginAttempt){
+                return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.MAX_INPUT_CODE));
+            }
+            int countAttempt = 1;
+            verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + countAttempt);
+            verificationCodeRepository.save(verificationCode);
+            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.INVALID_CODE));
         }
 
-        LocalDateTime userTimeAccess = user.getCreatedTimeCode().plusMinutes(5);
-        if (userTimeAccess.isBefore(LocalDateTime.now())) {
-            CustomResponse<CodeDto> response = CustomResponse.failed(
-                    Collections.singletonList(Error.TIME_IS_UP.getMessage()),
-                    HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
+        int timeBeforeAccess = 5;
+        if (isTimeUp(verificationCode, timeBeforeAccess, true)) {
+            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.TIME_IS_UP));
         }
 
-        CodeDto codeDto = CodeDto.builder()
-                .token(jwtUtil.generateToken(user.getPhone()))
+        verificationCode.setIsEntryByCode(false);
+        verificationCodeRepository.save(verificationCode);
+        return ResponseEntity.ok(CustomResponse.successfully(
+                new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()), user.getFirstName()), HttpStatus.OK.value()));
+    }
+
+    /**
+     * Registers a new user with the provided registerUser request.
+     *
+     * @param request RegistrationRequest object containing user's registerUser data.
+     * @return ResponseEntity containing CustomResponse with PhoneNumberDto if registerUser is successful,
+     * or a bad request response with error message if phone number already exists.
+     */
+    @Override
+    public ResponseEntity<CustomResponse<PhoneNumberDto>> registrationUser(RegistrationRequest request) {
+        if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(request.getPhoneNumber()))) {
+            return ResponseEntity.badRequest().body(getErrorMessage(PhoneNumberDto.class, Error.PHONE_ALREADY_EXIST));
+        }
+
+        User user = createdUser(request.getFirstName(), request.getPhoneNumber());
+        user.setVerificationCode(createdVerificationCode(user));
+        userRepository.save(user);
+        return ResponseEntity.ok(CustomResponse.successfully(
+                new PhoneNumberDto(request.getPhoneNumber()), HttpStatus.OK.value()));
+    }
+
+    /**
+     * Generates a custom error response based on the provided error message and HTTP status code.
+     *
+     * @param ignoredDtoClass The ignored class type (not used in the method logic).
+     * @param error The error enumeration representing the error message.
+     * @param <T> The type of the DTO in the custom response.
+     * @return A custom response containing the error message and HTTP status code.
+     */
+    private <T> CustomResponse<T> getErrorMessage(Class<?> ignoredDtoClass, Error error) {
+        return CustomResponse.failed(
+                Collections.singletonList(error.getMessage()),
+                HttpStatus.BAD_REQUEST.value());
+    }
+
+    private User updateVerificationCode(User user){
+        user.getVerificationCode().setCode("2222");  //Вставить метод генерации кода
+        user.getVerificationCode().setCreatedTimeCode(LocalDateTime.now());
+        user.getVerificationCode().setLoginAttempt(0);
+        user.getVerificationCode().setIsEntryByCode(true);
+        return user;
+    }
+
+    private VerificationCode createdVerificationCode(User user){
+        return VerificationCode.builder()
+                .code("1111")   //Вставить метод генерации кода
+                .user(user)
                 .build();
-        CustomResponse<CodeDto> response = CustomResponse.successfully(codeDto, HttpStatus.OK.value());
-        return ResponseEntity.ok(response);
+    }
+
+    private boolean isTimeUp(VerificationCode verificationCode, int minutes, boolean isBefore) {
+        LocalDateTime userTimeAccess = verificationCode.getCreatedTimeCode().plusMinutes(minutes);
+        if (isBefore) {
+            return userTimeAccess.isBefore(LocalDateTime.now());
+        }
+
+        return userTimeAccess.isAfter(LocalDateTime.now());
+    }
+
+    private User createdUser(String firstName, String phoneNumber){
+        return User.builder()
+                .firstName(firstName)
+                .phoneNumber(phoneNumber)
+                .build();
     }
 }
