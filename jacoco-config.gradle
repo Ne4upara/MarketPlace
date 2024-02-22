@@ -5,6 +5,7 @@ ext {
             '**/ua/marketplace/entities/**',
             '**/ua/marketplace/requests/**',
             '**/java/ua/marketplace/MarketplaceApplication.java',
-            '**/java/ua/marketplace/swagger/**'
+            '**/java/ua/marketplace/swagger/**',
+            '**/java/ua/marketplace/advice/**'
     ]
 }
