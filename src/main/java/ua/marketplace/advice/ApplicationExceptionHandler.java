@@ -12,18 +12,22 @@ import java.util.Map;
 public class ApplicationExceptionHandler {
 
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<Map<String , String>> appException(Exception ex){
+    public ResponseEntity<Map<String, Map<String, String>>> appException(Exception ex){
+        Map<String, Map<String,String>> errorResponse = new HashMap<>();
         Map<String, String> errorMap = new HashMap<>();
-        errorMap.put("errorMessage", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
+        errorMap.put("Message", ex.getMessage());
+        errorResponse.put("errorMessage", errorMap);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String , String>> handleInvalidArgument(MethodArgumentNotValidException ex){
+    public ResponseEntity<Map<String, Map<String, String>>> handleInvalidArgument(MethodArgumentNotValidException ex){
+        Map<String, Map<String,String>> errorResponse = new HashMap<>();
         Map<String, String> errorMap = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
-            errorMap.put(error.getField(),error.getDefaultMessage())
+            errorMap.put(error.getField(), error.getDefaultMessage())
         );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
+        errorResponse.put("errorMessage", errorMap);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }
