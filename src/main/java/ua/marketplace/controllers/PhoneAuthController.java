@@ -35,7 +35,7 @@ public class PhoneAuthController {
      * Handling the registration of a new phone number.
      *
      * @param request PhoneNumberRequest containing the phone number to be registered.
-     * @return ResponseEntity with CustomResponse containing the registered phone number or validation errors.
+     * @return ResponseEntity containing the registered phone number or validation errors.
      */
     @PostMapping("/login")
     @Operation(summary = "User login",
@@ -50,7 +50,7 @@ public class PhoneAuthController {
      * Handling the input of a phone code for registration.
      *
      * @param request PhoneCodeRequest containing the phone number and input code.
-     * @return ResponseEntity with CustomResponse containing the JWT token or validation errors.
+     * @return ResponseEntity containing the JWT token or validation errors.
      */
     @PostMapping("/login/code")
     @Operation(summary = "Verification SMS-code",
