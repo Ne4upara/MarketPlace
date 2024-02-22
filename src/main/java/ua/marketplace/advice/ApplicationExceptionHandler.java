@@ -12,12 +12,10 @@ import java.util.Map;
 public class ApplicationExceptionHandler {
 
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<Map<String, Map<String, String>>> appException(Exception ex){
-        Map<String, Map<String,String>> errorResponse = new HashMap<>();
+    public ResponseEntity<Map<String, String>> appException(Exception ex){
         Map<String, String> errorMap = new HashMap<>();
-        errorMap.put("Message", ex.getMessage());
-        errorResponse.put("errorMessage", errorMap);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        errorMap.put("errorMessage", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
