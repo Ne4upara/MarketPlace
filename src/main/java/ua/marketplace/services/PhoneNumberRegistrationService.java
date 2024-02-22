@@ -1,7 +1,6 @@
 package ua.marketplace.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
@@ -11,11 +10,8 @@ import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
-import ua.marketplace.responses.CustomResponse;
 import ua.marketplace.security.JwtUtil;
-
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Optional;
 
 /**
