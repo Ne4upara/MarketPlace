@@ -2,13 +2,10 @@ package ua.marketplace.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ua.marketplace.data.Error;
-import ua.marketplace.dto.CodeDto;
-import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
+import ua.marketplace.exception.AppException;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
@@ -26,112 +23,93 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationService {
+public class PhoneNumberRegistrationService {
 
     private final UserRepository userRepository;
     private final VerificationCodeRepository verificationCodeRepository;
     private final JwtUtil jwtUtil;
 
-    /**
-     * Processes a request to enter a phone number to log in to the system.
-     *
-     * @param request PhoneNumberRequest containing the phone number to be log in to the system.
-     * @return ResponseEntity containing CustomResponse with UserDto if registerUser is successful,
-     *      * or a bad request response with error message user not found, access stop for 1 minute.
-     */
-    @Override
-    public ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(PhoneNumberRequest request) {
+//    /**
+//     * Processes a request to enter a phone number to log in to the system.
+//     *
+//     * @param request PhoneNumberRequest containing the phone number to be log in to the system.
+//     * @return ResponseEntity containing CustomResponse with UserDto if registerUser is successful,
+//     *      * or a bad request response with error message user not found, access stop for 1 minute.
+//     */
+//    @Override
+    public User inputPhoneNumber(PhoneNumberRequest request) throws AppException {
         Optional<User> byPhoneNumber = userRepository.findByPhoneNumber(request.getPhoneNumber());
         if(byPhoneNumber.isEmpty()){
-            return ResponseEntity.badRequest().body(getErrorMessage(PhoneCodeRequest.class, Error.USER_NOT_FOUND));
+            throw new AppException("User with this phone not found " + request.getPhoneNumber());
         }
 
         User user = byPhoneNumber.get();
         int timeAfterAccess = 1;
         if(isTimeUp(user.getVerificationCode(), timeAfterAccess, false)){
-            return ResponseEntity.badRequest().body(getErrorMessage(
-                    PhoneNumberDto.class, Error.ACCESS_STOP_FOR_1_MINUTE));
+            throw new AppException("Time to send a repeat code 1 minute");
         }
 
-        userRepository.save(updateVerificationCode(user));
-        return ResponseEntity.ok(CustomResponse.successfully(new PhoneNumberDto(request.getPhoneNumber()),
-                                HttpStatus.OK.value()));
+        return userRepository.save(updateVerificationCode(user));
     }
 
-    /**
-     * Checks the verification code for a user's loginUser.
-     *
-     * @param request PhoneCodeRequest object containing the code to be verified and phone number.
-     * @return ResponseEntity containing CustomResponse with CodeDto if code verification is successful,
-     * or a bad request response with error message if user is not found, access false, max input code, invalid code
-     * time is up.
-     */
-    @Override
-    public ResponseEntity<CustomResponse<CodeDto>> inputPhoneCode(PhoneCodeRequest request) {
+//    /**
+//     * Checks the verification code for a user's loginUser.
+//     *
+//     * @param request PhoneCodeRequest object containing the code to be verified and phone number.
+//     * @return ResponseEntity containing CustomResponse with CodeDto if code verification is successful,
+//     * or a bad request response with error message if user is not found, access false, max input code, invalid code
+//     * time is up.
+//     */
+//    @Override
+    public User inputPhoneCode(PhoneCodeRequest request) throws AppException {
         Optional<User> byPhone = userRepository.findByPhoneNumber(request.getPhoneNumber());
         if (byPhone.isEmpty()) {
-            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.USER_NOT_FOUND));
+            throw new AppException("User with this phone not found");
         }
 
         User user = byPhone.get();
         VerificationCode verificationCode = user.getVerificationCode();
         if(Boolean.FALSE.equals(verificationCode.getIsEntryByCode())){
-            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.ACCESS_FALSE));
+            throw new AppException("There was already a code entry.");
         }
+
         int maxLoginAttempt = 3;
         if (!verificationCode.getCode().equals(request.getInputCode())){
             if(verificationCode.getLoginAttempt() >= maxLoginAttempt){
-                return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.MAX_INPUT_CODE));
+                throw new AppException("You've used up all your attempts");
             }
             int countAttempt = 1;
             verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + countAttempt);
             verificationCodeRepository.save(verificationCode);
-            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.INVALID_CODE));
+            throw new AppException("The code was entered incorrectly");
         }
 
         int timeBeforeAccess = 5;
         if (isTimeUp(verificationCode, timeBeforeAccess, true)) {
-            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.TIME_IS_UP));
+            throw new AppException("Time is up");
         }
 
         verificationCode.setIsEntryByCode(false);
         verificationCodeRepository.save(verificationCode);
-        return ResponseEntity.ok(CustomResponse.successfully(
-                new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()), user.getFirstName()), HttpStatus.OK.value()));
+        return user;
     }
 
-    /**
-     * Registers a new user with the provided registerUser request.
-     *
-     * @param request RegistrationRequest object containing user's registerUser data.
-     * @return ResponseEntity containing CustomResponse with PhoneNumberDto if registerUser is successful,
-     * or a bad request response with error message if phone number already exists.
-     */
-    @Override
-    public ResponseEntity<CustomResponse<PhoneNumberDto>> registrationUser(RegistrationRequest request) {
+//    /**
+//     * Registers a new user with the provided registerUser request.
+//     *
+//     * @param request RegistrationRequest object containing user's registerUser data.
+//     * @return ResponseEntity containing CustomResponse with PhoneNumberDto if registerUser is successful,
+//     * or a bad request response with error message if phone number already exists.
+//     */
+//    @Override
+    public User registrationUser(RegistrationRequest request) throws AppException {
         if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(request.getPhoneNumber()))) {
-            return ResponseEntity.badRequest().body(getErrorMessage(PhoneNumberDto.class, Error.PHONE_ALREADY_EXIST));
+            throw new AppException("Phone already exist " + request.getPhoneNumber());
         }
 
         User user = createdUser(request.getFirstName(), request.getPhoneNumber());
         user.setVerificationCode(createdVerificationCode(user));
-        userRepository.save(user);
-        return ResponseEntity.ok(CustomResponse.successfully(
-                new PhoneNumberDto(request.getPhoneNumber()), HttpStatus.OK.value()));
-    }
-
-    /**
-     * Generates a custom error response based on the provided error message and HTTP status code.
-     *
-     * @param ignoredDtoClass The ignored class type (not used in the method logic).
-     * @param error The error enumeration representing the error message.
-     * @param <T> The type of the DTO in the custom response.
-     * @return A custom response containing the error message and HTTP status code.
-     */
-    private <T> CustomResponse<T> getErrorMessage(Class<?> ignoredDtoClass, Error error) {
-        return CustomResponse.failed(
-                Collections.singletonList(error.getMessage()),
-                HttpStatus.BAD_REQUEST.value());
+        return userRepository.save(user);
     }
 
     private User updateVerificationCode(User user){

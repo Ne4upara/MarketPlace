@@ -3,6 +3,7 @@ package ua.marketplace.services;
 import org.springframework.http.ResponseEntity;
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
+import ua.marketplace.exception.AppException;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
@@ -35,5 +36,5 @@ public interface IPhoneNumberRegistrationService {
      * @param request RegistrationRequest containing the username and phone number
      * @return ResponseEntity with CustomResponse containing the registered phone number or error message.
      */
-    ResponseEntity<CustomResponse<PhoneNumberDto>> registrationUser(RegistrationRequest request);
+    ResponseEntity<CustomResponse<PhoneNumberDto>> registrationUser(RegistrationRequest request) throws AppException;
 }
