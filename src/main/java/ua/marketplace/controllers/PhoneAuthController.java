@@ -50,7 +50,8 @@ public class PhoneAuthController {
     public ResponseEntity<CodeDto> inputCode
     (@Valid @RequestBody PhoneCodeRequest request) throws AppException {
         User user = phoneNumberService.inputPhoneCode(request);
-        return ResponseEntity.status(HttpStatus.OK).body(new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()), user.getFirstName()));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()), user.getFirstName()));
     }
 
     /**
