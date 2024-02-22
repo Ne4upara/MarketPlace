@@ -1,4 +1,4 @@
-package ua.marketplace.service;
+package ua.marketplace.services;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -12,7 +12,6 @@ import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
-import ua.marketplace.services.PhoneNumberRegistrationService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
