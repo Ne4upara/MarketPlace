@@ -1,11 +1,24 @@
-FROM openjdk:17-jdk-slim
+#FROM openjdk:17-jdk-slim
+#
+#WORKDIR /app
+#
+#COPY build/libs/marketplace-0.0.1.jar app.jar
+#
+#EXPOSE 9999
+#
+#ENV ACTIVE_PROFILES=prod
+#
+#CMD ["java", "-jar", "app.jar"]
 
-WORKDIR /app
+FROM ubuntu:latest AS build
+RUN apt-get update
+RUN apt-get install -y openjdk-17-jdk
+COPY . .
+RUN chmod +x gradlew
+RUN ./gradlew bootJar --no-daemon
 
-COPY build/libs/marketplace-0.0.1.jar app.jar
+FROM openjdk:17-alpine
+EXPOSE 80
+COPY --from=build /build/libs/marketplace-0.0.1.jar /app/marketplace-0.0.1.jar
 
-EXPOSE 9999
-
-ENV ACTIVE_PROFILES=prod
-
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app/marketplace-0.0.1.jar"]
