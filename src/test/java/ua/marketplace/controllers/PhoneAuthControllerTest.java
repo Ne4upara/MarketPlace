@@ -118,7 +118,7 @@ class PhoneAuthControllerTest {
         PhoneCodeRequest request = PhoneCodeRequest
                 .builder()
                 .phoneNumber("+123456789012")
-                .inputCode("12345")
+                .inputCode("12s5")
                 .build();
 
         mockMvc.perform(post("/api/v1/auth/login/code")
@@ -138,7 +138,7 @@ class PhoneAuthControllerTest {
         PhoneCodeRequest request = PhoneCodeRequest
                 .builder()
                 .phoneNumber("+38012")
-                .inputCode("11s2")
+                .inputCode("112")
                 .build();
 
         mockMvc.perform(post("/api/v1/auth/login/code")
@@ -182,7 +182,7 @@ class PhoneAuthControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errorMessage")
-                        .value(request.getPhoneNumber()));
+                        .value("Time to send a repeat code 1 minute"));
     }
 
     @Test
