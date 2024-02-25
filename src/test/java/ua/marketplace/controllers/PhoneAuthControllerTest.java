@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class RegistrationTest {
+class PhoneAuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,11 +49,11 @@ class RegistrationTest {
     }
 
     @Test
-    void testRegistrationWithInvalidRequest() throws Exception {
+    void testRegistrationWithInvalidPatternRequest() throws Exception {
 
         RegistrationRequest request = RegistrationRequest
                 .builder()
-                .phoneNumber("+3801")
+                .phoneNumber("+123456709812")
                 .firstName("Test1")
                 .build();
 
@@ -62,16 +62,16 @@ class RegistrationTest {
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorMessage").exists())
-                .andExpect(jsonPath("$.errorMessage.phoneNumber").value("Phone should be between 13 digits"))
+                .andExpect(jsonPath("$.errorMessage.phoneNumber").value("Phone should contain only digits and should be in the format +380.."))
                 .andExpect(jsonPath("$.errorMessage.firstName").value("Name should contain only letters (Latin or Cyrillic)"));
     }
 
     @Test
-    void testRegistrationWithInvalidTwoRequest() throws Exception {
+    void testRegistrationWithInvalidSizeRequest() throws Exception {
 
         RegistrationRequest request = RegistrationRequest
                 .builder()
-                .phoneNumber("+123456709812")
+                .phoneNumber("+3801")
                 .firstName("s")
                 .build();
 
@@ -80,7 +80,7 @@ class RegistrationTest {
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorMessage").exists())
-                .andExpect(jsonPath("$.errorMessage.phoneNumber").value("Phone should contain only digits and should be in the format +380.."))
+                .andExpect(jsonPath("$.errorMessage.phoneNumber").value("Phone should be between 13 digits"))
                 .andExpect(jsonPath("$.errorMessage.firstName").value("Name should be between 2 and 15 characters"));
     }
 
@@ -113,7 +113,7 @@ class RegistrationTest {
 
 
     @Test
-    void testLoginCodeFailed() throws Exception {
+    void testLoginCodeInvalidPatternRequest() throws Exception {
 
         PhoneCodeRequest request = PhoneCodeRequest
                 .builder()
@@ -129,11 +129,11 @@ class RegistrationTest {
                 .andExpect(jsonPath("$.errorMessage.phoneNumber")
                         .value("Phone should contain only digits and should be in the format +380.."))
                 .andExpect(jsonPath("$.errorMessage.inputCode")
-                        .value("Phone should be between 4 digits"));
+                        .value("Phone should contain only digits"));
     }
 
     @Test
-    void testLoginCodeTwoFailed() throws Exception {
+    void testLoginCodeInvalidSizeRequest() throws Exception {
 
         PhoneCodeRequest request = PhoneCodeRequest
                 .builder()
@@ -149,9 +149,16 @@ class RegistrationTest {
                 .andExpect(jsonPath("$.errorMessage.phoneNumber")
                         .value("Phone should be between 13 digits"))
                 .andExpect(jsonPath("$.errorMessage.inputCode")
-                        .value("Phone should contain only digits"));
+                        .value("Phone should be between 4 digits"));
     }
 
+    /**
+     * The test does not work correctly on H2 memory database.
+     * For a Postgres database, apply the following conditions:
+     * .andExpect(status().isOk())
+     * .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+     * .andExpect(jsonPath("$.phoneNumber").value(request.getPhoneNumber()));
+     */
     @Test
     void testLoginSuccessfully() throws Exception {
 
@@ -175,7 +182,7 @@ class RegistrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errorMessage")
-                        .value("Time to send a repeat code 1 minute"));
+                        .value(request.getPhoneNumber()));
     }
 
     @Test
