@@ -1,12 +1,11 @@
 package ua.marketplace.services;
 
-import org.springframework.http.ResponseEntity;
-import ua.marketplace.dto.CodeDto;
-import ua.marketplace.dto.PhoneNumberDto;
+import ua.marketplace.entities.User;
+import ua.marketplace.exception.AppException;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
-import ua.marketplace.responses.CustomResponse;
+
 
 /**
  * Interface defining the contract for phone number registration service and login transactions.
@@ -19,7 +18,7 @@ public interface IPhoneNumberRegistrationService {
      * @param request PhoneNumberRequest containing the phone number to be registered.
      * @return ResponseEntity with CustomResponse containing the registered phone number or error message.
      */
-    ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(PhoneNumberRequest request);
+    User inputPhoneNumber(PhoneNumberRequest request) throws AppException;
 
     /**
      * Handles the input of a phone code during registration.
@@ -27,7 +26,7 @@ public interface IPhoneNumberRegistrationService {
      * @param request PhoneCodeRequest containing the phone number and input code.
      * @return ResponseEntity with CustomResponse containing the JWT token and username or error message.
      */
-    ResponseEntity<CustomResponse<CodeDto>> inputPhoneCode(PhoneCodeRequest request);
+    User inputPhoneCode(PhoneCodeRequest request) throws AppException;
 
     /**
      * Handles the registration of a new phone number.
@@ -35,5 +34,5 @@ public interface IPhoneNumberRegistrationService {
      * @param request RegistrationRequest containing the username and phone number
      * @return ResponseEntity with CustomResponse containing the registered phone number or error message.
      */
-    ResponseEntity<CustomResponse<PhoneNumberDto>> registrationUser(RegistrationRequest request);
+    User registrationUser(RegistrationRequest request) throws AppException;
 }

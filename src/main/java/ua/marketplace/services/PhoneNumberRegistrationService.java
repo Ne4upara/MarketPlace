@@ -1,139 +1,45 @@
 package ua.marketplace.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ua.marketplace.data.Error;
-import ua.marketplace.dto.CodeDto;
-import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
+import ua.marketplace.exception.AppException;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
-import ua.marketplace.responses.CustomResponse;
-import ua.marketplace.security.JwtUtil;
-
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
 
 /**
- * The class of service responsible for processing phone number registration and login transactions.
+ * A service class responsible for handling phone number registration and login operations.
  */
 @Service
 @RequiredArgsConstructor
-public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationService {
+public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationService{
 
     private final UserRepository userRepository;
     private final VerificationCodeRepository verificationCodeRepository;
-    private final JwtUtil jwtUtil;
 
     /**
-     * Processes a request to enter a phone number to log in to the system.
-     *
-     * @param request PhoneNumberRequest containing the phone number to be log in to the system.
-     * @return ResponseEntity containing CustomResponse with UserDto if registerUser is successful,
-     *      * or a bad request response with error message user not found, access stop for 1 minute.
+     * Method for entering a phone number and initiating the registration process.
+     * @param request The request object containing the phone number registration request.
+     * @return The user object that has been saved after updating the verification code.
+     * @throws AppException An exception that occurs if the user is not found with the given phone number.
      */
     @Override
-    public ResponseEntity<CustomResponse<PhoneNumberDto>> inputPhoneNumber(PhoneNumberRequest request) {
-        Optional<User> byPhoneNumber = userRepository.findByPhoneNumber(request.getPhoneNumber());
-        if(byPhoneNumber.isEmpty()){
-            return ResponseEntity.badRequest().body(getErrorMessage(PhoneCodeRequest.class, Error.USER_NOT_FOUND));
-        }
-
-        User user = byPhoneNumber.get();
-        int timeAfterAccess = 1;
-        if(isTimeUp(user.getVerificationCode(), timeAfterAccess, false)){
-            return ResponseEntity.badRequest().body(getErrorMessage(
-                    PhoneNumberDto.class, Error.ACCESS_STOP_FOR_1_MINUTE));
-        }
-
-        userRepository.save(updateVerificationCode(user));
-        return ResponseEntity.ok(CustomResponse.successfully(new PhoneNumberDto(request.getPhoneNumber()),
-                                HttpStatus.OK.value()));
+    public User inputPhoneNumber(PhoneNumberRequest request) throws AppException {
+        User user = getUserByPhoneNumber(request.getPhoneNumber());
+        checkTimeForResendingCode(user);
+        return userRepository.save(updateVerificationCode(user));
     }
 
     /**
-     * Checks the verification code for a user's loginUser.
-     *
-     * @param request PhoneCodeRequest object containing the code to be verified and phone number.
-     * @return ResponseEntity containing CustomResponse with CodeDto if code verification is successful,
-     * or a bad request response with error message if user is not found, access false, max input code, invalid code
-     * time is up.
+     * Method for updating the verification code of a user.
+     * @param user The user object for which the verification code needs to be updated.
+     * @return The updated user object with the updated verification code.
      */
-    @Override
-    public ResponseEntity<CustomResponse<CodeDto>> inputPhoneCode(PhoneCodeRequest request) {
-        Optional<User> byPhone = userRepository.findByPhoneNumber(request.getPhoneNumber());
-        if (byPhone.isEmpty()) {
-            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.USER_NOT_FOUND));
-        }
-
-        User user = byPhone.get();
-        VerificationCode verificationCode = user.getVerificationCode();
-        if(Boolean.FALSE.equals(verificationCode.getIsEntryByCode())){
-            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.ACCESS_FALSE));
-        }
-        int maxLoginAttempt = 3;
-        if (!verificationCode.getCode().equals(request.getInputCode())){
-            if(verificationCode.getLoginAttempt() >= maxLoginAttempt){
-                return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.MAX_INPUT_CODE));
-            }
-            int countAttempt = 1;
-            verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + countAttempt);
-            verificationCodeRepository.save(verificationCode);
-            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.INVALID_CODE));
-        }
-
-        int timeBeforeAccess = 5;
-        if (isTimeUp(verificationCode, timeBeforeAccess, true)) {
-            return ResponseEntity.badRequest().body(getErrorMessage(CodeDto.class, Error.TIME_IS_UP));
-        }
-
-        verificationCode.setIsEntryByCode(false);
-        verificationCodeRepository.save(verificationCode);
-        return ResponseEntity.ok(CustomResponse.successfully(
-                new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()), user.getFirstName()), HttpStatus.OK.value()));
-    }
-
-    /**
-     * Registers a new user with the provided registerUser request.
-     *
-     * @param request RegistrationRequest object containing user's registerUser data.
-     * @return ResponseEntity containing CustomResponse with PhoneNumberDto if registerUser is successful,
-     * or a bad request response with error message if phone number already exists.
-     */
-    @Override
-    public ResponseEntity<CustomResponse<PhoneNumberDto>> registrationUser(RegistrationRequest request) {
-        if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(request.getPhoneNumber()))) {
-            return ResponseEntity.badRequest().body(getErrorMessage(PhoneNumberDto.class, Error.PHONE_ALREADY_EXIST));
-        }
-
-        User user = createdUser(request.getFirstName(), request.getPhoneNumber());
-        user.setVerificationCode(createdVerificationCode(user));
-        userRepository.save(user);
-        return ResponseEntity.ok(CustomResponse.successfully(
-                new PhoneNumberDto(request.getPhoneNumber()), HttpStatus.OK.value()));
-    }
-
-    /**
-     * Generates a custom error response based on the provided error message and HTTP status code.
-     *
-     * @param ignoredDtoClass The ignored class type (not used in the method logic).
-     * @param error The error enumeration representing the error message.
-     * @param <T> The type of the DTO in the custom response.
-     * @return A custom response containing the error message and HTTP status code.
-     */
-    private <T> CustomResponse<T> getErrorMessage(Class<?> ignoredDtoClass, Error error) {
-        return CustomResponse.failed(
-                Collections.singletonList(error.getMessage()),
-                HttpStatus.BAD_REQUEST.value());
-    }
-
     private User updateVerificationCode(User user){
         user.getVerificationCode().setCode("2222");  //Вставить метод генерации кода
         user.getVerificationCode().setCreatedTimeCode(LocalDateTime.now());
@@ -142,13 +48,36 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
         return user;
     }
 
-    private VerificationCode createdVerificationCode(User user){
-        return VerificationCode.builder()
-                .code("1111")   //Вставить метод генерации кода
-                .user(user)
-                .build();
+    /**
+     * Retrieves the user by their phone number.
+     * @param phoneNumber The phone number of the user.
+     * @return The user object with the specified phone number.
+     * @throws AppException An exception that occurs if the user is not found with the specified phone number.
+     */
+    private User getUserByPhoneNumber(String phoneNumber) throws AppException {
+        return userRepository.findByPhoneNumber(phoneNumber)
+        .orElseThrow(() -> new AppException("User with this phone not found " + phoneNumber));
     }
 
+    /**
+     * Checks if it's time to resend the verification code.
+     * @param user The user object to check for resending the verification code.
+     * @throws AppException An exception indicating that it's not time to resend the code yet.
+     */
+    private void checkTimeForResendingCode(User user) throws AppException {
+        int timeAfterAccess = 1;
+        if (isTimeUp(user.getVerificationCode(), timeAfterAccess, false)) {
+            throw new AppException("Time to send a repeat code 1 minute");
+        }
+    }
+
+    /**
+     * Checks if the time is up for a specific operation.
+     * @param verificationCode The verification code object containing creation time.
+     * @param minutes The number of minutes to check against.
+     * @param isBefore Boolean flag indicating whether to check if the time is before the specified duration.
+     * @return True if the time is up, false otherwise.
+     */
     private boolean isTimeUp(VerificationCode verificationCode, int minutes, boolean isBefore) {
         LocalDateTime userTimeAccess = verificationCode.getCreatedTimeCode().plusMinutes(minutes);
         if (isBefore) {
@@ -158,6 +87,128 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
         return userTimeAccess.isAfter(LocalDateTime.now());
     }
 
+    /**
+     * Method for entering the verification code received via SMS.
+     * @param request The request object containing the verification code input.
+     * @return The user object if verification is successful.
+     * @throws AppException An exception that occurs if verification fails.
+     */
+    @Override
+    public User inputPhoneCode(PhoneCodeRequest request) throws AppException {
+        User user = getUserByPhoneNumber(request.getPhoneNumber());
+        VerificationCode verificationCode = user.getVerificationCode();
+        validateCodeEntry(verificationCode);
+        validateCode(verificationCode, request.getInputCode());
+        validateTime(verificationCode);
+        resetVerificationCode(verificationCode);
+        return user;
+    }
+
+    /**
+     * Validates if the user has already entered a verification code.
+     * @param verificationCode The verification code object to validate.
+     * @throws AppException An exception indicating that a code has already been entered.
+     */
+    private void validateCodeEntry(VerificationCode verificationCode) throws AppException {
+        if (Boolean.FALSE.equals(verificationCode.getIsEntryByCode())) {
+            throw new AppException("There was already a code entry.");
+        }
+    }
+
+    /**
+     * Validates the entered verification code.
+     * @param verificationCode The verification code object to validate against.
+     * @param inputCode The input code to validate.
+     * @throws AppException An exception indicating that the entered code is incorrect or maximum attempts reached.
+     */
+    private void validateCode(VerificationCode verificationCode, String inputCode) throws AppException {
+        if (!verificationCode.getCode().equals(inputCode)) {
+            int maxLoginAttempt = 3;
+            if (verificationCode.getLoginAttempt() >= maxLoginAttempt) {
+                throw new AppException("You've used up all your attempts");
+            }
+
+            verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + 1);
+            verificationCodeRepository.save(verificationCode);
+            throw new AppException("The code was entered incorrectly");
+        }
+    }
+
+    /**
+     * Validates if the time is not up for code verification.
+     * @param verificationCode The verification code object to check for time validation.
+     * @throws AppException An exception indicating that the time is up for code verification.
+     */
+    private void validateTime(VerificationCode verificationCode) throws AppException {
+        int timeBeforeAccess = 5;
+        if (isTimeUp(verificationCode, timeBeforeAccess, true)) {
+            throw new AppException("Time is up");
+        }
+    }
+
+    /**
+     * Resets the verification code entry flag after successful verification.
+     * @param verificationCode The verification code object to reset.
+     */
+    private void resetVerificationCode(VerificationCode verificationCode) {
+        verificationCode.setIsEntryByCode(false);
+        verificationCodeRepository.save(verificationCode);
+    }
+
+    /**
+     * Method for registering a new user.
+     * @param request The object containing the data for registering a new user.
+     * @return The newly registered user object saved in the database.
+     * @throws AppException An exception that occurs if a user with the specified phone number already exists.
+     */
+    @Override
+    public User registrationUser(RegistrationRequest request) throws AppException {
+        validatePhoneNumberNotExist(request.getPhoneNumber());
+        User user = createUserWithVerificationCode(request.getFirstName(), request.getPhoneNumber());
+        return userRepository.save(user);
+    }
+
+    /**
+     * Validates if the phone number is not already registered.
+     * @param phoneNumber The phone number to validate.
+     * @throws AppException An exception indicating that the phone number is already registered.
+     */
+    private void validatePhoneNumberNotExist(String phoneNumber) throws AppException {
+        if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(phoneNumber))) {
+            throw new AppException("Phone already exists: " + phoneNumber);
+        }
+    }
+
+    /**
+     * Creates a user object with a verification code.
+     * @param firstName The first name of the user.
+     * @param phoneNumber The phone number of the user.
+     * @return The user object created with the specified data.
+     */
+    private User createUserWithVerificationCode(String firstName, String phoneNumber) {
+        User user = createdUser(firstName, phoneNumber);
+        user.setVerificationCode(createdVerificationCode(user));
+        return user;
+    }
+
+    /**
+     * Creates a verification code object for the given user.
+     * @param user The user for which the verification code needs to be created.
+     * @return The verification code object created.
+     */
+    private VerificationCode createdVerificationCode(User user){
+        return VerificationCode.builder()
+                .code("1111")   //Вставить метод генерации кода
+                .user(user)
+                .build();
+    }
+
+    /**
+     * Creates a new user object with the given data.
+     * @param firstName The first name of the user.
+     * @param phoneNumber The phone number of the user.
+     * @return The newly created user object.
+     */
     private User createdUser(String firstName, String phoneNumber){
         return User.builder()
                 .firstName(firstName)
