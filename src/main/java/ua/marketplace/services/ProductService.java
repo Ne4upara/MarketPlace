@@ -18,7 +18,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ProductService implements IProductService{
+public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
@@ -28,7 +28,7 @@ public class ProductService implements IProductService{
         return convertProductListToDto(productRepository.findAll());
     }
 
-    private List<MainPageProductDto> convertProductListToDto (List<Product> products) {
+    private List<MainPageProductDto> convertProductListToDto(List<Product> products) {
         List<MainPageProductDto> result = new ArrayList<>();
         for (Product product : products) {
             MainPageProductDto dto = MainPageProductDto.builder()
@@ -49,7 +49,7 @@ public class ProductService implements IProductService{
         return convertProductToDto(getProductById(id));
     }
 
-    private ProductDto convertProductToDto (Product product){
+    private ProductDto convertProductToDto(Product product) {
         return ProductDto
                 .builder()
                 .productPhotoLink(product.getProductPhotoLink())
@@ -64,12 +64,12 @@ public class ProductService implements IProductService{
                 .build();
     }
 
-    private int getRating(Product product){
-        if(product.getProductRatingCount() == 0) {
+    private int getRating(Product product) {
+        if (product.getProductRatingCount() == 0) {
             return 0;
         }
 
-        return product.getProductRating()/product.getProductRatingCount();
+        return product.getProductRating() / product.getProductRatingCount();
     }
 
     @Override
@@ -105,7 +105,7 @@ public class ProductService implements IProductService{
                 .orElseThrow(() -> new AppException("User not authorized"));
     }
 
-    private boolean isProductNotCreatedByUser(Product product, User user){
+    private boolean isProductNotCreatedByUser(Product product, User user) {
         return !product.getOwner().equals(user);
     }
 

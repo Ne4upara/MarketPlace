@@ -1,9 +1,6 @@
 package ua.marketplace.requests;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -15,15 +12,15 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ProductRequest {
 
-    @NotEmpty(message = "Product must have a name")
+    @NotBlank(message = "Product must have a name")
     @Size(min = 5, max = 100, message = "Product's name should be between 5 and 100 chars")
     private String productName;
 
     private String productPhotoLink;
 
-    @NotEmpty(message = "Product must have a price")
+    @NotNull(message = "Product must have a price")
     @Positive(message = "Product price must be positive")
-    @Pattern(regexp = "^\\d+(\\.\\d{1,2})?$", message = "Price must have up to 2 decimal places")
+    @Digits(integer = 10, fraction = 2, message = "Product price must have up to 2 decimal places")
     private BigDecimal productPrice;
 
     @NotEmpty(message = "Product must have a description")
@@ -39,7 +36,7 @@ public class ProductRequest {
     @Pattern(regexp = "^(new|used)$", message = "Product type must be either 'new' or 'used'")
     private String productType;
 
-    @NotEmpty(message = "Product quantity must be specified")
+    @NotNull(message = "Product quantity must be specified")
     @Positive(message = "Product quantity must be positive")
     private int productQuantity;
 }

@@ -1,5 +1,6 @@
 package ua.marketplace.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +32,15 @@ public class ProductController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ProductDto> createProduct (Principal principal, @RequestBody ProductRequest request) throws AppException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.saveProduct(principal,request));
+    public ResponseEntity<ProductDto> createProduct
+            (Principal principal,
+             @Valid @RequestBody ProductRequest request) throws AppException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.saveProduct(principal, request));
     }
 
     @PostMapping("/delete/{id}")
     public ResponseEntity<String> deleteProduct(Principal principal, @PathVariable Long id) throws AppException {
-        productService.deleteProduct(principal,id);
+        productService.deleteProduct(principal, id);
         return ResponseEntity.status(HttpStatus.OK).body("Successfully deleting");
     }
 }

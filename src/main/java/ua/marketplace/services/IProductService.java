@@ -11,7 +11,10 @@ import java.util.List;
 public interface IProductService {
 
     List<MainPageProductDto> getAllProductsForMainPage();
+
     ProductDto getProductDetails(Long id) throws AppException;
+
     ProductDto saveProduct(Principal principal, ProductRequest request) throws AppException;
+
     void deleteProduct(Principal principal, Long productId) throws AppException;
 }
