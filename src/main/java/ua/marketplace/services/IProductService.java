@@ -16,5 +16,7 @@ public interface IProductService {
 
     ProductDto saveProduct(Principal principal, ProductRequest request) throws AppException;
 
+    ProductDto updateProduct(Principal principal, Long productId, ProductRequest request) throws AppException;
+
     void deleteProduct(Principal principal, Long productId) throws AppException;
 }
