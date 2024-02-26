@@ -109,6 +109,27 @@ public class ProductService implements IProductService {
         return !product.getOwner().equals(user);
     }
 
+    @Override
+    public ProductDto updateProduct(Principal principal, Long productId, ProductRequest request) throws AppException {
+        User user = getUserByPrincipal(principal);
+        Product product = getProductById(productId);
+
+        if (isProductNotCreatedByUser(product, user)) {
+            throw new AppException("You are not authorized to update this product");
+        }
+
+        product.setProductName(request.getProductName());
+        product.setProductPhotoLink(request.getProductPhotoLink());
+        product.setProductPrice(request.getProductPrice());
+        product.setProductDescription(request.getProductDescription());
+        product.setProductCategory(request.getProductCategory());
+        product.setProductType(request.getProductType());
+        product.setProductQuantity(request.getProductQuantity());
+
+        Product updatedProduct = productRepository.save(product);
+
+        return convertProductToDto(updatedProduct);
+    }
 
     @Override
     public void deleteProduct(Principal principal, Long productId) throws AppException {

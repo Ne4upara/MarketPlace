@@ -38,9 +38,18 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.saveProduct(principal, request));
     }
 
+    @PostMapping("/update/{id}")
+    public ResponseEntity<ProductDto> updateProduct(
+            Principal principal,
+            @PathVariable Long id,
+            @Valid @RequestBody ProductRequest request) throws AppException {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productService.updateProduct(principal, id, request));
+    }
+
     @PostMapping("/delete/{id}")
     public ResponseEntity<String> deleteProduct(Principal principal, @PathVariable Long id) throws AppException {
         productService.deleteProduct(principal, id);
-        return ResponseEntity.status(HttpStatus.OK).body("Successfully deleting");
+        return ResponseEntity.noContent().build();
     }
 }
