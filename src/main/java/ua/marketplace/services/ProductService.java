@@ -60,6 +60,7 @@ public class ProductService implements IProductService{
                 .productCategory(product.getProductCategory())
                 .productRating(getRating(product))
                 .creationDate(product.getCreationDate())
+                .productQuantity(product.getProductQuantity())
                 .build();
     }
 

@@ -22,4 +22,5 @@ public class ProductDto {
     private String productType;
     private LocalDateTime creationDate;
     private int productRating;
+    private int productQuantity;
 }
