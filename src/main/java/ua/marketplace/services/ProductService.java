@@ -88,30 +88,10 @@ public class ProductService implements IProductService{
                 .productDescription(request.getProductDescription())
                 .productCategory(request.getProductCategory())
                 .productType(request.getProductType())
+                .productQuantity(request.getProductQuantity())
                 .owner(user)
                 .creationDate(LocalDateTime.now())
                 .build();
-    }
-
-    @Override
-    public ProductDto updateProduct(Principal principal, ProductRequest request, Long id) throws AppException {
-        Product product = getProductById(id);
-        User user = getUserByPrincipal(principal);
-
-        if (isProductNotCreatedByUser(product, user)) {
-            throw new AppException("You are not authorized to update this product");
-        }
-
-        product.setProductName(request.getProductName());
-        product.setProductPhotoLink(request.getProductPhotoLink());
-        product.setProductPrice(request.getProductPrice());
-        product.setProductDescription(request.getProductDescription());
-        product.setProductCategory(request.getProductCategory());
-        product.setProductType(request.getProductType());
-
-        Product updatedProduct = productRepository.save(product);
-
-        return convertProductToDto(updatedProduct);
     }
 
     private Product getProductById(Long id) throws AppException {

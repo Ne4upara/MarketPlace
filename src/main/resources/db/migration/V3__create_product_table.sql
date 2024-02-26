@@ -10,5 +10,6 @@ CREATE TABLE products (
     rating INT DEFAULT 0,
     rating_count INT DEFAULT 1,
     description TEXT NOT NULL,
+    quantity INT NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );

@@ -57,6 +57,9 @@ public class Product {
     @Column(name = "rating_count")
     private int productRatingCount;
 
+    @Column(name = "quantity")
+    private int productQuantity;
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
