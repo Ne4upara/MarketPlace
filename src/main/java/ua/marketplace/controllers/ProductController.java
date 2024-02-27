@@ -41,10 +41,15 @@ public class ProductController {
     @PostMapping("/update/{id}")
     public ResponseEntity<ProductDto> updateProduct(
             Principal principal,
-            @PathVariable Long id,
-            @Valid @RequestBody ProductRequest request) throws AppException {
+            @PathVariable Long id, @Valid @RequestBody ProductRequest request) throws AppException {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.updateProduct(principal, id, request));
+    }
+
+    @PostMapping("/{productId}/rate/{rating}")
+    public ResponseEntity<ProductDto> rateProduct
+            (@PathVariable Long productId, @PathVariable int rating) throws AppException {
+        return ResponseEntity.status(HttpStatus.OK).body(productService.rateProduct(productId, rating));
     }
 
     @PostMapping("/delete/{id}")

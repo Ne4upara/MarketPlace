@@ -18,5 +18,7 @@ public interface IProductService {
 
     ProductDto updateProduct(Principal principal, Long productId, ProductRequest request) throws AppException;
 
+    ProductDto rateProduct(Long productId, int rating) throws AppException;
+
     void deleteProduct(Principal principal, Long productId) throws AppException;
 }

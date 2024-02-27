@@ -132,6 +132,17 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    public ProductDto rateProduct(Long productId, int rating) throws AppException {
+        Product product = getProductById(productId);
+
+        product.setProductRating(product.getProductRating() + rating);
+        product.setProductRatingCount(product.getProductRatingCount() + 1);
+
+        Product saved = productRepository.save(product);
+        return convertProductToDto(saved);
+    }
+
+    @Override
     public void deleteProduct(Principal principal, Long productId) throws AppException {
         User user = getUserByPrincipal(principal);
         Product product = getProductById(productId);
