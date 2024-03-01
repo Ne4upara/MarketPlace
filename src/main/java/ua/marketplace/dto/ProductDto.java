@@ -1,15 +1,13 @@
 package ua.marketplace.dto;
 
 import lombok.*;
+import ua.marketplace.data.ProductCategory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Builder
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDto {
@@ -18,7 +16,7 @@ public class ProductDto {
     private String productPhotoLink;
     private BigDecimal productPrice;
     private String productDescription;
-    private String productCategory;
+    private ProductCategory productCategory;
     private String productType;
     private LocalDateTime creationDate;
     private int productRating;

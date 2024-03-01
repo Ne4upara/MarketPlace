@@ -3,6 +3,7 @@ package ua.marketplace.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import ua.marketplace.data.ProductCategory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,7 +40,7 @@ public class Product {
     private String productDescription;
 
     @Column(name = "category")
-    private String productCategory;
+    private ProductCategory productCategory;
 
     @Column(name = "product_type")
     private String productType;

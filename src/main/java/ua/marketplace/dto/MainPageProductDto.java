@@ -5,10 +5,7 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Builder
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class MainPageProductDto {

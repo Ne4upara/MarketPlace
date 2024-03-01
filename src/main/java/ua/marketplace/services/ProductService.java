@@ -133,6 +133,10 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductDto rateProduct(Long productId, int rating) throws AppException {
+        if(!isRatingValid(rating)) {
+            throw new AppException ("Rating must be between 0 and 5");
+        }
+
         Product product = getProductById(productId);
 
         product.setProductRating(product.getProductRating() + rating);
@@ -140,6 +144,10 @@ public class ProductService implements IProductService {
 
         Product saved = productRepository.save(product);
         return convertProductToDto(saved);
+    }
+
+    private boolean isRatingValid(int rating) {
+        return rating >= 0 && rating <= 5;
     }
 
     @Override

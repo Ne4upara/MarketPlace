@@ -2,6 +2,7 @@ package ua.marketplace.requests;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import ua.marketplace.data.ProductCategory;
 
 import java.math.BigDecimal;
 
@@ -29,8 +30,8 @@ public class ProductRequest {
             message = "Description should contain only Cyrillic characters, spaces, and digits")
     private String productDescription;
 
-    @NotEmpty(message = "You must choice a category for your product's")
-    private String productCategory;
+    @NotNull(message = "You must choice a category for your product's")
+    private ProductCategory productCategory;
 
     @NotEmpty(message = "You must choice a type of your product's")
     @Pattern(regexp = "^(new|used)$", message = "Product type must be either 'new' or 'used'")
