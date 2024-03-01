@@ -61,6 +61,11 @@ public class Product {
     @Column(name = "quantity")
     private int productQuantity;
 
+    @PrePersist
+    protected void onCreate() {
+        creationDate = LocalDateTime.now();
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

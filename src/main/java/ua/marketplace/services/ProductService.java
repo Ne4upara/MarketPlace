@@ -12,9 +12,8 @@ import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
 
 import java.security.Principal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -29,19 +28,15 @@ public class ProductService implements IProductService {
     }
 
     private List<MainPageProductDto> convertProductListToDto(List<Product> products) {
-        List<MainPageProductDto> result = new ArrayList<>();
-        for (Product product : products) {
-            MainPageProductDto dto = MainPageProductDto.builder()
-                    .productPhotoLink(product.getProductPhotoLink())
-                    .productName(product.getProductName())
-                    .productType(product.getProductType())
-                    .productPrice(product.getProductPrice())
-                    .productRating(getRating(product))
-                    .build();
-            result.add(dto);
-        }
-
-        return result;
+        return products.stream()
+                .map(product -> MainPageProductDto.builder()
+                        .productPhotoLink(product.getProductPhotoLink())
+                        .productName(product.getProductName())
+                        .productType(product.getProductType())
+                        .productPrice(product.getProductPrice())
+                        .productRating(getRating(product))
+                        .build())
+                .toList();
     }
 
     @Override
@@ -80,6 +75,11 @@ public class ProductService implements IProductService {
         return convertProductToDto(productRepository.save(product));
     }
 
+    private User getUserByPrincipal(Principal principal) throws AppException {
+        return userRepository.findByPhoneNumber(principal.getName())
+                .orElseThrow(() -> new AppException("User not authorized"));
+    }
+
     private Product createProduct(ProductRequest request, User user) {
         return Product
                 .builder()
@@ -91,22 +91,7 @@ public class ProductService implements IProductService {
                 .productType(request.getProductType())
                 .productQuantity(request.getProductQuantity())
                 .owner(user)
-                .creationDate(LocalDateTime.now())
                 .build();
-    }
-
-    private Product getProductById(Long id) throws AppException {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new AppException("Product with ID: " + id + " not found "));
-    }
-
-    private User getUserByPrincipal(Principal principal) throws AppException {
-        return userRepository.findByPhoneNumber(principal.getName())
-                .orElseThrow(() -> new AppException("User not authorized"));
-    }
-
-    private boolean isProductNotCreatedByUser(Product product, User user) {
-        return !product.getOwner().equals(user);
     }
 
     @Override
@@ -114,21 +99,35 @@ public class ProductService implements IProductService {
         User user = getUserByPrincipal(principal);
         Product product = getProductById(productId);
 
-        if (isProductNotCreatedByUser(product, user)) {
+        if (!isProductCreatedByUser(product, user)) {
             throw new AppException("You are not authorized to update this product");
         }
 
-        product.setProductName(request.getProductName());
-        product.setProductPhotoLink(request.getProductPhotoLink());
-        product.setProductPrice(request.getProductPrice());
-        product.setProductDescription(request.getProductDescription());
-        product.setProductCategory(request.getProductCategory());
-        product.setProductType(request.getProductType());
-        product.setProductQuantity(request.getProductQuantity());
-
-        Product updatedProduct = productRepository.save(product);
+        Product updatedProduct = Stream.of(product)
+                .map(p -> {
+                    p.setProductName(request.getProductName());
+                    p.setProductPhotoLink(request.getProductPhotoLink());
+                    p.setProductPrice(request.getProductPrice());
+                    p.setProductDescription(request.getProductDescription());
+                    p.setProductCategory(request.getProductCategory());
+                    p.setProductType(request.getProductType());
+                    p.setProductQuantity(request.getProductQuantity());
+                    return p;
+                })
+                .map(productRepository::save)
+                .findFirst()
+                .orElseThrow(() -> new AppException("Failed to update product"));
 
         return convertProductToDto(updatedProduct);
+    }
+
+    private boolean isProductCreatedByUser(Product product, User user) {
+        return product.getOwner().equals(user);
+    }
+
+    private Product getProductById(Long id) throws AppException {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new AppException("Product with ID: " + id + " not found "));
     }
 
     @Override
@@ -155,7 +154,7 @@ public class ProductService implements IProductService {
         User user = getUserByPrincipal(principal);
         Product product = getProductById(productId);
 
-        if (isProductNotCreatedByUser(product, user)) {
+        if (!isProductCreatedByUser(product, user)) {
             throw new AppException("You are not authorized to delete this product");
         }
 

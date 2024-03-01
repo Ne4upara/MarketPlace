@@ -3,7 +3,7 @@ CREATE TABLE products (
     name VARCHAR(255) NOT NULL,
     photo VARCHAR(255),
     price DECIMAL(10, 2) NOT NULL,
-    category VARCHAR(100) ,
+    category VARCHAR(100) NOT NULL,
     product_type ENUM('new', 'used') NOT NULL,
     owner_id INT,
     creation_date DATETIME NOT NULL,
