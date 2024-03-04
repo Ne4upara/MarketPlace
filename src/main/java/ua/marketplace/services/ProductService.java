@@ -68,6 +68,11 @@ public class ProductService implements IProductService {
         return product.getProductRating() / product.getProductRatingCount();
     }
 
+    private Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorMessage.PRODUCT_NOT_FOUND + id));
+    }
+
     @Override
     public ProductDto saveProduct(Principal principal, ProductRequest request) {
         User user = getUserByPrincipal(principal);
@@ -124,11 +129,6 @@ public class ProductService implements IProductService {
 
     private boolean isProductCreatedByUser(Product product, User user) {
         return product.getOwner().equals(user);
-    }
-
-    private Product getProductById(Long id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorMessage.PRODUCT_NOT_FOUND + id));
     }
 
     @Override
