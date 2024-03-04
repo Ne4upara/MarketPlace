@@ -14,7 +14,6 @@ public record ProductDto(
         String productType,
         LocalDateTime creationDate,
         int productRating,
+        int productRatingCount,
         int productQuantity
-) {
-}
-
+) {}

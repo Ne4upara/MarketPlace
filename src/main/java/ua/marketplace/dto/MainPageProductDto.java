@@ -8,5 +8,4 @@ public record MainPageProductDto(
         String productType,
         BigDecimal productPrice,
         int productRating
-) {
-}
+) {}

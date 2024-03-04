@@ -10,6 +10,7 @@ import ua.marketplace.dto.ProductDto;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
 import ua.marketplace.exception.AppException;
+import ua.marketplace.mapper.ProductMapper;
 import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
@@ -25,49 +26,20 @@ public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final ProductMapper productMapper;
 
     @Override
     public List<MainPageProductDto> getAllProductsForMainPage() {
         return convertProductListToDto(productRepository.findAll());
     }
-
     private List<MainPageProductDto> convertProductListToDto(List<Product> products) {
-        return products.stream()
-                .map(product -> new MainPageProductDto(
-                        product.getProductPhotoLink(),
-                        product.getProductName(),
-                        product.getProductType(),
-                        product.getProductPrice(),
-                        getRating(product)
-                ))
+        return products.stream().map(productMapper::toMainPageDto)
                 .toList();
-    }
+        }
 
     @Override
     public ProductDto getProductDetails(Long id) {
-        return convertProductToDto(getProductById(id));
-    }
-
-    private ProductDto convertProductToDto(Product product) {
-        return new ProductDto(
-                product.getProductName(),
-                product.getProductPhotoLink(),
-                product.getProductPrice(),
-                product.getProductDescription(),
-                product.getProductCategory(),
-                product.getProductType(),
-                product.getCreationDate(),
-                getRating(product),
-                product.getProductQuantity()
-        );
-    }
-
-    private int getRating(Product product) {
-        if (product.getProductRatingCount() == BigDecimal.ZERO.intValue()) {
-            return BigDecimal.ZERO.intValue();
-        }
-
-        return product.getProductRating() / product.getProductRatingCount();
+        return productMapper.toDto(getProductById(id));
     }
 
     private Product getProductById(Long id) {
@@ -81,7 +53,7 @@ public class ProductService implements IProductService {
         User user = getUserByPrincipal(principal);
         Product product = createProduct(request, user);
 
-        return convertProductToDto(productRepository.save(product));
+        return productMapper.toDto(productRepository.save(product));
     }
 
     private User getUserByPrincipal(Principal principal) {
@@ -127,7 +99,7 @@ public class ProductService implements IProductService {
                 .findFirst()
                 .orElseThrow(() -> new AppException(ErrorMessageHandler.FAILED_PRODUCT_UPDATE));
 
-        return convertProductToDto(updatedProduct);
+        return productMapper.toDto(updatedProduct);
     }
 
     private boolean isProductCreatedByUser(Product product, User user) {
@@ -146,7 +118,7 @@ public class ProductService implements IProductService {
         product.setProductRatingCount(product.getProductRatingCount() + BigDecimal.ONE.intValue());
 
         Product saved = productRepository.save(product);
-        return convertProductToDto(saved);
+        return productMapper.toDto(saved);
     }
 
     private boolean isRatingValid(int rating) {
