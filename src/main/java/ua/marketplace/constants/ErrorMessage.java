@@ -1,6 +1,6 @@
 package ua.marketplace.constants;
 
-public class ErrorMessage {
+public final class ErrorMessage {
     public static final String USER_NOT_AUTHORIZED = "User not authorized";
     public static final String FAILED_PRODUCT_UPDATE = "Failed to update product";
     public static final String PRODUCT_NOT_FOUND = "Not found product with ID: ";
