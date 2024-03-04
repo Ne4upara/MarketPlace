@@ -1,8 +1,10 @@
 package ua.marketplace.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ua.marketplace.constants.ErrorMessage;
+import org.springframework.web.server.ResponseStatusException;
+import ua.marketplace.constants.ErrorMessageHandler;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.entities.Product;
@@ -70,7 +72,8 @@ public class ProductService implements IProductService {
 
     private Product getProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorMessage.PRODUCT_NOT_FOUND + id));
+                .orElseThrow(() -> new ResponseStatusException
+                        (HttpStatus.NOT_FOUND, ErrorMessageHandler.PRODUCT_NOT_FOUND + id));
     }
 
     @Override
@@ -83,7 +86,7 @@ public class ProductService implements IProductService {
 
     private User getUserByPrincipal(Principal principal) {
         return userRepository.findByPhoneNumber(principal.getName())
-                .orElseThrow(() -> new AppException(ErrorMessage.USER_NOT_AUTHORIZED));
+                .orElseThrow(() -> new AppException(ErrorMessageHandler.USER_NOT_AUTHORIZED));
     }
 
     private Product createProduct(ProductRequest request, User user) {
@@ -122,7 +125,7 @@ public class ProductService implements IProductService {
                 })
                 .map(productRepository::save)
                 .findFirst()
-                .orElseThrow(() -> new AppException(ErrorMessage.FAILED_PRODUCT_UPDATE));
+                .orElseThrow(() -> new AppException(ErrorMessageHandler.FAILED_PRODUCT_UPDATE));
 
         return convertProductToDto(updatedProduct);
     }
@@ -134,7 +137,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductDto rateProduct(Long productId, int rating) {
         if (!isRatingValid(rating)) {
-            throw new AppException(ErrorMessage.PRODUCT_RATING_ERROR);
+            throw new AppException(ErrorMessageHandler.PRODUCT_RATING_ERROR);
         }
 
         Product product = getProductById(productId);
@@ -156,7 +159,7 @@ public class ProductService implements IProductService {
         Product product = getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
-            throw new AppException(ErrorMessage.DELETING_WITH_NOT_AUTHORIZED_USER);
+            throw new AppException(ErrorMessageHandler.DELETING_WITH_NOT_AUTHORIZED_USER);
         }
 
         productRepository.delete(product);
