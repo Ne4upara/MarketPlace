@@ -27,6 +27,7 @@ public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
+    private final CustomOAuth2Service auth2Service;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     /**
@@ -59,9 +60,15 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "/h2-console/**"
+                                "/h2-console/**",
+                                "/oauth2/**"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest()
+                        .authenticated()
+                )
+                .oauth2Login(oauth ->
+                        oauth
+                                .userInfoEndpoint(endpoint -> endpoint.userService(auth2Service))
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
