@@ -35,18 +35,18 @@ public class ProductControllerImp implements IProductController {
         return productService.saveProduct(principal, request);
     }
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     public ProductDto updateProduct
             (Principal principal, @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         return productService.updateProduct(principal, id, request);
     }
 
-    @PostMapping("/{productId}/rate/{rating}")
+    @PatchMapping("/{productId}/rate/{rating}")
     public ProductDto rateProduct(@PathVariable Long productId, @PathVariable int rating) {
         return productService.rateProduct(productId, rating);
     }
 
-    @PostMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(Principal principal, @PathVariable Long id) {
         productService.deleteProduct(principal, id);
