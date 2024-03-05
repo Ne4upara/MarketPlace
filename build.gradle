@@ -48,6 +48,8 @@ dependencies {
     implementation 'org.jacoco:org.jacoco.core:0.8.7'
     implementation 'org.jacoco:org.jacoco.report:0.8.7'
     implementation 'com.h2database:h2'
+    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
     runtimeOnly 'org.postgresql:postgresql'
