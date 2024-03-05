@@ -21,7 +21,7 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public Map<String, Map<String, String>> handleInvalidArgument(MethodArgumentNotValidException ex){
         Map<String, Map<String,String>> errorResponse = new HashMap<>();
         Map<String, String> errorMap = new HashMap<>();
