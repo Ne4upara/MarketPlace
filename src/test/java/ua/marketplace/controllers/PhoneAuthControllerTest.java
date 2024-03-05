@@ -35,15 +35,15 @@ class PhoneAuthControllerTest {
     @Test
     void testRegisterSuccessfully() throws Exception {
 
-        RegistrationRequest request = RegistrationRequest.builder()
-                .phoneNumber("+380123456785")
-                .firstName("Test")
-                .build();
+        RegistrationRequest request = new RegistrationRequest(
+                "Test",
+                "+380123456785");
+
 
         mockMvc.perform(post("/api/v1/auth/registration")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isAccepted())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.phoneNumber").value("+380123456785"));
     }
@@ -51,11 +51,9 @@ class PhoneAuthControllerTest {
     @Test
     void testRegistrationWithInvalidPatternRequest() throws Exception {
 
-        RegistrationRequest request = RegistrationRequest
-                .builder()
-                .phoneNumber("+123456709812")
-                .firstName("Test1")
-                .build();
+        RegistrationRequest request = new RegistrationRequest(
+                "Test1",
+                "+123456709812");
 
         mockMvc.perform(post("/api/v1/auth/registration")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -69,11 +67,9 @@ class PhoneAuthControllerTest {
     @Test
     void testRegistrationWithInvalidSizeRequest() throws Exception {
 
-        RegistrationRequest request = RegistrationRequest
-                .builder()
-                .phoneNumber("+3801")
-                .firstName("s")
-                .build();
+        RegistrationRequest request = new RegistrationRequest(
+               "s",
+                "+3801");
 
         mockMvc.perform(post("/api/v1/auth/registration")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -87,12 +83,12 @@ class PhoneAuthControllerTest {
     @Test
     void testLoginCodeSuccessfully() throws Exception {
 
-        PhoneCodeRequest request = PhoneCodeRequest.builder()
-                .phoneNumber("+380123456784")
-                .inputCode("1111")
-                .build();
+        PhoneCodeRequest request = new PhoneCodeRequest(
+                "1111",
+                "+380123456784");
 
-        User user = User.builder().phoneNumber(request.getPhoneNumber())
+
+        User user = User.builder().phoneNumber(request.phoneNumber())
                 .firstName("Test").build();
         VerificationCode code = VerificationCode.builder()
                 .code("1111")
@@ -115,11 +111,9 @@ class PhoneAuthControllerTest {
     @Test
     void testLoginCodeInvalidPatternRequest() throws Exception {
 
-        PhoneCodeRequest request = PhoneCodeRequest
-                .builder()
-                .phoneNumber("+123456789012")
-                .inputCode("12s5")
-                .build();
+        PhoneCodeRequest request = new PhoneCodeRequest(
+               "12s5",
+               "+123456789012");
 
         mockMvc.perform(post("/api/v1/auth/login/code")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -135,11 +129,9 @@ class PhoneAuthControllerTest {
     @Test
     void testLoginCodeInvalidSizeRequest() throws Exception {
 
-        PhoneCodeRequest request = PhoneCodeRequest
-                .builder()
-                .phoneNumber("+38012")
-                .inputCode("112")
-                .build();
+        PhoneCodeRequest request = new PhoneCodeRequest(
+                "112",
+               "+38012");
 
         mockMvc.perform(post("/api/v1/auth/login/code")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -162,11 +154,11 @@ class PhoneAuthControllerTest {
     @Test
     void testLoginSuccessfully() throws Exception {
 
-        PhoneNumberRequest request = PhoneNumberRequest.builder()
-                .phoneNumber("+380123467895")
-                .build();
+        PhoneNumberRequest request = new PhoneNumberRequest(
+               "+380123467895");
 
-        User user = User.builder().phoneNumber(request.getPhoneNumber())
+
+        User user = User.builder().phoneNumber(request.phoneNumber())
                 .firstName("Test").build();
         VerificationCode code = VerificationCode.builder()
                 .code("1111")
@@ -188,10 +180,9 @@ class PhoneAuthControllerTest {
     @Test
     void testLoginFailed() throws Exception {
 
-        PhoneNumberRequest request = PhoneNumberRequest
-                .builder()
-                .phoneNumber("+123456789012")
-                .build();
+        PhoneNumberRequest request = new PhoneNumberRequest (
+                "+123456789012");
+
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

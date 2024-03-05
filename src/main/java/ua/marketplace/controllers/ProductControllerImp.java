@@ -19,12 +19,14 @@ public class ProductControllerImp implements IProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/list")
+    @GetMapping("/s/list")
+    @ResponseStatus(HttpStatus.OK)
     public List<MainPageProductDto> getAllProductsForMainPage() {
         return productService.getAllProductsForMainPage();
     }
 
-    @GetMapping("/details/{id}")
+    @GetMapping("/s/details/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ProductDto getProductDetailsById(@PathVariable Long id) {
         return productService.getProductDetails(id);
     }
@@ -36,12 +38,14 @@ public class ProductControllerImp implements IProductController {
     }
 
     @PutMapping("/update/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ProductDto updateProduct
             (Principal principal, @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         return productService.updateProduct(principal, id, request);
     }
 
     @PatchMapping("/{productId}/rate/{rating}")
+    @ResponseStatus(HttpStatus.OK)
     public ProductDto rateProduct(@PathVariable Long productId, @PathVariable int rating) {
         return productService.rateProduct(productId, rating);
     }

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ua.marketplace.constants.ErrorMessageHandler;
+import ua.marketplace.utils.ErrorMessageHandler;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.entities.Product;
@@ -81,7 +81,7 @@ public class ProductService implements IProductService {
         Product product = getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
-            throw new AppException("You are not authorized to update this product");
+            throw new AppException(ErrorMessageHandler.NOT_AUTHORIZED);
         }
 
         Product updatedProduct = Stream.of(product)

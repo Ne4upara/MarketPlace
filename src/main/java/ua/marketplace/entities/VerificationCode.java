@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 public class VerificationCode {
 
     @Id
@@ -37,5 +36,5 @@ public class VerificationCode {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "phone_number", referencedColumnName = "phone_number")
-    private User user;
+    User user;
 }

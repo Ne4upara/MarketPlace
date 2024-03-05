@@ -5,15 +5,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
-import ua.marketplace.exception.AppException;
 import ua.marketplace.requests.*;
 import ua.marketplace.security.JwtUtil;
 import ua.marketplace.services.PhoneNumberRegistrationService;
@@ -38,12 +33,13 @@ public class PhoneAuthController {
      * @return ResponseEntity containing the registered phone number or validation errors.
      */
     @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "User login",
             description = "Endpoint for sending user verification codes")
-    public ResponseEntity<PhoneNumberDto> inputPhoneNumber(
-            @Valid @RequestBody PhoneNumberRequest request) throws AppException {
+    public PhoneNumberDto inputPhoneNumber(
+            @Valid @RequestBody PhoneNumberRequest request){
         User user = phoneNumberService.inputPhoneNumber(request);
-        return ResponseEntity.status(HttpStatus.OK).body(new PhoneNumberDto(user.getPhoneNumber()));
+        return new PhoneNumberDto(user.getPhoneNumber());
     }
 
     /**
@@ -53,13 +49,13 @@ public class PhoneAuthController {
      * @return ResponseEntity containing the JWT token or validation errors.
      */
     @PostMapping("/login/code")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Verification SMS-code",
             description = "Endpoint for verification SMS-code")
-    public ResponseEntity<CodeDto> inputCode
-    (@Valid @RequestBody PhoneCodeRequest request) throws AppException {
+    public CodeDto inputCode
+    (@Valid @RequestBody PhoneCodeRequest request){
         User user = phoneNumberService.inputPhoneCode(request);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()), user.getFirstName()));
+        return new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()), user.getFirstName());
     }
 
     /**
@@ -69,11 +65,12 @@ public class PhoneAuthController {
      * @return ResponseEntity containing the response for the registration request.
      */
     @PostMapping("/registration")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @Operation(summary = "Registration new user" ,
             description = "Endpoint for registration new users")
-    public ResponseEntity<PhoneNumberDto> registration
-    (@Valid @RequestBody RegistrationRequest request) throws AppException {
+    public PhoneNumberDto registration
+    (@Valid @RequestBody RegistrationRequest request){
         User user = phoneNumberService.registrationUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new PhoneNumberDto(user.getPhoneNumber()));
+        return new PhoneNumberDto(user.getPhoneNumber());
     }
 }
