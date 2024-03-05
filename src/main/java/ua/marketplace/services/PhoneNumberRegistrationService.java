@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.exception.AppException;
+import ua.marketplace.exception.ConflictException;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
@@ -191,8 +192,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      */
     private void validatePhoneNumberNotExist(String phoneNumber) {
         if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(phoneNumber))) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    String.format(ErrorMessageHandler.PHONE_ALREADY_EXIST, phoneNumber));
+            throw new ConflictException(String.format(ErrorMessageHandler.PHONE_ALREADY_EXIST, phoneNumber));
         }
     }
 

@@ -5,9 +5,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.exception.AppException;
+import ua.marketplace.exception.ConflictException;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
@@ -283,7 +285,7 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.existsByPhoneNumber(request.phoneNumber())).thenReturn(true);
 
         // When, Then
-        AppException exception = assertThrows(AppException.class, () -> registrationService.registrationUser(request));
+        ConflictException exception = assertThrows(ConflictException.class, () -> registrationService.registrationUser(request));
         assertEquals("Phone already exists: " + request.phoneNumber(), exception.getMessage());
     }
 }

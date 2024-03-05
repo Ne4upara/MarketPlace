@@ -1,9 +1,11 @@
 package ua.marketplace.advice;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ua.marketplace.exception.ConflictException;
 import ua.marketplace.utils.ErrorMessageHandler;
 import ua.marketplace.exception.AppException;
 import java.util.HashMap;
@@ -20,8 +22,16 @@ public class ApplicationExceptionHandler {
         return errorMap;
     }
 
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> conflictException(Exception ex){
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put(ErrorMessageHandler.ERROR_MESSAGE, ex.getMessage());
+        return errorMap;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Map<String, String>> handleInvalidArgument(MethodArgumentNotValidException ex){
         Map<String, Map<String,String>> errorResponse = new HashMap<>();
         Map<String, String> errorMap = new HashMap<>();
