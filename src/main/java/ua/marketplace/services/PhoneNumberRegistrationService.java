@@ -1,7 +1,9 @@
 package ua.marketplace.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.exception.AppException;
@@ -10,8 +12,8 @@ import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
+import ua.marketplace.utils.ErrorMessageHandler;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -61,7 +63,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      */
     private User getUserByPhoneNumber(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new AppException("User with this phone not found " + phoneNumber));
+                .orElseThrow(() -> new AppException(String.format(ErrorMessageHandler.USER_NOT_FOUND, phoneNumber)));
     }
 
     /**
@@ -73,7 +75,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
     private void checkTimeForResendingCode(User user) {
         int timeAfterAccess = 1;
         if (isTimeUp(user.getVerificationCode(), timeAfterAccess, false)) {
-            throw new AppException("Time to send a repeat code 1 minute");
+            throw new AppException(ErrorMessageHandler.SEND_REPEAT);
         }
     }
 
@@ -120,7 +122,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      */
     private void validateCodeEntry(VerificationCode verificationCode) {
         if (Boolean.FALSE.equals(verificationCode.getIsEntryByCode())) {
-            throw new AppException("There was already a code entry.");
+            throw new AppException(ErrorMessageHandler.CODE_ALREADY_ENTRY);
         }
     }
 
@@ -135,12 +137,12 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
         if (!verificationCode.getCode().equals(inputCode)) {
             int maxLoginAttempt = 3;
             if (verificationCode.getLoginAttempt() >= maxLoginAttempt) {
-                throw new AppException("You've used up all your attempts");
+                throw new AppException(ErrorMessageHandler.USED_UP_ALL);
             }
 
             verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + 1);
             verificationCodeRepository.save(verificationCode);
-            throw new AppException("The code was entered incorrectly");
+            throw new AppException(ErrorMessageHandler.CODE_WAS_ENTERED_INCORRECT);
         }
     }
 
@@ -153,7 +155,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
     private void validateTime(VerificationCode verificationCode) {
         int timeBeforeAccess = 5;
         if (isTimeUp(verificationCode, timeBeforeAccess, true)) {
-            throw new AppException("Time is up");
+            throw new AppException(ErrorMessageHandler.TIME_IS_UP);
         }
     }
 
@@ -189,7 +191,8 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      */
     private void validatePhoneNumberNotExist(String phoneNumber) {
         if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(phoneNumber))) {
-            throw new AppException("Phone already exists: " + phoneNumber);
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    String.format(ErrorMessageHandler.PHONE_ALREADY_EXIST, phoneNumber));
         }
     }
 

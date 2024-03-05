@@ -30,7 +30,7 @@ class PhoneAuthControllerTest {
     @Autowired
     private UserRepository userRepository;
     @InjectMocks
-    private PhoneAuthController regController;
+    private PhoneAuthControllerImp regController;
 
     @Test
     void testRegisterSuccessfully() throws Exception {

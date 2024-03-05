@@ -21,7 +21,7 @@ import ua.marketplace.services.PhoneNumberRegistrationService;
 @RequiredArgsConstructor
 @Tag(name = "Authorization controller",
         description = "Endpoints for registration and authorization users")
-public class PhoneAuthController {
+public class PhoneAuthControllerImp implements IPhoneAuthController{
 
     private final PhoneNumberRegistrationService phoneNumberService;
     private final JwtUtil jwtUtil;
