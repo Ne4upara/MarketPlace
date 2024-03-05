@@ -1,9 +1,10 @@
 package ua.marketplace.services;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.exception.AppException;
@@ -21,14 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("PMD")
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class PhoneNumberRegistrationServiceTest {
 
     @Mock
     private UserRepository userRepository;
     @Mock
     private VerificationCodeRepository verificationCodeRepository;
-
     @InjectMocks
     private PhoneNumberRegistrationService registrationService;
 
@@ -36,13 +36,12 @@ class PhoneNumberRegistrationServiceTest {
     void testInputPhoneNumberSuccessfully() throws AppException {
 
         // Given
-        PhoneNumberRequest request = PhoneNumberRequest.builder()
-                .phoneNumber("+380999999999")
-                .build();
+        PhoneNumberRequest request = new PhoneNumberRequest(
+               "+380999999999");
 
         User expectedUser = User.builder()
                 .firstName("test")
-                .phoneNumber(request.getPhoneNumber())
+                .phoneNumber(request.phoneNumber())
                 .verificationCode(VerificationCode.builder()
                         .code("2222")
                         .loginAttempt(0)
@@ -52,7 +51,7 @@ class PhoneNumberRegistrationServiceTest {
                 .isEnabled(true)
                 .build();
 
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(expectedUser));
+        when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(expectedUser));
         when(userRepository.save(expectedUser)).thenReturn(expectedUser);
 
         // When
@@ -60,34 +59,32 @@ class PhoneNumberRegistrationServiceTest {
 
         // Then
         assertEquals(expectedUser, result);
-        verify(userRepository).findByPhoneNumber(request.getPhoneNumber());
+        verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
     @Test
     void testInputPhoneNumberUserDoesNotExist() {
 
         // Given
-        PhoneNumberRequest request = PhoneNumberRequest.builder()
-                .phoneNumber("+380999999999")
-                .build();
+        PhoneNumberRequest request = new PhoneNumberRequest(
+                "+380999999999");
 
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.empty());
+        when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.empty());
 
         // When, Then
         assertThrows(AppException.class, () -> registrationService.inputPhoneNumber(request));
-        verify(userRepository).findByPhoneNumber(request.getPhoneNumber());
+        verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
     @Test
     void testInputPhoneNumberWithTimeToResendingCodeNotEnd() {
         // Given
-        PhoneNumberRequest request = PhoneNumberRequest.builder()
-                .phoneNumber("+380999999999")
-                .build();
+        PhoneNumberRequest request = new PhoneNumberRequest(
+               "+380999999999");
 
         User expectedUser = User.builder()
                 .firstName("test")
-                .phoneNumber(request.getPhoneNumber())
+                .phoneNumber(request.phoneNumber())
                 .verificationCode(VerificationCode.builder()
                         .code("2222")
                         .loginAttempt(0)
@@ -97,26 +94,24 @@ class PhoneNumberRegistrationServiceTest {
                 .isEnabled(true)
                 .build();
 
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(expectedUser));
-        when(userRepository.save(expectedUser)).thenReturn(expectedUser);
+        when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(expectedUser));
 
         //When, Then
         assertThrows(AppException.class, () -> registrationService.inputPhoneNumber(request));
-        verify(userRepository).findByPhoneNumber(request.getPhoneNumber());
+        verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
     @Test
     void testInputPhoneCodeSuccessfully() throws AppException {
 
         // Given
-        PhoneCodeRequest request = PhoneCodeRequest.builder()
-                .phoneNumber("+380999999999")
-                .inputCode("2222")
-                .build();
+        PhoneCodeRequest request = new PhoneCodeRequest(
+                "2222",
+                "+380999999999");
 
         User expectedUser = User.builder()
                 .firstName("test")
-                .phoneNumber(request.getPhoneNumber())
+                .phoneNumber(request.phoneNumber())
                 .verificationCode(VerificationCode.builder()
                         .code("2222")
                         .loginAttempt(0)
@@ -126,43 +121,41 @@ class PhoneNumberRegistrationServiceTest {
                 .isEnabled(true)
                 .build();
 
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(expectedUser));
+        when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(expectedUser));
 
         // When
         User result = registrationService.inputPhoneCode(request);
 
         // Then
         assertEquals(expectedUser, result);
-        verify(userRepository).findByPhoneNumber(request.getPhoneNumber());
+        verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
     @Test
     void testInputPhoneCodeUserDoesNotExist() {
 
         // Given
-        PhoneCodeRequest request = PhoneCodeRequest.builder()
-                .phoneNumber("+380999999999")
-                .inputCode("2222")
-                .build();
+        PhoneCodeRequest request = new PhoneCodeRequest(
+                "2222",
+                "+380999999999");
 
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.empty());
+        when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.empty());
 
         // When, Then
         assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
-        verify(userRepository).findByPhoneNumber(request.getPhoneNumber());
+        verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
     @Test
     void testInputPhoneCodeInvalidCode() {
         // Given
-        PhoneCodeRequest request = PhoneCodeRequest.builder()
-                .phoneNumber("+380999999999")
-                .inputCode("3333")
-                .build();
+        PhoneCodeRequest request = new PhoneCodeRequest(
+                "3333",
+                "+380999999999");
 
         User expectedUser = User.builder()
                 .firstName("test")
-                .phoneNumber(request.getPhoneNumber())
+                .phoneNumber(request.phoneNumber())
                 .verificationCode(VerificationCode.builder()
                         .code("2222")
                         .loginAttempt(0)
@@ -172,25 +165,24 @@ class PhoneNumberRegistrationServiceTest {
                 .isEnabled(true)
                 .build();
 
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(expectedUser));
+        when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(expectedUser));
 
         // When, Then
         assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
-        verify(userRepository).findByPhoneNumber(request.getPhoneNumber());
+        verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
     @Test
     void testInputPhoneCodeTimeToResendCodeNotElapsed() {
 
         // Given
-        PhoneCodeRequest request = PhoneCodeRequest.builder()
-                .phoneNumber("+380999999999")
-                .inputCode("2222")
-                .build();
+        PhoneCodeRequest request = new PhoneCodeRequest(
+                "2222",
+               "+380999999999");
 
         User expectedUser = User.builder()
                 .firstName("test")
-                .phoneNumber(request.getPhoneNumber())
+                .phoneNumber(request.phoneNumber())
                 .verificationCode(VerificationCode.builder()
                         .code("2222")
                         .loginAttempt(0)
@@ -200,20 +192,19 @@ class PhoneNumberRegistrationServiceTest {
                 .isEnabled(true)
                 .build();
 
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(expectedUser));
+        when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(expectedUser));
 
         // When, Then
         assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
-        verify(userRepository).findByPhoneNumber(request.getPhoneNumber());
+        verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
     @Test
     void testInputPhoneCodeMaxAttemptsReached() {
         // Given
-        PhoneCodeRequest request = PhoneCodeRequest.builder()
-                .phoneNumber("+380999999999")
-                .inputCode("222")
-                .build();
+        PhoneCodeRequest request = new PhoneCodeRequest(
+              "222",
+                "+380999999999");
 
         User user = User.builder()
                 .verificationCode(VerificationCode.builder()
@@ -224,7 +215,7 @@ class PhoneNumberRegistrationServiceTest {
                         .build())
                 .build();
 
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(user));
 
         // When, Then
         AppException exception = assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
@@ -234,10 +225,9 @@ class PhoneNumberRegistrationServiceTest {
     @Test
     void testInputPhoneCodeTimeUp() {
         // Given
-        PhoneCodeRequest request = PhoneCodeRequest.builder()
-                .phoneNumber("+380999999999")
-                .inputCode("2222")
-                .build();
+        PhoneCodeRequest request = new PhoneCodeRequest(
+              "2222",
+               "+380999999999");
 
         User user = User.builder()
                 .verificationCode(VerificationCode.builder()
@@ -248,7 +238,7 @@ class PhoneNumberRegistrationServiceTest {
                         .build())
                 .build();
 
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.of(user));
+        when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(user));
 
         // When, Then
         AppException exception = assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
@@ -259,14 +249,13 @@ class PhoneNumberRegistrationServiceTest {
     void testRegistrationUserSuccessfully() throws AppException {
 
         // Given
-        RegistrationRequest request = RegistrationRequest.builder()
-                .firstName("John")
-                .phoneNumber("+380999999999")
-                .build();
+        RegistrationRequest request = new RegistrationRequest(
+               "John",
+               "+380999999999");
 
         User expectedUser = User.builder()
-                .firstName(request.getFirstName())
-                .phoneNumber(request.getPhoneNumber())
+                .firstName(request.firstName())
+                .phoneNumber(request.phoneNumber())
                 .verificationCode(VerificationCode.builder()
                         .code("1111")
                         .createdTimeCode(LocalDateTime.now())
@@ -275,7 +264,7 @@ class PhoneNumberRegistrationServiceTest {
                         .build())
                 .build();
 
-        when(userRepository.existsByPhoneNumber(request.getPhoneNumber())).thenReturn(false);
+        when(userRepository.existsByPhoneNumber(request.phoneNumber())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(expectedUser);
 
         User result = registrationService.registrationUser(request);
@@ -287,15 +276,14 @@ class PhoneNumberRegistrationServiceTest {
     void testRegistrationUser_PhoneNumberAlreadyExists() {
 
         // Given
-        RegistrationRequest request = RegistrationRequest.builder()
-                .firstName("John")
-                .phoneNumber("+380999999999")
-                .build();
+        RegistrationRequest request = new RegistrationRequest(
+                "John",
+                "+380999999999");
 
-        when(userRepository.existsByPhoneNumber(request.getPhoneNumber())).thenReturn(true);
+        when(userRepository.existsByPhoneNumber(request.phoneNumber())).thenReturn(true);
 
         // When, Then
         AppException exception = assertThrows(AppException.class, () -> registrationService.registrationUser(request));
-        assertEquals("Phone already exists: " + request.getPhoneNumber(), exception.getMessage());
+        assertEquals("Phone already exists: " + request.phoneNumber(), exception.getMessage());
     }
 }
