@@ -5,6 +5,9 @@ import ua.marketplace.data.ProductCategory;
 
 import java.math.BigDecimal;
 
+/**
+ * Represents a request to create a product.
+ */
 public record ProductRequest(
         @NotBlank(message = "Product must have a name")
         @Size(min = 5, max = 100, message = "Product's name should be between 5 and 100 chars")

@@ -3,7 +3,6 @@ package ua.marketplace.controllers;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import java.security.Principal;
 import java.util.List;
 
@@ -13,11 +12,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
-import ua.marketplace.swagger.responses.NotFoundResponse;
+import ua.marketplace.swagger.responses.ErrorMessageResponse;
 import ua.marketplace.swagger.responses.ValidationErrorResponse;
 
 @Tag(name = "Product controller",
@@ -35,7 +33,7 @@ public interface IProductController {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = ProductDto.class))),
             @ApiResponse(responseCode = "404", description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = NotFoundResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
     ProductDto getProductDetailsById(@Parameter(description = "ID of the product") Long id);
 
@@ -43,9 +41,10 @@ public interface IProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Product created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input",
-                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Not authorized user",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
-    @ResponseStatus(HttpStatus.CREATED)
     ProductDto createProduct
             (@Parameter(description = "Principal object representing the authenticated user") Principal principal,
                              @Parameter(description = "Request body containing product details", schema =
@@ -57,8 +56,11 @@ public interface IProductController {
             @ApiResponse(responseCode = "200", description = "Product updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Not authorized user",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class))),
+
             @ApiResponse(responseCode = "404", description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = NotFoundResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
     ProductDto updateProduct(@Parameter(description = "Principal object representing the authenticated user")
                              Principal principal,
@@ -73,7 +75,7 @@ public interface IProductController {
             @ApiResponse(responseCode = "400", description = "Invalid input",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = NotFoundResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
     ProductDto rateProduct(@Parameter(description = "ID of the product to be rated") Long productId,
                            @Parameter(description = "Rating value to be assigned to the product") int rating);
@@ -81,8 +83,10 @@ public interface IProductController {
     @Operation(summary = "Delete a product", description = "Endpoint to delete a product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authorized user",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class))),
             @ApiResponse(responseCode = "404", description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = NotFoundResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
     void deleteProduct(@Parameter(description = "Principal object representing the authenticated user")
                        Principal principal,

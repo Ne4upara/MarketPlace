@@ -1,5 +1,8 @@
 package ua.marketplace.utils;
 
+/**
+ * Class containing static final strings representing error messages used in the application.
+ */
 public final class ErrorMessageHandler {
     public static final String USER_NOT_AUTHORIZED = "User not authorized";
     public static final String FAILED_PRODUCT_UPDATE = "Failed to update product";
@@ -16,5 +19,6 @@ public final class ErrorMessageHandler {
     public static final String SEND_REPEAT = "Time to send a repeat code 1 minute";
     public static final String USER_NOT_FOUND = "User with this phone not found %s";
 
-    private ErrorMessageHandler(){}
+    private ErrorMessageHandler() {
+    }
 }

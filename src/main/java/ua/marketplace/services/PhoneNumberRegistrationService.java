@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
-import ua.marketplace.exception.AppException;
-import ua.marketplace.exception.ConflictException;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
@@ -15,6 +13,7 @@ import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.utils.ErrorMessageHandler;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -24,6 +23,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationService {
 
+    private static final int MAX_LOGIN_ATTEMPTS = 3;
+    private static final int TIME_BEFORE_ACCESS = 5;
     private final UserRepository userRepository;
     private final VerificationCodeRepository verificationCodeRepository;
 
@@ -32,7 +33,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      *
      * @param request The request object containing the phone number registration request.
      * @return The user object that has been saved after updating the verification code.
-     * @throws AppException An exception that occurs if the user is not found with the given phone number.
+     * @throws ResponseStatusException An exception that occurs if the user is not found with the given phone number.
      */
     @Override
     public User inputPhoneNumber(PhoneNumberRequest request) {
@@ -60,23 +61,24 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      *
      * @param phoneNumber The phone number of the user.
      * @return The user object with the specified phone number.
-     * @throws AppException An exception that occurs if the user is not found with the specified phone number.
+     * @throws ResponseStatusException An exception that occurs if the user is not found with the specified phone number.
      */
     private User getUserByPhoneNumber(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new AppException(String.format(ErrorMessageHandler.USER_NOT_FOUND, phoneNumber)));
+                .orElseThrow(() -> new ResponseStatusException
+                        (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.USER_NOT_FOUND, phoneNumber)));
     }
 
     /**
      * Checks if it's time to resend the verification code.
      *
      * @param user The user object to check for resending the verification code.
-     * @throws AppException An exception indicating that it's not time to resend the code yet.
+     * @throws ResponseStatusException An exception indicating that it's not time to resend the code yet.
      */
     private void checkTimeForResendingCode(User user) {
-        int timeAfterAccess = 1;
-        if (isTimeUp(user.getVerificationCode(), timeAfterAccess, false)) {
-            throw new AppException(ErrorMessageHandler.SEND_REPEAT);
+        int timeAfterAccess = BigDecimal.ONE.intValue();
+        if (isTimeUp(user.getVerificationCode(), timeAfterAccess, Boolean.FALSE)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.SEND_REPEAT);
         }
     }
 
@@ -102,7 +104,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      *
      * @param request The request object containing the verification code input.
      * @return The user object if verification is successful.
-     * @throws AppException An exception that occurs if verification fails.
+     * @throws ResponseStatusException An exception that occurs if verification fails.
      */
     @Override
     public User inputPhoneCode(PhoneCodeRequest request) {
@@ -119,11 +121,11 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      * Validates if the user has already entered a verification code.
      *
      * @param verificationCode The verification code object to validate.
-     * @throws AppException An exception indicating that a code has already been entered.
+     * @throws ResponseStatusException An exception indicating that a code has already been entered.
      */
     private void validateCodeEntry(VerificationCode verificationCode) {
         if (Boolean.FALSE.equals(verificationCode.getIsEntryByCode())) {
-            throw new AppException(ErrorMessageHandler.CODE_ALREADY_ENTRY);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.CODE_ALREADY_ENTRY);
         }
     }
 
@@ -132,18 +134,17 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      *
      * @param verificationCode The verification code object to validate against.
      * @param inputCode        The input code to validate.
-     * @throws AppException An exception indicating that the entered code is incorrect or maximum attempts reached.
+     * @throws ResponseStatusException An exception indicating that the entered code is incorrect or maximum attempts reached.
      */
     private void validateCode(VerificationCode verificationCode, String inputCode) {
         if (!verificationCode.getCode().equals(inputCode)) {
-            int maxLoginAttempt = 3;
-            if (verificationCode.getLoginAttempt() >= maxLoginAttempt) {
-                throw new AppException(ErrorMessageHandler.USED_UP_ALL);
+            if (verificationCode.getLoginAttempt() >= MAX_LOGIN_ATTEMPTS) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.USED_UP_ALL);
             }
 
-            verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + 1);
+            verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + BigDecimal.ONE.intValue());
             verificationCodeRepository.save(verificationCode);
-            throw new AppException(ErrorMessageHandler.CODE_WAS_ENTERED_INCORRECT);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessageHandler.CODE_WAS_ENTERED_INCORRECT);
         }
     }
 
@@ -151,12 +152,11 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      * Validates if the time is not up for code verification.
      *
      * @param verificationCode The verification code object to check for time validation.
-     * @throws AppException An exception indicating that the time is up for code verification.
+     * @throws ResponseStatusException An exception indicating that the time is up for code verification.
      */
     private void validateTime(VerificationCode verificationCode) {
-        int timeBeforeAccess = 5;
-        if (isTimeUp(verificationCode, timeBeforeAccess, true)) {
-            throw new AppException(ErrorMessageHandler.TIME_IS_UP);
+        if (isTimeUp(verificationCode, TIME_BEFORE_ACCESS, true)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.TIME_IS_UP);
         }
     }
 
@@ -175,7 +175,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      *
      * @param request The object containing the data for registering a new user.
      * @return The newly registered user object saved in the database.
-     * @throws AppException An exception that occurs if a user with the specified phone number already exists.
+     * @throws ResponseStatusException An exception that occurs if a user with the specified phone number already exists.
      */
     @Override
     public User registrationUser(RegistrationRequest request) {
@@ -188,11 +188,12 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      * Validates if the phone number is not already registered.
      *
      * @param phoneNumber The phone number to validate.
-     * @throws AppException An exception indicating that the phone number is already registered.
+     * @throws ResponseStatusException An exception indicating that the phone number is already registered.
      */
     private void validatePhoneNumberNotExist(String phoneNumber) {
         if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(phoneNumber))) {
-            throw new ConflictException(String.format(ErrorMessageHandler.PHONE_ALREADY_EXIST, phoneNumber));
+            throw new ResponseStatusException
+                    (HttpStatus.CONFLICT, String.format(ErrorMessageHandler.PHONE_ALREADY_EXIST, phoneNumber));
         }
     }
 
