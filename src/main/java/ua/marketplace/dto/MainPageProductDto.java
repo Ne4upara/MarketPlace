@@ -7,6 +7,7 @@ import java.math.BigDecimal;
  * This class provides an immutable representation of product information for main page.
  */
 public record MainPageProductDto(
+        Long id,
         String productPhotoLink,
         String productName,
         String productType,

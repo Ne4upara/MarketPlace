@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
  * This class provides an immutable representation of product information.
  */
 public record ProductDto(
+        Long id,
         String productName,
         String productPhotoLink,
         BigDecimal productPrice,
