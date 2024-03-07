@@ -52,7 +52,7 @@ public class ProductService implements IProductService {
     }
 
     private Sort isSort(String sortBy, String orderBy) {
-        if (orderBy.equals("ASC")) return Sort.by(sortBy).ascending();
+        if ("ASC".equals(orderBy)) return Sort.by(sortBy).ascending();
         return Sort.by(sortBy).descending();
     }
 
