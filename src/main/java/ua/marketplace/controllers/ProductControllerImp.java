@@ -1,6 +1,9 @@
 package ua.marketplace.controllers;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +32,14 @@ public class ProductControllerImp implements IProductController {
      */
     @GetMapping("/s/list")
     @ResponseStatus(HttpStatus.OK)
-    public List<MainPageProductDto> getAllProductsForMainPage() {
-        return productService.getAllProductsForMainPage();
+    public List<MainPageProductDto> getAllProductsForMainPage(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int pageNumber,
+            @Valid @RequestParam(defaultValue = "10") @Positive int pageSize,
+            @Valid @RequestParam(defaultValue = "creationDate")
+                @Pattern(regexp = "creationDate|productName|productPrice|id") String sortBy,
+            @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String orderBy
+    ) {
+        return productService.getAllProductsForMainPage(pageNumber, pageSize, sortBy, orderBy);
     }
 
     /**

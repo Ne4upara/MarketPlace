@@ -1,5 +1,6 @@
 package ua.marketplace.services;
 
+import org.springframework.data.domain.Sort;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
@@ -17,7 +18,7 @@ public interface IProductService {
      *
      * @return List of MainPageProductDto containing product details for the main page.
      */
-    List<MainPageProductDto> getAllProductsForMainPage();
+    List<MainPageProductDto> getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy);
 
     /**
      * Retrieves details of a product by its ID.

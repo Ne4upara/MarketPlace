@@ -11,7 +11,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
@@ -25,7 +29,12 @@ public interface IProductController {
     @Operation(summary = "Get all products for main page",
             description = "Endpoint to retrieve all products for the main page")
     @ApiResponse(responseCode = "200", description = "Successful operation")
-    List<MainPageProductDto> getAllProductsForMainPage();
+    List<MainPageProductDto> getAllProductsForMainPage(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int pageNumber,
+            @Valid @RequestParam(defaultValue = "10") @Positive int pageSize,
+            @Valid @RequestParam(defaultValue = "creationDate")
+                @Pattern(regexp = "creationDate|productName|productPrice|id") String sortBy,
+            @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String orderBy);
 
     @Operation(summary = "Get product details by ID",
             description = "Endpoint to retrieve product details by ID")

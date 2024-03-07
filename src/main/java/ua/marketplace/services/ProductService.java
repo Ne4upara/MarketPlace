@@ -1,6 +1,10 @@
 package ua.marketplace.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -37,8 +41,19 @@ public class ProductService implements IProductService {
      * @return List of MainPageProductDto containing product details for the main page.
      */
     @Override
-    public List<MainPageProductDto> getAllProductsForMainPage() {
-        return convertProductListToDto(productRepository.findAll());
+    public List<MainPageProductDto> getAllProductsForMainPage(
+            int pageNumber, int pageSize, String sortBy, String orderBy) {
+        return convertProductListToDto(productRepository
+                .findAll(getPageRequest(pageNumber, pageSize, sortBy, orderBy)));
+    }
+
+    public Pageable getPageRequest(int num, int size, String sortBy, String orderBy) {
+        return PageRequest.of(num, size, isSort(sortBy, orderBy));
+    }
+
+    public Sort isSort(String sortBy, String orderBy) {
+        if (orderBy.equals("ASC")) return Sort.by(sortBy).ascending();
+        return Sort.by(sortBy).descending();
     }
 
     /**
@@ -47,7 +62,7 @@ public class ProductService implements IProductService {
      * @param products The list of Product entities to be converted.
      * @return List of MainPageProductDto containing mapped product details.
      */
-    private List<MainPageProductDto> convertProductListToDto(List<Product> products) {
+    private List<MainPageProductDto> convertProductListToDto(Page<Product> products) {
         return products.stream().map(ProductMapper.INSTANCE::toMainPageDto)
                 .toList();
     }
