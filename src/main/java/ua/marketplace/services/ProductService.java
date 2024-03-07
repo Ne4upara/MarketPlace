@@ -102,7 +102,7 @@ public class ProductService implements IProductService {
     private User getUserByPrincipal(Principal principal) {
         return userRepository.findByPhoneNumber(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException
-                        (HttpStatus.UNAUTHORIZED, ErrorMessageHandler.USER_NOT_AUTHORIZED));
+                        (HttpStatus.NOT_FOUND, ErrorMessageHandler.USER_NOT_AUTHORIZED));
     }
 
     /**
@@ -141,7 +141,7 @@ public class ProductService implements IProductService {
         Product product = getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, ErrorMessageHandler.NOT_AUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
 
         Product updatedProduct = Stream.of(product)
@@ -221,7 +221,7 @@ public class ProductService implements IProductService {
 
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException
-                    (HttpStatus.UNAUTHORIZED, ErrorMessageHandler.DELETING_WITH_NOT_AUTHORIZED_USER);
+                    (HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
 
         productRepository.delete(product);

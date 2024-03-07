@@ -42,8 +42,8 @@ public interface IProductController {
             @ApiResponse(responseCode = "201", description = "Product created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Not authorized user",
-                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
+            @ApiResponse(responseCode = "403", description = "Not authorized user",
+                    content = @Content())
     })
     ProductDto createProduct
             (@Parameter(description = "Principal object representing the authenticated user") Principal principal,
@@ -56,11 +56,13 @@ public interface IProductController {
             @ApiResponse(responseCode = "200", description = "Product updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Not authorized user",
-                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class))),
-
             @ApiResponse(responseCode = "404", description = "Product not found",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class))),
+            @ApiResponse(responseCode = "403", description = "User not authorized",
+                    content = @Content()),
+            @ApiResponse(responseCode = "409", description = "This product was not created by this user",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
+
     })
     ProductDto updateProduct(@Parameter(description = "Principal object representing the authenticated user")
                              Principal principal,
@@ -74,6 +76,8 @@ public interface IProductController {
             @ApiResponse(responseCode = "200", description = "Product rated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "User not authorized",
+                    content = @Content()),
             @ApiResponse(responseCode = "404", description = "Product not found",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
@@ -83,9 +87,11 @@ public interface IProductController {
     @Operation(summary = "Delete a product", description = "Endpoint to delete a product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
-            @ApiResponse(responseCode = "401", description = "Not authorized user",
-                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class))),
+            @ApiResponse(responseCode = "403", description = "User not authorized",
+                    content = @Content()),
             @ApiResponse(responseCode = "404", description = "Product not found",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class))),
+            @ApiResponse(responseCode = "409", description = "This product was not created by this user",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
     void deleteProduct(@Parameter(description = "Principal object representing the authenticated user")
