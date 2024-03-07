@@ -47,11 +47,11 @@ public class ProductService implements IProductService {
                 .findAll(getPageRequest(pageNumber, pageSize, sortBy, orderBy)));
     }
 
-    public Pageable getPageRequest(int num, int size, String sortBy, String orderBy) {
+    private Pageable getPageRequest(int num, int size, String sortBy, String orderBy) {
         return PageRequest.of(num, size, isSort(sortBy, orderBy));
     }
 
-    public Sort isSort(String sortBy, String orderBy) {
+    private Sort isSort(String sortBy, String orderBy) {
         if (orderBy.equals("ASC")) return Sort.by(sortBy).ascending();
         return Sort.by(sortBy).descending();
     }
