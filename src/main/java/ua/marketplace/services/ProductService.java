@@ -30,7 +30,6 @@ public class ProductService implements IProductService {
     private static final int MAX_RATE = 5;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-    private final ProductMapper productMapper;
 
     /**
      * Retrieves all products for the main page.
@@ -49,7 +48,7 @@ public class ProductService implements IProductService {
      * @return List of MainPageProductDto containing mapped product details.
      */
     private List<MainPageProductDto> convertProductListToDto(List<Product> products) {
-        return products.stream().map(productMapper::toMainPageDto)
+        return products.stream().map(ProductMapper.INSTANCE::toMainPageDto)
                 .toList();
     }
 
@@ -62,7 +61,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductDto getProductDetails(Long id) {
-        return productMapper.toDto(getProductById(id));
+        return ProductMapper.INSTANCE.productToProductDto(getProductById(id));
     }
 
     /**
@@ -90,7 +89,7 @@ public class ProductService implements IProductService {
         User user = getUserByPrincipal(principal);
         Product product = createProduct(request, user);
 
-        return productMapper.toDto(productRepository.save(product));
+        return ProductMapper.INSTANCE.productToProductDto(productRepository.save(product));
     }
 
     /**
@@ -161,7 +160,7 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.BAD_REQUEST, ErrorMessageHandler.FAILED_PRODUCT_UPDATE));
 
-        return productMapper.toDto(updatedProduct);
+        return ProductMapper.INSTANCE.productToProductDto(updatedProduct);
     }
 
     /**
@@ -195,7 +194,7 @@ public class ProductService implements IProductService {
         product.setProductRatingCount(product.getProductRatingCount() + BigDecimal.ONE.intValue());
 
         Product saved = productRepository.save(product);
-        return productMapper.toDto(saved);
+        return ProductMapper.INSTANCE.productToProductDto(saved);
     }
 
     /**

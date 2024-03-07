@@ -1,8 +1,8 @@
 package ua.marketplace.mapper;
 
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.entities.Product;
@@ -16,6 +16,8 @@ import java.math.BigDecimal;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
+    ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
+
     /**
      * Converts a Product entity to a ProductDto.
      *
@@ -24,7 +26,7 @@ public interface ProductMapper {
      */
 
     @Mapping(target = "productRating", expression = "java(getRating(product))")
-    ProductDto toDto(Product product);
+    ProductDto productToProductDto(Product product);
 
     /**
      * Converts a Product entity to a MainPageProductDto.
