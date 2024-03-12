@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.dto.MainPageProductDto;
+import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
@@ -35,16 +36,16 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    /**
-     * Retrieves all products for the main page.
-     *
-     * @return List of MainPageProductDto containing product details for the main page.
-     */
     @Override
-    public List<MainPageProductDto> getAllProductsForMainPage(
-            int pageNumber, int pageSize, String sortBy, String orderBy) {
-        return convertProductListToDto(productRepository
-                .findAll(getPageRequest(pageNumber, pageSize, sortBy, orderBy)));
+    public Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy) {
+        Page<Product> pageAll = productRepository.findAll(getPageRequest(
+                pageNumber, pageSize, sortBy,orderBy));
+        List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
+
+        return new Pagination(pageAll.getNumber(),
+                pageAll.getTotalElements(),
+                pageAll.getTotalPages(),
+                pageAllContent);
     }
 
     private Pageable getPageRequest(int num, int size, String sortBy, String orderBy) {

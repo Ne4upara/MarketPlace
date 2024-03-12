@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.security.Principal;
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +14,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import ua.marketplace.dto.MainPageProductDto;
+import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.swagger.responses.ErrorMessageResponse;
@@ -29,12 +27,12 @@ public interface IProductController {
     @Operation(summary = "Get all products for main page",
             description = "Endpoint to retrieve all products for the main page")
     @ApiResponse(responseCode = "200", description = "Successful operation")
-    List<MainPageProductDto> getAllProductsForMainPage(
-            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int pageNumber,
-            @Valid @RequestParam(defaultValue = "10") @Positive int pageSize,
+    Pagination getAllProductsForMainPage(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
             @Valid @RequestParam(defaultValue = "creationDate")
-                @Pattern(regexp = "creationDate|productName|productPrice|id") String sortBy,
-            @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String orderBy);
+                @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String order);
 
     @Operation(summary = "Get product details by ID",
             description = "Endpoint to retrieve product details by ID")

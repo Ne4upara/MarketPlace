@@ -7,13 +7,11 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ua.marketplace.dto.MainPageProductDto;
+import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.services.ProductService;
-
 import java.security.Principal;
-import java.util.List;
 
 /**
  * Controller class for managing product-related operations.
@@ -32,14 +30,13 @@ public class ProductControllerImp implements IProductController {
      */
     @GetMapping("/s/list")
     @ResponseStatus(HttpStatus.OK)
-    public List<MainPageProductDto> getAllProductsForMainPage(
-            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int pageNumber,
-            @Valid @RequestParam(defaultValue = "10") @Positive int pageSize,
+    public Pagination getAllProductsForMainPage(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
             @Valid @RequestParam(defaultValue = "creationDate")
-                @Pattern(regexp = "creationDate|productName|productPrice|id") String sortBy,
-            @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String orderBy
-    ) {
-        return productService.getAllProductsForMainPage(pageNumber, pageSize, sortBy, orderBy);
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String order) {
+        return productService.getAllProductsForMainPage(number, size, sort, order);
     }
 
     /**

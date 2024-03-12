@@ -1,24 +1,15 @@
 package ua.marketplace.services;
 
-import org.springframework.data.domain.Sort;
-import ua.marketplace.dto.MainPageProductDto;
+import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
 
 import java.security.Principal;
-import java.util.List;
 
 /**
  * Interface defining the contract for product-related operations.
  */
 public interface IProductService {
-
-    /**
-     * Retrieves all products for the main page.
-     *
-     * @return List of MainPageProductDto containing product details for the main page.
-     */
-    List<MainPageProductDto> getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy);
 
     /**
      * Retrieves details of a product by its ID.
@@ -63,4 +54,15 @@ public interface IProductService {
      * @param productId The ID of the product to be deleted.
      */
     void deleteProduct(Principal principal, Long productId);
+
+    /**
+     * Retrieves products paginated for the main page.
+     *
+     * @param pageNumber The page number to retrieve.
+     * @param pageSize   The number of products per page.
+     * @param sortBy     The field to sort the products by (e.g., "creationDate", "productName", "productPrice", "id").
+     * @param orderBy    The sorting order ("ASC" for ascending, "DESC" for descending).
+     * @return Pagination object containing the paginated list of products for the main page.
+     */
+    Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy);
 }
