@@ -8,8 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
-import ua.marketplace.exception.AppException;
-import ua.marketplace.exception.ConflictException;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
@@ -35,7 +33,7 @@ class PhoneNumberRegistrationServiceTest {
     private PhoneNumberRegistrationService registrationService;
 
     @Test
-    void testInputPhoneNumberSuccessfully() throws AppException {
+    void testInputPhoneNumberSuccessfully() {
 
         // Given
         PhoneNumberRequest request = new PhoneNumberRequest(
@@ -74,7 +72,7 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.empty());
 
         // When, Then
-        assertThrows(AppException.class, () -> registrationService.inputPhoneNumber(request));
+        assertThrows(ResponseStatusException.class, () -> registrationService.inputPhoneNumber(request));
         verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
@@ -99,12 +97,12 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(expectedUser));
 
         //When, Then
-        assertThrows(AppException.class, () -> registrationService.inputPhoneNumber(request));
+        assertThrows(ResponseStatusException.class, () -> registrationService.inputPhoneNumber(request));
         verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
     @Test
-    void testInputPhoneCodeSuccessfully() throws AppException {
+    void testInputPhoneCodeSuccessfully() {
 
         // Given
         PhoneCodeRequest request = new PhoneCodeRequest(
@@ -144,7 +142,7 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.empty());
 
         // When, Then
-        assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
+        assertThrows(ResponseStatusException.class, () -> registrationService.inputPhoneCode(request));
         verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
@@ -170,7 +168,7 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(expectedUser));
 
         // When, Then
-        assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
+        assertThrows(ResponseStatusException.class, () -> registrationService.inputPhoneCode(request));
         verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
@@ -197,7 +195,7 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(expectedUser));
 
         // When, Then
-        assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
+        assertThrows(ResponseStatusException.class, () -> registrationService.inputPhoneCode(request));
         verify(userRepository).findByPhoneNumber(request.phoneNumber());
     }
 
@@ -220,8 +218,8 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(user));
 
         // When, Then
-        AppException exception = assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
-        assertEquals("You've used up all your attempts", exception.getMessage());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> registrationService.inputPhoneCode(request));
+        assertEquals("409 CONFLICT \"You've used up all your attempts\"", exception.getMessage());
     }
 
     @Test
@@ -243,12 +241,12 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.findByPhoneNumber(request.phoneNumber())).thenReturn(Optional.of(user));
 
         // When, Then
-        AppException exception = assertThrows(AppException.class, () -> registrationService.inputPhoneCode(request));
-        assertEquals("Time is up", exception.getMessage());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> registrationService.inputPhoneCode(request));
+        assertEquals("409 CONFLICT \"Time is up\"", exception.getMessage());
     }
 
     @Test
-    void testRegistrationUserSuccessfully() throws AppException {
+    void testRegistrationUserSuccessfully() {
 
         // Given
         RegistrationRequest request = new RegistrationRequest(
@@ -285,7 +283,9 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.existsByPhoneNumber(request.phoneNumber())).thenReturn(true);
 
         // When, Then
-        ConflictException exception = assertThrows(ConflictException.class, () -> registrationService.registrationUser(request));
-        assertEquals("Phone already exists: " + request.phoneNumber(), exception.getMessage());
+        ResponseStatusException exception = assertThrows
+                (ResponseStatusException.class, () -> registrationService.registrationUser(request));
+        assertEquals("409 CONFLICT \"Phone already exists: " + request.phoneNumber() + "\"",
+                exception.getMessage());
     }
 }

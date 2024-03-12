@@ -1,13 +1,15 @@
 package ua.marketplace.utils;
 
+/**
+ * Class containing static final strings representing error messages used in the application.
+ */
 public final class ErrorMessageHandler {
     public static final String USER_NOT_AUTHORIZED = "User not authorized";
     public static final String FAILED_PRODUCT_UPDATE = "Failed to update product";
+    public static final String THIS_NOT_USERS_PRODUCT = "This product was not created by this user";
     public static final String PRODUCT_NOT_FOUND = "Not found product with ID: ";
     public static final String PRODUCT_RATING_ERROR = "Rating must be between 0 and 5";
-    public static final String DELETING_WITH_NOT_AUTHORIZED_USER = "You are not authorized to delete this product";
     public static final String ERROR_MESSAGE = "errorMessage";
-    public static final String NOT_AUTHORIZED = "You are not authorized to update this product";
     public static final String PHONE_ALREADY_EXIST = "Phone already exists: %s";
     public static final String TIME_IS_UP = "Time is up";
     public static final String USED_UP_ALL = "You've used up all your attempts";
@@ -16,5 +18,6 @@ public final class ErrorMessageHandler {
     public static final String SEND_REPEAT = "Time to send a repeat code 1 minute";
     public static final String USER_NOT_FOUND = "User with this phone not found %s";
 
-    private ErrorMessageHandler(){}
+    private ErrorMessageHandler() {
+    }
 }

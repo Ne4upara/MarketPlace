@@ -1,7 +1,6 @@
 package ua.marketplace.services;
 
 import ua.marketplace.entities.User;
-import ua.marketplace.exception.AppException;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
@@ -16,7 +15,7 @@ public interface IPhoneNumberRegistrationService {
      * Handles login by phone number.
      *
      * @param request PhoneNumberRequest containing the phone number to be registered.
-     * @return ResponseEntity with CustomResponse containing the registered phone number or error message.
+     * @return User representing the registered user.
      */
     User inputPhoneNumber(PhoneNumberRequest request);
 
@@ -24,15 +23,15 @@ public interface IPhoneNumberRegistrationService {
      * Handles the input of a phone code during registration.
      *
      * @param request PhoneCodeRequest containing the phone number and input code.
-     * @return ResponseEntity with CustomResponse containing the JWT token and username or error message.
+     * @return User representing the registered user.
      */
     User inputPhoneCode(PhoneCodeRequest request);
 
     /**
      * Handles the registration of a new phone number.
      *
-     * @param request RegistrationRequest containing the username and phone number
-     * @return ResponseEntity with CustomResponse containing the registered phone number or error message.
+     * @param request RegistrationRequest containing the username and phone number.
+     * @return User representing the registered user.
      */
     User registrationUser(RegistrationRequest request);
 }
