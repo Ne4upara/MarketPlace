@@ -36,6 +36,15 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Retrieves details of all products for the main page, paginated and sorted.
+     *
+     * @param pageNumber The page number to retrieve.
+     * @param pageSize   The number of products per page.
+     * @param sortBy     The field to sort by.
+     * @param orderBy    The order direction ('ASC' for ascending, 'DESC' for descending).
+     * @return Pagination object containing the requested products.
+     */
     @Override
     public Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy) {
         Page<Product> pageAll = productRepository.findAll(getPageRequest(
@@ -48,10 +57,26 @@ public class ProductService implements IProductService {
                 pageAllContent);
     }
 
+    /**
+     * Retrieves a Pageable object for pagination and sorting.
+     *
+     * @param num     The page number.
+     * @param size    The number of items per page.
+     * @param sortBy  The field to sort by.
+     * @param orderBy The order direction ('ASC' for ascending, 'DESC' for descending).
+     * @return Pageable object for pagination and sorting.
+     */
     private Pageable getPageRequest(int num, int size, String sortBy, String orderBy) {
         return PageRequest.of(num, size, isSort(sortBy, orderBy));
     }
 
+    /**
+     * Determines the sort order based on the provided parameters.
+     *
+     * @param sortBy  The field to sort by.
+     * @param orderBy The order direction ('ASC' for ascending, 'DESC' for descending).
+     * @return Sort object representing the sorting criteria.
+     */
     private Sort isSort(String sortBy, String orderBy) {
         if ("ASC".equals(orderBy)) return Sort.by(sortBy).ascending();
         return Sort.by(sortBy).descending();
