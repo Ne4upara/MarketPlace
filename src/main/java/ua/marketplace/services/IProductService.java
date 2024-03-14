@@ -45,7 +45,7 @@ public interface IProductService {
      * @param rating    The rating to assign to the product.
      * @return ProductDto containing details of the rated product.
      */
-    ProductDto rateProduct(Long productId, int rating);
+    ProductDto rateProduct(Principal principal, Long productId, int rating);
 
     /**
      * Deletes a product.

@@ -35,7 +35,7 @@ public interface ProductMapper {
      * @return MainPageProductDto containing the mapped attributes for the main page.
      */
     @Mapping(target = "productRating", expression = "java(getRating(product))")
-    MainPageProductDto toMainPageDto(Product product);
+    MainPageProductDto productToMainPageDto(Product product);
 
     /**
      * Calculates the average rating for a given Product entity.

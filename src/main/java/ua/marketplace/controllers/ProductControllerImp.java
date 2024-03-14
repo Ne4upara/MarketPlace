@@ -88,8 +88,8 @@ public class ProductControllerImp implements IProductController {
      */
     @PatchMapping("/{productId}/rate/{rating}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductDto rateProduct(@PathVariable Long productId, @PathVariable int rating) {
-        return productService.rateProduct(productId, rating);
+    public ProductDto rateProduct(Principal principal, @PathVariable Long productId, @PathVariable int rating) {
+        return productService.rateProduct(principal,productId, rating);
     }
 
     /**
