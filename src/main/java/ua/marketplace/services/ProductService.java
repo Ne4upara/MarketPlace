@@ -89,7 +89,7 @@ public class ProductService implements IProductService {
      * @return List of MainPageProductDto containing mapped product details.
      */
     private List<MainPageProductDto> convertProductListToDto(Page<Product> products) {
-        return products.stream().map(ProductMapper.INSTANCE::toMainPageDto)
+        return products.stream().map(ProductMapper.INSTANCE::productToMainPageDto)
                 .toList();
     }
 
@@ -143,7 +143,7 @@ public class ProductService implements IProductService {
     private User getUserByPrincipal(Principal principal) {
         return userRepository.findByPhoneNumber(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException
-                        (HttpStatus.NOT_FOUND, ErrorMessageHandler.USER_NOT_AUTHORIZED));
+                        (HttpStatus.FORBIDDEN, ErrorMessageHandler.USER_NOT_AUTHORIZED));
     }
 
     /**
@@ -224,7 +224,10 @@ public class ProductService implements IProductService {
      * @throws ResponseStatusException if the rating is invalid or the product is not found.
      */
     @Override
-    public ProductDto rateProduct(Long productId, int rating) {
+    public ProductDto rateProduct(Principal principal, Long productId, int rating) {
+
+        getUserByPrincipal(principal);
+
         if (!isRatingValid(rating)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessageHandler.PRODUCT_RATING_ERROR);
         }

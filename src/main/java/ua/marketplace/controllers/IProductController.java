@@ -88,7 +88,9 @@ public interface IProductController {
             @ApiResponse(responseCode = "404", description = "Product not found",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
-    ProductDto rateProduct(@Parameter(description = "ID of the product to be rated") Long productId,
+    ProductDto rateProduct(@Parameter(description = "Principal object representing the authenticated user")
+                           Principal principal,
+                           @Parameter(description = "ID of the product to be rated") Long productId,
                            @Parameter(description = "Rating value to be assigned to the product") int rating);
 
     @Operation(summary = "Delete a product", description = "Endpoint to delete a product")
