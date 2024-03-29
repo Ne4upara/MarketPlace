@@ -37,7 +37,7 @@ class ProductControllerTest {
         //Given,When,Then
         mockMvc.perform(get("/api/v1/products/s/list")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(new Pagination(1,0L,1,null))))
+                        .content(asJsonString(new Pagination(1, 0L, 1, null))))
                 .andExpect(status().isOk());
     }
 
@@ -119,6 +119,7 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
     }
+
     private Product mockProduct() {
         return Product
                 .builder()
@@ -136,7 +137,7 @@ class ProductControllerTest {
     private ProductRequest mockProductRequest() {
         return new ProductRequest
                 ("Test Product",
-                       null,
+                        null,
                         BigDecimal.valueOf(10.10),
                         "Опис товару",
                         ProductCategory.TEST,

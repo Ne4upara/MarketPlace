@@ -1,12 +1,15 @@
 package ua.marketplace.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.repositoryes.UserRepository;
@@ -37,7 +40,6 @@ class PhoneAuthControllerTest {
                 "Test",
                 "+380123456785");
 
-
         mockMvc.perform(post("/api/v1/auth/registration")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
@@ -66,7 +68,7 @@ class PhoneAuthControllerTest {
     void testRegistrationWithInvalidSizeRequest() throws Exception {
 
         RegistrationRequest request = new RegistrationRequest(
-               "s",
+                "s",
                 "+3801");
 
         mockMvc.perform(post("/api/v1/auth/registration")
@@ -84,7 +86,6 @@ class PhoneAuthControllerTest {
         PhoneCodeRequest request = new PhoneCodeRequest(
                 "1111",
                 "+380123456784");
-
 
         User user = User.builder().phoneNumber(request.phoneNumber())
                 .firstName("Test").build();
@@ -105,13 +106,12 @@ class PhoneAuthControllerTest {
                 .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
-
     @Test
     void testLoginCodeInvalidPatternRequest() throws Exception {
 
         PhoneCodeRequest request = new PhoneCodeRequest(
-               "12s5",
-               "+123456789012");
+                "12s5",
+                "+123456789012");
 
         mockMvc.perform(post("/api/v1/auth/login/code")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -129,7 +129,7 @@ class PhoneAuthControllerTest {
 
         PhoneCodeRequest request = new PhoneCodeRequest(
                 "112",
-               "+38012");
+                "+38012");
 
         mockMvc.perform(post("/api/v1/auth/login/code")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -153,8 +153,7 @@ class PhoneAuthControllerTest {
     void testLoginSuccessfully() throws Exception {
 
         PhoneNumberRequest request = new PhoneNumberRequest(
-               "+380123467895");
-
+                "+380123467895");
 
         User user = User.builder().phoneNumber(request.phoneNumber())
                 .firstName("Test").build();
@@ -178,9 +177,8 @@ class PhoneAuthControllerTest {
     @Test
     void testLoginFailed() throws Exception {
 
-        PhoneNumberRequest request = new PhoneNumberRequest (
+        PhoneNumberRequest request = new PhoneNumberRequest(
                 "+123456789012");
-
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -189,6 +187,20 @@ class PhoneAuthControllerTest {
                 .andExpect(jsonPath("$.errorMessage").exists())
                 .andExpect(jsonPath("$.errorMessage.phoneNumber")
                         .value("Phone should contain only digits and should be in the format +380.."));
+    }
+
+    @Test
+    void testLogoutSuccessfully() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        HttpServletRequest request = MockMvcRequestBuilders.post("/logout")
+                .header("Authorization", "Bearer your_token")
+                .session(session)
+                .buildRequest(session.getServletContext());
+
+        mockMvc.perform(post("/api/v1/auth/logout")
+                        .session(session))
+                .andExpect(status().isNoContent());
     }
 
     private String asJsonString(Object obj) {

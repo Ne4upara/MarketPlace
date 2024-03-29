@@ -48,7 +48,7 @@ public class ProductService implements IProductService {
     @Override
     public Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy) {
         Page<Product> pageAll = productRepository.findAll(getPageRequest(
-                pageNumber, pageSize, sortBy,orderBy));
+                pageNumber, pageSize, sortBy, orderBy));
         List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
 
         return new Pagination(pageAll.getNumber(),

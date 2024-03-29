@@ -11,6 +11,7 @@ import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.services.ProductService;
+
 import java.security.Principal;
 
 /**
@@ -35,7 +36,7 @@ public class ProductControllerImp implements IProductController {
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
             @Valid @RequestParam(defaultValue = "creationDate")
             @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
-            @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String order) {
+            @Valid @RequestParam(defaultValue = "DESC") @Pattern(regexp = "ASC|DESC") String order) {
         return productService.getAllProductsForMainPage(number, size, sort, order);
     }
 
@@ -75,7 +76,7 @@ public class ProductControllerImp implements IProductController {
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProductDto updateProduct
-            (Principal principal, @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
+    (Principal principal, @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         return productService.updateProduct(principal, id, request);
     }
 
@@ -89,7 +90,7 @@ public class ProductControllerImp implements IProductController {
     @PatchMapping("/{productId}/rate/{rating}")
     @ResponseStatus(HttpStatus.OK)
     public ProductDto rateProduct(Principal principal, @PathVariable Long productId, @PathVariable int rating) {
-        return productService.rateProduct(principal,productId, rating);
+        return productService.rateProduct(principal, productId, rating);
     }
 
     /**

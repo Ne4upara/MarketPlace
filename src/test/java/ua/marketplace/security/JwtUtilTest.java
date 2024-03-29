@@ -13,9 +13,13 @@ import static org.mockito.Mockito.when;
 /**
  * Unit testing for the JwtUtil class.
  */
+
+@SuppressWarnings("PMD")
 @SpringBootTest
 class JwtUtilTest {
 
+    @Mock
+    InvalidTokenStore invalidTokenStore;
     @Mock
     private UserDetailsService service;
     @InjectMocks

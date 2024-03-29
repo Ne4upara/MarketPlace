@@ -21,7 +21,8 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -165,7 +166,7 @@ class ProductServiceTest {
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        ProductDto result = productService.rateProduct(principal,productId, rating);
+        ProductDto result = productService.rateProduct(principal, productId, rating);
 
         // Then
         assertEquals(0, result.productRating());

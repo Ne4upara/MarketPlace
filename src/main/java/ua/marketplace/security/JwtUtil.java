@@ -25,6 +25,7 @@ public class JwtUtil {
 
     private static final String SECRET_KEY = System.getenv("JWT_SECRET");
     private final UserDetailsService userDetailsService;
+    private final InvalidTokenStore invalidTokenStore;
 
     /**
      * Generates a JWT token for the given username.
@@ -48,7 +49,9 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
 
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (username.equals(userDetails.getUsername())
+                && !isTokenExpired(token)
+                && !invalidTokenStore.isTokenInvalid(token));
     }
 
     /**
@@ -59,6 +62,10 @@ public class JwtUtil {
      */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public void killToken(String token) {
+        invalidTokenStore.addInvalidToken(token);
     }
 
     private Date extractExpiration(String token) {
