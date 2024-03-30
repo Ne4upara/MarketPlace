@@ -65,7 +65,7 @@ class ProductControllerTest {
         mockMvc.perform(post("/api/v1/products/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
     }
@@ -81,7 +81,7 @@ class ProductControllerTest {
         mockMvc.perform(put("/api/v1/products/update/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
         productRepository.delete(product);
@@ -98,7 +98,7 @@ class ProductControllerTest {
         mockMvc.perform(patch("/api/v1/products/1/rate/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
         productRepository.delete(product);
@@ -115,7 +115,7 @@ class ProductControllerTest {
         mockMvc.perform(delete("/api/v1/products/delete/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
     }
