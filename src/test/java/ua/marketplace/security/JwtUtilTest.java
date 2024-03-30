@@ -19,8 +19,6 @@ import static org.mockito.Mockito.when;
 class JwtUtilTest {
 
     @Mock
-    InvalidTokenStore invalidTokenStore;
-    @Mock
     private UserDetailsService service;
     @InjectMocks
     private JwtUtil jwtUtil;

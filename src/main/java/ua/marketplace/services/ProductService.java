@@ -143,7 +143,7 @@ public class ProductService implements IProductService {
     private User getUserByPrincipal(Principal principal) {
         return userRepository.findByPhoneNumber(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException
-                        (HttpStatus.FORBIDDEN, ErrorMessageHandler.USER_NOT_AUTHORIZED));
+                        (HttpStatus.UNAUTHORIZED, ErrorMessageHandler.USER_NOT_AUTHORIZED));
     }
 
     /**

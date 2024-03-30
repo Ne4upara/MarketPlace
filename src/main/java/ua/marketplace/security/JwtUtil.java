@@ -6,14 +6,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -25,7 +24,7 @@ public class JwtUtil {
 
     private static final String SECRET_KEY = System.getenv("JWT_SECRET");
     private final UserDetailsService userDetailsService;
-    private final InvalidTokenStore invalidTokenStore;
+    private final Set<String> blackListToken = new HashSet<>();
 
     /**
      * Generates a JWT token for the given username.
@@ -34,7 +33,6 @@ public class JwtUtil {
      * @return the generated JWT token
      */
     public String generateToken(String username) {
-
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, username);
     }
@@ -47,11 +45,10 @@ public class JwtUtil {
      * @return true if the token is valid for the user, false otherwise
      */
     public Boolean validateToken(String token, UserDetails userDetails) {
-
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())
                 && !isTokenExpired(token)
-                && !invalidTokenStore.isTokenInvalid(token));
+                && !blackListToken.contains(token));
     }
 
     /**
@@ -65,7 +62,7 @@ public class JwtUtil {
     }
 
     public void killToken(String token) {
-        invalidTokenStore.addInvalidToken(token);
+        blackListToken.add(token);
     }
 
     private Date extractExpiration(String token) {
@@ -99,8 +96,13 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(userDetailsService.loadUserByUsername(subject).getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 36_000_000)) // 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 10))) // 10 days
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    @Scheduled(cron = "0 0 3 * * *") //В 3 часа ночи каждый день.
+    public void clearBlackListTokens() {
+        blackListToken.removeIf(token -> Boolean.TRUE.equals(isTokenExpired(token)));
     }
 }
