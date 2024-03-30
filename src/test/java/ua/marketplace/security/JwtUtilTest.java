@@ -13,6 +13,8 @@ import static org.mockito.Mockito.when;
 /**
  * Unit testing for the JwtUtil class.
  */
+
+@SuppressWarnings("PMD")
 @SpringBootTest
 class JwtUtilTest {
 

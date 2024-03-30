@@ -1,5 +1,7 @@
 package ua.marketplace.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
-import ua.marketplace.requests.*;
+import ua.marketplace.requests.PhoneCodeRequest;
+import ua.marketplace.requests.PhoneNumberRequest;
+import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.security.JwtUtil;
 import ua.marketplace.services.PhoneNumberRegistrationService;
 
@@ -17,7 +21,7 @@ import ua.marketplace.services.PhoneNumberRegistrationService;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class PhoneAuthControllerImp implements IPhoneAuthController{
+public class PhoneAuthControllerImp implements IPhoneAuthController {
 
     private final PhoneNumberRegistrationService phoneNumberService;
     private final JwtUtil jwtUtil;
@@ -31,7 +35,7 @@ public class PhoneAuthControllerImp implements IPhoneAuthController{
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public PhoneNumberDto inputPhoneNumber(
-            @Valid @RequestBody PhoneNumberRequest request){
+            @Valid @RequestBody PhoneNumberRequest request) {
         User user = phoneNumberService.inputPhoneNumber(request);
         return new PhoneNumberDto(user.getPhoneNumber());
     }
@@ -45,7 +49,7 @@ public class PhoneAuthControllerImp implements IPhoneAuthController{
     @PostMapping("/login/code")
     @ResponseStatus(HttpStatus.OK)
     public CodeDto inputCode
-    (@Valid @RequestBody PhoneCodeRequest request){
+    (@Valid @RequestBody PhoneCodeRequest request) {
         User user = phoneNumberService.inputPhoneCode(request);
         return new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()), user.getFirstName());
     }
@@ -59,8 +63,20 @@ public class PhoneAuthControllerImp implements IPhoneAuthController{
     @PostMapping("/registration")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public PhoneNumberDto registration
-    (@Valid @RequestBody RegistrationRequest request){
+    (@Valid @RequestBody RegistrationRequest request) {
         User user = phoneNumberService.registrationUser(request);
         return new PhoneNumberDto(user.getPhoneNumber());
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(HttpServletRequest request, HttpSession session) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String jwt = authorizationHeader.substring(7);
+            jwtUtil.killToken(jwt);
+        }
+
+        session.invalidate();
     }
 }

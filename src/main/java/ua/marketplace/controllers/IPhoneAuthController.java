@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import ua.marketplace.dto.CodeDto;
@@ -34,7 +36,7 @@ public interface IPhoneAuthController {
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
     PhoneNumberDto inputPhoneNumber(@Parameter(description = "Request body containing user phone number", schema =
-                                    @Schema(implementation = PhoneNumberRequest.class))
+    @Schema(implementation = PhoneNumberRequest.class))
                                     @Valid @RequestBody PhoneNumberRequest request);
 
     @Operation(summary = "Verification SMS-code",
@@ -50,10 +52,10 @@ public interface IPhoneAuthController {
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
     CodeDto inputCode(@Parameter(description = "Request body containing user phone number", schema =
-                      @Schema(implementation = PhoneCodeRequest.class))
+    @Schema(implementation = PhoneCodeRequest.class))
                       @Valid @RequestBody PhoneCodeRequest request);
 
-    @Operation(summary = "Registration new user" ,
+    @Operation(summary = "Registration new user",
             description = "Endpoint for registration new users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "Successful operation",
@@ -65,6 +67,13 @@ public interface IPhoneAuthController {
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
     PhoneNumberDto registration(@Parameter(description = "Request body containing user phone number", schema =
-                                @Schema(implementation = RegistrationRequest.class))
+    @Schema(implementation = RegistrationRequest.class))
                                 @Valid @RequestBody RegistrationRequest request);
+
+    @Operation(summary = "Logout",
+            description = "Endpoint for logout users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Logout successfully")
+    })
+    void logout(HttpServletRequest request, HttpSession session);
 }

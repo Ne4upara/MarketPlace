@@ -1,14 +1,12 @@
 package ua.marketplace.controllers;
 
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import java.security.Principal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -19,6 +17,8 @@ import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.swagger.responses.ErrorMessageResponse;
 import ua.marketplace.swagger.responses.ValidationErrorResponse;
+
+import java.security.Principal;
 
 @Tag(name = "Product controller",
         description = "Endpoints for CRUD operations for products")
@@ -31,7 +31,7 @@ public interface IProductController {
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
             @Valid @RequestParam(defaultValue = "creationDate")
-                @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
             @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String order);
 
     @Operation(summary = "Get product details by ID",
@@ -49,14 +49,14 @@ public interface IProductController {
             @ApiResponse(responseCode = "201", description = "Product created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Not authorized user",
+            @ApiResponse(responseCode = "401", description = "Not authorized user",
                     content = @Content())
     })
     ProductDto createProduct
             (@Parameter(description = "Principal object representing the authenticated user") Principal principal,
-                             @Parameter(description = "Request body containing product details", schema =
-                             @Schema(implementation = ProductRequest.class))
-                             @Valid @RequestBody ProductRequest request);
+             @Parameter(description = "Request body containing product details", schema =
+             @Schema(implementation = ProductRequest.class))
+             @Valid @RequestBody ProductRequest request);
 
     @Operation(summary = "Update an existing product", description = "Endpoint to update an existing product")
     @ApiResponses(value = {
@@ -65,7 +65,7 @@ public interface IProductController {
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Product not found",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class))),
-            @ApiResponse(responseCode = "403", description = "User not authorized",
+            @ApiResponse(responseCode = "401", description = "User not authorized",
                     content = @Content()),
             @ApiResponse(responseCode = "409", description = "This product was not created by this user",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
@@ -83,7 +83,7 @@ public interface IProductController {
             @ApiResponse(responseCode = "200", description = "Product rated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "User not authorized",
+            @ApiResponse(responseCode = "401", description = "User not authorized",
                     content = @Content()),
             @ApiResponse(responseCode = "404", description = "Product not found",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
@@ -96,7 +96,7 @@ public interface IProductController {
     @Operation(summary = "Delete a product", description = "Endpoint to delete a product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "User not authorized",
+            @ApiResponse(responseCode = "401", description = "User not authorized",
                     content = @Content()),
             @ApiResponse(responseCode = "404", description = "Product not found",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class))),

@@ -37,7 +37,7 @@ class ProductControllerTest {
         //Given,When,Then
         mockMvc.perform(get("/api/v1/products/s/list")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(new Pagination(1,0L,1,null))))
+                        .content(asJsonString(new Pagination(1, 0L, 1, null))))
                 .andExpect(status().isOk());
     }
 
@@ -65,7 +65,7 @@ class ProductControllerTest {
         mockMvc.perform(post("/api/v1/products/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
     }
@@ -81,7 +81,7 @@ class ProductControllerTest {
         mockMvc.perform(put("/api/v1/products/update/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
         productRepository.delete(product);
@@ -98,7 +98,7 @@ class ProductControllerTest {
         mockMvc.perform(patch("/api/v1/products/1/rate/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
         productRepository.delete(product);
@@ -115,10 +115,11 @@ class ProductControllerTest {
         mockMvc.perform(delete("/api/v1/products/delete/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
     }
+
     private Product mockProduct() {
         return Product
                 .builder()
@@ -136,7 +137,7 @@ class ProductControllerTest {
     private ProductRequest mockProductRequest() {
         return new ProductRequest
                 ("Test Product",
-                       null,
+                        null,
                         BigDecimal.valueOf(10.10),
                         "Опис товару",
                         ProductCategory.TEST,
