@@ -41,6 +41,23 @@ public class ProductControllerImp implements IProductController {
     }
 
     /**
+     * Retrieves all products by category.
+     *
+     * @return List of MainPageProductDto containing product details by category.
+     */
+    @GetMapping("/s/list/{category}")
+    @ResponseStatus(HttpStatus.OK)
+    public Pagination getAllProductsByCategory(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
+            @Valid @RequestParam(defaultValue = "creationDate")
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "DESC") @Pattern(regexp = "ASC|DESC") String order,
+            @PathVariable String category) {
+        return productService.getAllProductsByCategory(number, size, sort, order, category);
+    }
+
+    /**
      * Retrieves details of a product by its ID.
      *
      * @param id The ID of the product to retrieve.

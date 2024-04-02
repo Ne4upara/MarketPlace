@@ -32,7 +32,23 @@ public interface IProductController {
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
             @Valid @RequestParam(defaultValue = "creationDate")
             @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
-            @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String order);
+            @Valid @RequestParam(defaultValue = "DESC") @Pattern(regexp = "ASC|DESC") String order);
+
+    @Operation(summary = "Get products details by category",
+            description = "Endpoint to retrieve products by category")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = Pagination.class))),
+            @ApiResponse(responseCode = "409", description = "Invalid category",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
+    })
+    Pagination getAllProductsByCategory(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
+            @Valid @RequestParam(defaultValue = "creationDate")
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "DESC") @Pattern(regexp = "ASC|DESC") String order,
+            @Parameter String category);
 
     @Operation(summary = "Get product details by ID",
             description = "Endpoint to retrieve product details by ID")

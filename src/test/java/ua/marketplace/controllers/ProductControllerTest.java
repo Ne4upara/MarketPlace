@@ -42,6 +42,26 @@ class ProductControllerTest {
     }
 
     @Test
+    void testGetAllProductsByCategorySuccessfully() throws Exception {
+
+        //Given,When,Then
+        mockMvc.perform(get("/api/v1/products/s/list/dolls")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(new Pagination(1, 0L, 1, null))))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetAllProductsByCategoryWithInvalidCategory() throws Exception {
+
+        //Given,When,Then
+        mockMvc.perform(get("/api/v1/products/s/list/invalid_category")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+
+    @Test
     void testGetProductDetailsById() throws Exception {
         //Given
         Product product = mockProduct();
@@ -127,7 +147,7 @@ class ProductControllerTest {
                 .productPhotoLink("Test photo link")
                 .productPrice(BigDecimal.valueOf(10))
                 .productDescription("test description")
-                .productCategory(ProductCategory.TEST)
+                .productCategory(ProductCategory.BOARD_GAMES)
                 .productType("new")
                 .productQuantity(10)
                 .owner(null)
@@ -140,7 +160,7 @@ class ProductControllerTest {
                         null,
                         BigDecimal.valueOf(10.10),
                         "Опис товару",
-                        ProductCategory.TEST,
+                        ProductCategory.BOARD_GAMES,
                         "new",
                         10);
     }

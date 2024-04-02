@@ -6,7 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.data.ProductCategory;
 import ua.marketplace.dto.Pagination;
@@ -59,6 +61,48 @@ class ProductServiceTest {
         assertEquals(0, result.pageNumber());
         assertEquals(10, result.totalPages());
         verify(productRepository).findAll(any(Pageable.class));
+    }
+
+    @Test
+    void testGetAllProductsByCategory() {
+        // Given
+        int pageNumber = 0;
+        int pageSize = 10;
+        String sortBy = "productName";
+        String orderBy = "ASC";
+        String category = "dolls";
+
+        // Mocking
+        ProductCategory productCategory = ProductCategory.DOLLS;
+        Page<Product> mockedPage = mock(Page.class);
+        when(productRepository.findByProductCategory(productCategory,
+                PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(orderBy), sortBy))))
+                .thenReturn(mockedPage);
+        when(mockedPage.getNumber()).thenReturn(pageNumber);
+        when(mockedPage.getTotalElements()).thenReturn(100L);
+        when(mockedPage.getTotalPages()).thenReturn(10);
+
+        // When
+        Pagination result = productService.getAllProductsByCategory(pageNumber, pageSize, sortBy, orderBy, category);
+
+        // Then
+        assertEquals(pageNumber, result.pageNumber());
+        assertEquals(10, result.totalPages());
+        verify(productRepository).findByProductCategory(productCategory, PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(orderBy), sortBy)));
+    }
+
+    @Test
+    void testGetAllProductsByInvalidCategory() {
+        // Given
+        int pageNumber = 0;
+        int pageSize = 10;
+        String sortBy = "productName";
+        String orderBy = "ASC";
+        String category = "INVALID_CATEGORY"; // Assuming "INVALID_CATEGORY" does not exist
+
+        // When and Then
+        assertThrows(ResponseStatusException.class, () ->
+                productService.getAllProductsByCategory(pageNumber, pageSize, sortBy, orderBy, category));
     }
 
     @Test
@@ -238,7 +282,7 @@ class ProductServiceTest {
                         "Photo links",
                         BigDecimal.valueOf(10),
                         "Test description",
-                        ProductCategory.TEST,
+                        ProductCategory.BOARD_GAMES,
                         "new",
                         10);
     }

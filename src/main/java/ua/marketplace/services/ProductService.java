@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ua.marketplace.data.ProductCategory;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
@@ -22,6 +23,7 @@ import ua.marketplace.utils.ErrorMessageHandler;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 /**
@@ -49,6 +51,38 @@ public class ProductService implements IProductService {
     public Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy) {
         Page<Product> pageAll = productRepository.findAll(getPageRequest(
                 pageNumber, pageSize, sortBy, orderBy));
+        List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
+
+        return new Pagination(pageAll.getNumber(),
+                pageAll.getTotalElements(),
+                pageAll.getTotalPages(),
+                pageAllContent);
+    }
+
+    /**
+     * Retrieves products paginated filtered by category.
+     *
+     * @param pageNumber The page number to retrieve.
+     * @param pageSize   The number of products per page.
+     * @param sortBy     The field to sort the products by (e.g., "creationDate", "productName", "productPrice", "id").
+     * @param orderBy    The sorting order ("ASC" for ascending, "DESC" for descending).
+     * @param category   The category by which to filter the products.
+     * @return Pagination object containing the paginated list of products for the main page filtered by category.
+     */
+    @Override
+    public Pagination getAllProductsByCategory
+    (int pageNumber, int pageSize, String sortBy, String orderBy, String category) {
+
+        ProductCategory productCategory;
+
+        try {
+            productCategory = ProductCategory.valueOf(category.toUpperCase(Locale.ENGLISH));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.INVALID_CATEGORY + category, e);
+        }
+
+        Pageable pageable = getPageRequest(pageNumber, pageSize, sortBy, orderBy);
+        Page<Product> pageAll = productRepository.findByProductCategory(productCategory, pageable);
         List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
 
         return new Pagination(pageAll.getNumber(),
