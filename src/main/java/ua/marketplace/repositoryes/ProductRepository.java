@@ -13,5 +13,5 @@ import ua.marketplace.entities.Product;
  */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Page<Product> findByProductCategory(ProductCategory category, Pageable pageable);
+    Page<Product> findByCategory(ProductCategory category, Pageable pageable);
 }

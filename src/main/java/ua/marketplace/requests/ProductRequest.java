@@ -1,7 +1,6 @@
 package ua.marketplace.requests;
 
 import jakarta.validation.constraints.*;
-import ua.marketplace.data.ProductCategory;
 
 import java.math.BigDecimal;
 
@@ -27,7 +26,7 @@ public record ProductRequest(
         String productDescription,
 
         @NotNull(message = "You must choice a category for your product's")
-        ProductCategory productCategory,
+        String productCategory,
 
         @NotEmpty(message = "You must choice a type of your product's")
         @Pattern(regexp = "^(new|used)$", message = "Product type must be either 'new' or 'used'")

@@ -3,10 +3,11 @@ package ua.marketplace.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
-import ua.marketplace.data.ProductCategory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,8 +31,8 @@ public class Product {
     @Column(name = "name")
     private String productName;
 
-    @Column(name = "photo")
-    private String productPhotoLink;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductPhoto> photos = new ArrayList<>();
 
     @Column(name = "price")
     private BigDecimal productPrice;
@@ -39,8 +40,9 @@ public class Product {
     @Column(name = "description")
     private String productDescription;
 
-    @Column(name = "category")
-    private ProductCategory productCategory;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @Column(name = "product_type")
     private String productType;
@@ -52,11 +54,8 @@ public class Product {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
-    @Column(name = "rating")
-    private int productRating;
-
-    @Column(name = "rating_count")
-    private int productRatingCount;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductRating> ratings = new ArrayList<>();
 
     @Column(name = "quantity")
     private int productQuantity;

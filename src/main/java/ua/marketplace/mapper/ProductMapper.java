@@ -44,9 +44,9 @@ public interface ProductMapper {
      * @return The calculated average rating.
      */
     default int getRating(Product product) {
-        if (product.getProductRatingCount() == BigDecimal.ZERO.intValue()) {
+//        if (product.getProductRatingCount() == BigDecimal.ZERO.intValue()) {
             return BigDecimal.ZERO.intValue();
         }
-        return product.getProductRating() / product.getProductRatingCount();
-    }
+//        return product.getProductRating() / product.getProductRatingCount();
+//    }
 }

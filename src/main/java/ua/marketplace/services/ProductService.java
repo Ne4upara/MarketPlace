@@ -12,18 +12,22 @@ import ua.marketplace.data.ProductCategory;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
+import ua.marketplace.entities.Category;
 import ua.marketplace.entities.Product;
+import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.entities.User;
 import ua.marketplace.mapper.ProductMapper;
+import ua.marketplace.repositoryes.CategoryRepository;
 import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.utils.ErrorMessageHandler;
 
-import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -37,6 +41,7 @@ public class ProductService implements IProductService {
     private static final int MAX_RATE = 5;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
     /**
      * Retrieves details of all products for the main page, paginated and sorted.
@@ -78,11 +83,11 @@ public class ProductService implements IProductService {
         try {
             productCategory = ProductCategory.valueOf(category.toUpperCase(Locale.ENGLISH));
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.INVALID_CATEGORY + category, e);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.CATEGORY_NOT_FOUND + category, e);
         }
 
         Pageable pageable = getPageRequest(pageNumber, pageSize, sortBy, orderBy);
-        Page<Product> pageAll = productRepository.findByProductCategory(productCategory, pageable);
+        Page<Product> pageAll = productRepository.findByCategory(productCategory, pageable);
         List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
 
         return new Pagination(pageAll.getNumber(),
@@ -191,14 +196,33 @@ public class ProductService implements IProductService {
         return Product
                 .builder()
                 .productName(request.productName())
-                .productPhotoLink(request.productPhotoLink())
+                .photos(getProductPhotoLinks())
+//                .productPhotoLink(request.productPhotoLink())
                 .productPrice(request.productPrice())
                 .productDescription(request.productDescription())
-                .productCategory(request.productCategory())
+                .category(getCategory(request.productCategory()))
+//                .productCategory(request.productCategory())
                 .productType(request.productType())
                 .productQuantity(request.productQuantity())
                 .owner(user)
                 .build();
+    }
+
+    private List<ProductPhoto> getProductPhotoLinks (){
+        List<ProductPhoto> productPhotos = new ArrayList<>();
+        return productPhotos;
+    }
+
+    private Category getCategory(String categoryName){
+        validateCategoryNotExist(categoryName);
+        return categoryRepository.findByCategoryName(categoryName);
+    }
+
+    private void validateCategoryNotExist(String categoryName) {
+        if (Boolean.FALSE.equals(categoryRepository.existsByCategoryName(categoryName))) {
+            throw new ResponseStatusException
+                    (HttpStatus.CONFLICT, String.format(ErrorMessageHandler.CATEGORY_NOT_FOUND, categoryName));
+        }
     }
 
     /**
@@ -222,10 +246,10 @@ public class ProductService implements IProductService {
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
-                    p.setProductPhotoLink(request.productPhotoLink());
+                    p.setPhotos(getProductPhotoLinks());
                     p.setProductPrice(request.productPrice());
                     p.setProductDescription(request.productDescription());
-                    p.setProductCategory(request.productCategory());
+                    p.setCategory(getCategory(request.productCategory()));
                     p.setProductType(request.productType());
                     p.setProductQuantity(request.productQuantity());
                     return p;
@@ -268,8 +292,8 @@ public class ProductService implements IProductService {
 
         Product product = getProductById(productId);
 
-        product.setProductRating(product.getProductRating() + rating);
-        product.setProductRatingCount(product.getProductRatingCount() + BigDecimal.ONE.intValue());
+//        product.setProductRating(product.getProductRating() + rating);
+//        product.setProductRatingCount(product.getProductRatingCount() + BigDecimal.ONE.intValue());
 
         Product saved = productRepository.save(product);
         return ProductMapper.INSTANCE.productToProductDto(saved);

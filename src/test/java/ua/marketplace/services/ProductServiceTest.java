@@ -75,7 +75,7 @@ class ProductServiceTest {
         // Mocking
         ProductCategory productCategory = ProductCategory.DOLLS;
         Page<Product> mockedPage = mock(Page.class);
-        when(productRepository.findByProductCategory(productCategory,
+        when(productRepository.findByCategory(productCategory,
                 PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(orderBy), sortBy))))
                 .thenReturn(mockedPage);
         when(mockedPage.getNumber()).thenReturn(pageNumber);
@@ -88,7 +88,7 @@ class ProductServiceTest {
         // Then
         assertEquals(pageNumber, result.pageNumber());
         assertEquals(10, result.totalPages());
-        verify(productRepository).findByProductCategory(productCategory, PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(orderBy), sortBy)));
+        verify(productRepository).findByCategory(productCategory, PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(orderBy), sortBy)));
     }
 
     @Test
