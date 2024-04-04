@@ -27,7 +27,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -83,7 +82,7 @@ public class ProductService implements IProductService {
         try {
             productCategory = ProductCategory.valueOf(category.toUpperCase(Locale.ENGLISH));
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.CATEGORY_NOT_FOUND + category, e);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.INVALID_CATEGORY + category, e);
         }
 
         Pageable pageable = getPageRequest(pageNumber, pageSize, sortBy, orderBy);
@@ -193,23 +192,32 @@ public class ProductService implements IProductService {
      * @return The newly created Product entity.
      */
     private Product createProduct(ProductRequest request, User user) {
-        return Product
+
+        Product product = Product
                 .builder()
                 .productName(request.productName())
-                .photos(getProductPhotoLinks())
-//                .productPhotoLink(request.productPhotoLink())
+//                .photos(getProductPhotoLinks())
                 .productPrice(request.productPrice())
                 .productDescription(request.productDescription())
                 .category(getCategory(request.productCategory()))
-//                .productCategory(request.productCategory())
                 .productType(request.productType())
                 .productQuantity(request.productQuantity())
                 .owner(user)
                 .build();
+        // Создаем фотографии продукта
+        List<ProductPhoto> photos = getProductPhotoLinks(product);
+        // Устанавливаем фотографии продукта
+        product.setPhotos(photos);
+        return product;
     }
 
-    private List<ProductPhoto> getProductPhotoLinks (){
+    private List<ProductPhoto> getProductPhotoLinks (Product product){
         List<ProductPhoto> productPhotos = new ArrayList<>();
+        ProductPhoto photo = new ProductPhoto();
+        photo.setProduct(product);
+        photo.setMainPage(true);
+        photo.setPhotoLink("https://talla.ua/image/cache/catalog/product/import/so5517/so5517-77435964554606-500x500.jpg");
+        productPhotos.add(photo);
         return productPhotos;
     }
 
@@ -221,7 +229,7 @@ public class ProductService implements IProductService {
     private void validateCategoryNotExist(String categoryName) {
         if (Boolean.FALSE.equals(categoryRepository.existsByCategoryName(categoryName))) {
             throw new ResponseStatusException
-                    (HttpStatus.CONFLICT, String.format(ErrorMessageHandler.CATEGORY_NOT_FOUND, categoryName));
+                    (HttpStatus.CONFLICT, String.format(ErrorMessageHandler.INVALID_CATEGORY, categoryName));
         }
     }
 
@@ -246,7 +254,7 @@ public class ProductService implements IProductService {
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
-                    p.setPhotos(getProductPhotoLinks());
+                    p.setPhotos(getProductPhotoLinks(p));
                     p.setProductPrice(request.productPrice());
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));

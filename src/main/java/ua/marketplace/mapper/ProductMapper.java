@@ -6,8 +6,11 @@ import org.mapstruct.factory.Mappers;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.entities.Product;
+import ua.marketplace.entities.ProductPhoto;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Mapper interface for converting Product entities to DTOs.
@@ -26,6 +29,8 @@ public interface ProductMapper {
      */
 
     @Mapping(target = "productRating", expression = "java(getRating(product))")
+    @Mapping(target = "productCategory", source = "product.category.categoryName")
+    @Mapping(target = "productPhotoLink", expression = "java(getMainPagePhotoLink(product))")
     ProductDto productToProductDto(Product product);
 
     /**
@@ -35,6 +40,7 @@ public interface ProductMapper {
      * @return MainPageProductDto containing the mapped attributes for the main page.
      */
     @Mapping(target = "productRating", expression = "java(getRating(product))")
+    @Mapping(target = "productPhotoLink", expression = "java(getMainPagePhotoLink(product))")
     MainPageProductDto productToMainPageDto(Product product);
 
     /**
@@ -49,4 +55,16 @@ public interface ProductMapper {
         }
 //        return product.getProductRating() / product.getProductRatingCount();
 //    }
+
+    default String getMainPagePhotoLink(Product product) {
+        List<ProductPhoto> photos = product.getPhotos();
+        if (photos != null && !photos.isEmpty()) {
+            for (ProductPhoto photo : photos) {
+                if (photo.isMainPage()) {
+                    return photo.getPhotoLink();
+                }
+            }
+        }
+        return null;
+    }
 }

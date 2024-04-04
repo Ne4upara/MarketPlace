@@ -31,7 +31,7 @@ public class Product {
     @Column(name = "name")
     private String productName;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ProductPhoto> photos = new ArrayList<>();
 
     @Column(name = "price")

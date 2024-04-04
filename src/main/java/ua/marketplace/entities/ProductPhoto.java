@@ -27,6 +27,6 @@ public class ProductPhoto {
     private String photoLink;
 
     @Column(name = "main_page")
-    private String mainPage;
+    private boolean mainPage;
 
 }

@@ -15,7 +15,7 @@ public record ProductDto(
         String productPhotoLink,
         BigDecimal productPrice,
         String productDescription,
-        ProductCategory productCategory,
+        String productCategory,
         String productType,
         LocalDateTime creationDate,
         int productRating,

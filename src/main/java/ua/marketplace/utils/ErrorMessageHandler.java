@@ -17,7 +17,7 @@ public final class ErrorMessageHandler {
     public static final String CODE_ALREADY_ENTRY = "There was already a code entry.";
     public static final String SEND_REPEAT = "Time to send a repeat code 1 minute";
     public static final String USER_NOT_FOUND = "User with this phone not found %s";
-    public static final String CATEGORY_NOT_FOUND = "Category not found: ";
+    public static final String INVALID_CATEGORY = "Invalid category: %s";
 
     private ErrorMessageHandler() {
     }
