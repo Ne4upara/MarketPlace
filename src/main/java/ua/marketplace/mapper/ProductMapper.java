@@ -10,8 +10,6 @@ import ua.marketplace.entities.ProductPhoto;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Mapper interface for converting Product entities to DTOs.
@@ -72,6 +70,6 @@ public interface ProductMapper {
     default List<String> getAllPhotoLink(Product product) {
         return product.getPhotos().stream()
                 .map(ProductPhoto::getPhotoLink)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
