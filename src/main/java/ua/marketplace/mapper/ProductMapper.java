@@ -11,6 +11,7 @@ import ua.marketplace.entities.ProductPhoto;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Mapper interface for converting Product entities to DTOs.
@@ -30,7 +31,7 @@ public interface ProductMapper {
 
     @Mapping(target = "productRating", expression = "java(getRating(product))")
     @Mapping(target = "productCategory", source = "product.category.categoryName")
-    @Mapping(target = "productPhotoLink", expression = "java(getMainPagePhotoLink(product))")
+    @Mapping(target = "productPhotoLink", expression = "java(getAllPhotoLink(product))")
     ProductDto productToProductDto(Product product);
 
     /**
@@ -66,5 +67,11 @@ public interface ProductMapper {
             }
         }
         return null;
+    }
+
+    default List<String> getAllPhotoLink(Product product) {
+        return product.getPhotos().stream()
+                .map(ProductPhoto::getPhotoLink)
+                .collect(Collectors.toList());
     }
 }

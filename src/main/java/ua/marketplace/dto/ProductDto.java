@@ -1,9 +1,11 @@
 package ua.marketplace.dto;
 
 import ua.marketplace.data.ProductCategory;
+import ua.marketplace.entities.ProductPhoto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Data Transfer Object (DTO) representing product details.
@@ -12,7 +14,7 @@ import java.time.LocalDateTime;
 public record ProductDto(
         Long id,
         String productName,
-        String productPhotoLink,
+        List<String> productPhotoLink,
         BigDecimal productPrice,
         String productDescription,
         String productCategory,
