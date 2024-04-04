@@ -2,3 +2,22 @@ CREATE TABLE product_categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
+
+INSERT INTO product_categories (name) VALUES
+    ('FOR_INFANTS'),
+    ('DOLLS'),
+    ('PLUSH_TOYS'),
+    ('TRANSFORMERS'),
+    ('CONSTRUCTORS'),
+    ('PUZZLES'),
+    ('TOY_CARS'),
+    ('COLLECTIBLE_CAR_MODELS'),
+    ('TOY_CAR_TRACKS'),
+    ('TRAIN_SETS'),
+    ('REMOTE_CONTROL_TOYS'),
+    ('AIRPLANES_HELICOPTERS'),
+    ('CRAFT_KITS'),
+    ('BOARD_GAMES'),
+    ('CHILDRENS_BOOKS'),
+    ('CHILDRENS_FURNITURE'),
+    ('CHILDRENS_TRANSPORT');
