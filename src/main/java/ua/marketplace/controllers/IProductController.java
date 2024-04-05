@@ -94,21 +94,6 @@ public interface IProductController {
                                      schema = @Schema(implementation = ProductRequest.class))
                              @Valid @RequestBody ProductRequest request);
 
-    @Operation(summary = "Rate a product", description = "Endpoint to rate a product")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Product rated successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input",
-                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
-            @ApiResponse(responseCode = "401", description = "User not authorized",
-                    content = @Content()),
-            @ApiResponse(responseCode = "404", description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
-    })
-    ProductDto rateProduct(@Parameter(description = "Principal object representing the authenticated user")
-                           Principal principal,
-                           @Parameter(description = "ID of the product to be rated") Long productId,
-                           @Parameter(description = "Rating value to be assigned to the product") int rating);
-
     @Operation(summary = "Delete a product", description = "Endpoint to delete a product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Product deleted successfully"),

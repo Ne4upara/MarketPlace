@@ -36,8 +36,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ProductService implements IProductService {
 
-    private static final int MIN_RATE = 0;
-    private static final int MAX_RATE = 5;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -127,7 +125,7 @@ public class ProductService implements IProductService {
      * @return List of MainPageProductDto containing mapped product details.
      */
     private List<MainPageProductDto> convertProductListToDto(Page<Product> products) {
-        return products.stream().map(ProductMapper.INSTANCE::productToMainPageDto)
+        return products.stream().map(ProductMapper.PRODUCT_INSTANCE::productToMainPageDto)
                 .toList();
     }
 
@@ -140,7 +138,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductDto getProductDetails(Long id) {
-        return ProductMapper.INSTANCE.productToProductDto(getProductById(id));
+        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(getProductById(id));
     }
 
     /**
@@ -168,7 +166,7 @@ public class ProductService implements IProductService {
         User user = getUserByPrincipal(principal);
         Product product = createProduct(request, user);
 
-        return ProductMapper.INSTANCE.productToProductDto(productRepository.save(product));
+        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(productRepository.save(product));
     }
 
     /**
@@ -283,7 +281,7 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.BAD_REQUEST, ErrorMessageHandler.FAILED_PRODUCT_UPDATE));
 
-        return ProductMapper.INSTANCE.productToProductDto(updatedProduct);
+        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(updatedProduct);
     }
 
     /**
@@ -295,42 +293,6 @@ public class ProductService implements IProductService {
      */
     private boolean isProductCreatedByUser(Product product, User user) {
         return product.getOwner().equals(user);
-    }
-
-    /**
-     * Rates a product.
-     *
-     * @param productId The ID of the product to rate.
-     * @param rating    The rating to assign to the product.
-     * @return ProductDto containing details of the rated product.
-     * @throws ResponseStatusException if the rating is invalid or the product is not found.
-     */
-    @Override
-    public ProductDto rateProduct(Principal principal, Long productId, int rating) {
-
-        getUserByPrincipal(principal);
-
-        if (!isRatingValid(rating)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessageHandler.PRODUCT_RATING_ERROR);
-        }
-
-        Product product = getProductById(productId);
-
-//        product.setProductRating(product.getProductRating() + rating);
-//        product.setProductRatingCount(product.getProductRatingCount() + BigDecimal.ONE.intValue());
-
-        Product saved = productRepository.save(product);
-        return ProductMapper.INSTANCE.productToProductDto(saved);
-    }
-
-    /**
-     * Checks if the given rating value is valid.
-     *
-     * @param rating The rating value to check.
-     * @return true if the rating is valid, false otherwise.
-     */
-    private boolean isRatingValid(int rating) {
-        return rating >= MIN_RATE && rating <= MAX_RATE;
     }
 
     /**

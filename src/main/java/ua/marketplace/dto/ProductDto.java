@@ -1,7 +1,6 @@
 package ua.marketplace.dto;
 
-import ua.marketplace.data.ProductCategory;
-import ua.marketplace.entities.ProductPhoto;
+import ua.marketplace.entities.ProductRating;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,8 +19,8 @@ public record ProductDto(
         String productCategory,
         String productType,
         LocalDateTime creationDate,
-        int productRating,
-        int productRatingCount,
+        int rating,
+        List<ProductRating> reviews,
         int productQuantity
 ) {
 }

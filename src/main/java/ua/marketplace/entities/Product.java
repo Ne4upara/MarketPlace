@@ -54,8 +54,8 @@ public class Product {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ProductRating> ratings = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private List<ProductRating> reviews = new ArrayList<>();
 
     @Column(name = "quantity")
     private int productQuantity;

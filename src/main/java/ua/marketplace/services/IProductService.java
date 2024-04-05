@@ -39,15 +39,6 @@ public interface IProductService {
     ProductDto updateProduct(Principal principal, Long productId, ProductRequest request);
 
     /**
-     * Rates a product.
-     *
-     * @param productId The ID of the product to rate.
-     * @param rating    The rating to assign to the product.
-     * @return ProductDto containing details of the rated product.
-     */
-    ProductDto rateProduct(Principal principal, Long productId, int rating);
-
-    /**
      * Deletes a product.
      *
      * @param principal The principal (typically representing the logged-in user).

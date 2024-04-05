@@ -98,19 +98,6 @@ public class ProductControllerImp implements IProductController {
     }
 
     /**
-     * Rates a product.
-     *
-     * @param productId The ID of the product to rate.
-     * @param rating    The rating to assign to the product.
-     * @return ProductDto containing details of the rated product.
-     */
-    @PatchMapping("/{productId}/rate/{rating}")
-    @ResponseStatus(HttpStatus.OK)
-    public ProductDto rateProduct(Principal principal, @PathVariable Long productId, @PathVariable int rating) {
-        return productService.rateProduct(principal, productId, rating);
-    }
-
-    /**
      * Deletes a product.
      *
      * @param principal The principal (typically representing the logged-in user).

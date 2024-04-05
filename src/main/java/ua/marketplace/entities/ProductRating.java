@@ -2,6 +2,9 @@ package ua.marketplace.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "product_ratings")
 @Getter
@@ -28,7 +31,8 @@ public class ProductRating {
     private int rating;
 
     @Column(name = "review")
-    private String review; // Нове поле для відгуку
+    private String review;
 
-    // Додайте інші необхідні поля, якщо потрібно
+    @Column(name = "create_at")
+    private LocalDateTime createAt;
 }
