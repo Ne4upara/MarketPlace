@@ -18,6 +18,7 @@ public final class ErrorMessageHandler {
     public static final String SEND_REPEAT = "Time to send a repeat code 1 minute";
     public static final String USER_NOT_FOUND = "User with this phone not found %s";
     public static final String INVALID_CATEGORY = "Invalid category: %s";
+    public static final String MAX_LOAD_PHOTO = "Max load photo 8";
 
     private ErrorMessageHandler() {
     }

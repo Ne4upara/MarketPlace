@@ -196,7 +196,6 @@ public class ProductService implements IProductService {
         Product product = Product
                 .builder()
                 .productName(request.productName())
-//                .photos(getProductPhotoLinks())
                 .productPrice(request.productPrice())
                 .productDescription(request.productDescription())
                 .category(getCategory(request.productCategory()))
@@ -204,14 +203,31 @@ public class ProductService implements IProductService {
                 .productQuantity(request.productQuantity())
                 .owner(user)
                 .build();
-        // Создаем фотографии продукта
-        List<ProductPhoto> photos = getProductPhotoLinks(product);
-        // Устанавливаем фотографии продукта
-        product.setPhotos(photos);
+
+        product.setPhotos(getPhotoLinks(request.productPhotoLink(), product));
         return product;
     }
 
-    private List<ProductPhoto> getProductPhotoLinks (Product product){
+    private List<ProductPhoto> getPhotoLinks(List<String> photos, Product product){
+        List<ProductPhoto> productPhotos = new ArrayList<>();
+        for (int i = 0; i < photos.size(); i++) {
+            String photoLink = photos.get(i);
+            ProductPhoto productPhoto = new ProductPhoto();
+            productPhoto.setPhotoLink(photoLink);
+            productPhoto.setProduct(product);
+            if (i == 0) {
+                productPhoto.setMainPage(true);
+            }
+            productPhotos.add(productPhoto);
+            if (i == 8){
+                throw new ResponseStatusException
+                        (HttpStatus.BAD_REQUEST, String.format(ErrorMessageHandler.MAX_LOAD_PHOTO));
+            }
+        }
+        return productPhotos;
+    }
+
+    private List<ProductPhoto> getProductPhotoLinks (Product product){ //переделать на отправку линка фронту или линков
         List<ProductPhoto> productPhotos = new ArrayList<>();
         ProductPhoto photo = new ProductPhoto();
         photo.setProduct(product);
@@ -254,7 +270,7 @@ public class ProductService implements IProductService {
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
-                    p.setPhotos(getProductPhotoLinks(p));
+                    p.setPhotos(getPhotoLinks(request.productPhotoLink(), p)); //не обновляет, а добавляет
                     p.setProductPrice(request.productPrice());
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));

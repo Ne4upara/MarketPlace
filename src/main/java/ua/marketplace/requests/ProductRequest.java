@@ -1,8 +1,10 @@
 package ua.marketplace.requests;
 
 import jakarta.validation.constraints.*;
+import ua.marketplace.entities.ProductPhoto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Represents a request to create a product.
@@ -12,7 +14,7 @@ public record ProductRequest(
         @Size(min = 5, max = 100, message = "Product's name should be between 5 and 100 chars")
         String productName,
 
-        String productPhotoLink,
+        List<String> productPhotoLink,
 
         @NotNull(message = "Product must have a price")
         @Positive(message = "Product price must be positive")
