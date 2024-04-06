@@ -39,6 +39,7 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final ImageService imageService;
 
     /**
      * Retrieves details of all products for the main page, paginated and sorted.
@@ -202,37 +203,8 @@ public class ProductService implements IProductService {
                 .owner(user)
                 .build();
 
-        product.setPhotos(getPhotoLinks(request.productPhotoLink(), product));
+        product.setPhotos(imageService.getPhotoLinks(request.productPhotoLink(), product));
         return product;
-    }
-
-    private List<ProductPhoto> getPhotoLinks(List<String> photos, Product product){
-        List<ProductPhoto> productPhotos = new ArrayList<>();
-        for (int i = 0; i < photos.size(); i++) {
-            String photoLink = photos.get(i);
-            ProductPhoto productPhoto = new ProductPhoto();
-            productPhoto.setPhotoLink(photoLink);
-            productPhoto.setProduct(product);
-            if (i == 0) {
-                productPhoto.setMainPage(true);
-            }
-            productPhotos.add(productPhoto);
-            if (i == 8){
-                throw new ResponseStatusException
-                        (HttpStatus.BAD_REQUEST, String.format(ErrorMessageHandler.MAX_LOAD_PHOTO));
-            }
-        }
-        return productPhotos;
-    }
-
-    private List<ProductPhoto> getProductPhotoLinks (Product product){ //переделать на отправку линка фронту или линков
-        List<ProductPhoto> productPhotos = new ArrayList<>();
-        ProductPhoto photo = new ProductPhoto();
-        photo.setProduct(product);
-        photo.setMainPage(true);
-        photo.setPhotoLink("https://talla.ua/image/cache/catalog/product/import/so5517/so5517-77435964554606-500x500.jpg");
-        productPhotos.add(photo);
-        return productPhotos;
     }
 
     private Category getCategory(String categoryName){
@@ -268,7 +240,8 @@ public class ProductService implements IProductService {
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
-                    p.setPhotos(getPhotoLinks(request.productPhotoLink(), p)); //не обновляет, а добавляет
+//                    p.setPhotos(imageService.getUpdateLinks(request.productPhotoLink(), p));
+                    p.setPhotos(imageService.deleteExcessPhotos(0,p));//не обновляет, а добавляет
                     p.setProductPrice(request.productPrice());
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));

@@ -35,6 +35,6 @@ public class VerificationCode {
     private int loginAttempt;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "phone_number", referencedColumnName = "phone_number")
-    User user;
+    @JoinColumn(name = "user_id")
+    private User user;
 }

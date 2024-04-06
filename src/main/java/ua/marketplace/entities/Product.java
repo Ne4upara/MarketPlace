@@ -51,14 +51,14 @@ public class Product {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Column(name = "creation_date")
-    private LocalDateTime creationDate;
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private List<ProductRating> reviews = new ArrayList<>();
 
     @Column(name = "quantity")
     private int productQuantity;
+
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
 
     @PrePersist
     protected void onCreate() {

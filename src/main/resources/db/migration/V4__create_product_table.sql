@@ -7,8 +7,8 @@ CREATE TABLE products (
     category_id INT,
     product_type VARCHAR(10) NOT NULL CHECK (product_type IN ('new', 'used')),
     owner_id INT,
-    creation_date TIMESTAMP NOT NULL,
     quantity INT NOT NULL,
+    creation_date TIMESTAMP NOT NULL,
     FOREIGN KEY (category_id) REFERENCES product_categories(id),
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );

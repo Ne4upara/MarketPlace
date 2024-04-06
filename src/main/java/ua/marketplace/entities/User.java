@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -31,6 +32,7 @@ public class User {
     private String firstName;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ToString.Exclude
     private VerificationCode verificationCode;
 
     @Column(name = "role", insertable = false)
@@ -38,6 +40,14 @@ public class User {
 
     @Column(name = "is_enabled", insertable = false)
     private Boolean isEnabled;
+
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
+
+    @PrePersist
+    protected void onCreate() {
+        creationDate = LocalDateTime.now();
+    }
 
     @Override
     public final boolean equals(Object o) {

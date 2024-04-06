@@ -61,7 +61,6 @@ public interface ProductMapper {
         return 0;
     }
 
-
     default String getMainPagePhotoLink(Product product) {
         List<ProductPhoto> photos = product.getPhotos();
         if (photos != null && !photos.isEmpty()) {

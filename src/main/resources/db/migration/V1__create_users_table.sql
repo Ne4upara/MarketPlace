@@ -3,7 +3,8 @@ CREATE TABLE users (
     phone_number VARCHAR(13) UNIQUE NOT NULL,
     first_name VARCHAR(15) NOT NULL,
     role VARCHAR(20) NOT NULL DEFAULT 'USER',
-    is_enabled BOOLEAN DEFAULT TRUE
+    is_enabled BOOLEAN DEFAULT TRUE,
+    creation_date TIMESTAMP NOT NULL
 );
 
 CREATE INDEX idx_phone_number ON users (phone_number);
