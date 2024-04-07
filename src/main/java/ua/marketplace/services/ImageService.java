@@ -65,13 +65,14 @@ public class ImageService {
         List<ProductPhoto> productPhotos = new ArrayList<>();
         int newSize = newPhotoLinks.size();
         isMaxLink(newSize);
-//        if (newSize == 0){
-//            product.getPhotos().remove(0);
-//            productPhotos.add(createDefaultProductPhoto(product));
-//            return productPhotos;
-//        }
-        deleteExcessPhotos(newSize, product);
-//        List<ProductPhoto> productPhotos = deleteExcessPhotos(newSize, product);
+//        productPhotos = deleteExcessPhotos(newSize, product);
+        if (newSize == 0){
+
+            productPhotos.add(createDefaultProductPhoto(product));
+            return productPhotos;
+        }
+
+
         for (int i = 0; i < newPhotoLinks.size(); i++) {
             String photoLink = newPhotoLinks.get(i);
             if (i < product.getPhotos().size()) {
@@ -83,7 +84,7 @@ public class ImageService {
                 productPhotos.add(newPhoto);
             }
         }
-        productRepository.save(product);
+//        productRepository.save(product);
         return productPhotos;
     }
 
@@ -124,6 +125,7 @@ public class ImageService {
 //                если его закоментировать записи остаються в БД
             }
         }
+//        listPhoto = product.getPhotos().subList(newSize, currentSize);
         return listPhoto;
 //    }
 //        List<ProductPhoto> photos = product.getPhotos();

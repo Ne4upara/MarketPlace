@@ -32,7 +32,7 @@ public class Product {
     private String productName;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ProductPhoto> photos = new ArrayList<>();
+    private List<ProductPhoto> photos;
 
     @Column(name = "price")
     private BigDecimal productPrice;
@@ -52,7 +52,7 @@ public class Product {
     private User owner;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    private List<ProductRating> reviews = new ArrayList<>();
+    private List<ProductRating> reviews;
 
     @Column(name = "quantity")
     private int productQuantity;

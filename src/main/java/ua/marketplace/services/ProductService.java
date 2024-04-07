@@ -236,12 +236,12 @@ public class ProductService implements IProductService {
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
-
+        imageService.deleteExcessPhotos(request.productPhotoLink().size(), product);
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
-//                    p.setPhotos(imageService.getUpdateLinks(request.productPhotoLink(), p));
-                    p.setPhotos(imageService.deleteExcessPhotos(0,p));//не обновляет, а добавляет
+                    p.setPhotos(imageService.getUpdateLinks(request.productPhotoLink(), p));
+//                    p.setPhotos(imageService.deleteExcessPhotos(0,p));//не обновляет, а добавляет
                     p.setProductPrice(request.productPrice());
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));

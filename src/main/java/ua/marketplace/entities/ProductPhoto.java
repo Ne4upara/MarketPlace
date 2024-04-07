@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "product_photos")
 @Getter
 @Setter
-@ToString
+//@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,6 +22,7 @@ public class ProductPhoto {
     private Long id;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "product_id")
     private Product product;
 
