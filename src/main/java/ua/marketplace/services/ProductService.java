@@ -254,8 +254,11 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.BAD_REQUEST, ErrorMessageHandler.FAILED_PRODUCT_UPDATE));
 
+
         return ProductMapper.PRODUCT_INSTANCE.productToProductDto(updatedProduct);
     }
+
+
 
     /**
      * Checks if the given user is the owner of the product.

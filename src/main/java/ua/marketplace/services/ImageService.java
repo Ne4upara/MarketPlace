@@ -70,7 +70,7 @@ public class ImageService {
 //            productPhotos.add(createDefaultProductPhoto(product));
 //            return productPhotos;
 //        }
-
+        deleteExcessPhotos(newSize, product);
 //        List<ProductPhoto> productPhotos = deleteExcessPhotos(newSize, product);
         for (int i = 0; i < newPhotoLinks.size(); i++) {
             String photoLink = newPhotoLinks.get(i);
@@ -89,13 +89,15 @@ public class ImageService {
 
     public List<ProductPhoto> deleteExcessPhotos(int newSize, Product product) {
 //        int currentSize = product.getPhotos().size();
+//        List<ProductPhoto> listPhoto = product.getPhotos();
 //        if (newSize < currentSize) {
-//            List<ProductPhoto> listPhoto = product.getPhotos();
+//
 //            for (int i = currentSize; i > newSize; i--) {
 //                ProductPhoto photo = listPhoto.get(i-1);
 //                photoRepository.delete(photo);
 //            }
 //        }
+//        return listPhoto;
 //        int currentSize = product.getPhotos().size();
 //        if (newSize < currentSize) {
 //            List<ProductPhoto> photosToRemove = product.getPhotos().subList(newSize, currentSize);
@@ -115,10 +117,22 @@ public class ImageService {
 
             for (int i = currentSize - 1; i >= newSize; i--) {
                 ProductPhoto photo = listPhoto.get(i);
-                photoRepository.delete(photo);
-                listPhoto.remove(photo); // Удаление фотографии из списка продукта
+                Long id = photo.getId();
+                photoRepository.deleteByPhotoId(id);
+//                photoRepository.delete(photo);
+                listPhoto.remove(photo); // Удаление фотографии из списка продукта и
+//                если его закоментировать записи остаються в БД
             }
         }
         return listPhoto;
+//    }
+//        List<ProductPhoto> photos = product.getPhotos();
+//        for (int i = 0; i < 10; i++){
+//            ProductPhoto photo = photos.get(i);
+//            Long id = photo.getId();
+//
+//        }
+
+
     }
 }
