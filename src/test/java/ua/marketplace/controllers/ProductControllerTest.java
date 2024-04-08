@@ -8,14 +8,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import ua.marketplace.data.ProductCategory;
+import ua.marketplace.data.Category;
 import ua.marketplace.dto.Pagination;
-import ua.marketplace.entities.Category;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.mapper.ProductMapper;
 import ua.marketplace.repositoryes.ProductRepository;
-import ua.marketplace.requests.ProductRequest;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

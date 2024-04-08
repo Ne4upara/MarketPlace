@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ua.marketplace.data.ProductCategory;
+import ua.marketplace.entities.Category;
 import ua.marketplace.entities.Product;
 
 
@@ -13,5 +13,5 @@ import ua.marketplace.entities.Product;
  */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Page<Product> findByCategory(ProductCategory category, Pageable pageable);
+    Page<Product> findByCategory(Category category, Pageable pageable);
 }

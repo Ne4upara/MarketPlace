@@ -1,6 +1,6 @@
 package ua.marketplace.data;
 
-public enum ProductCategory {
+public enum Category {
     FOR_INFANTS,
     DOLLS,
     PLUSH_TOYS,

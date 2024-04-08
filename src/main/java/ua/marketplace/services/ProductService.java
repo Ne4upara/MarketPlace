@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ua.marketplace.data.ProductCategory;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
@@ -74,16 +73,13 @@ public class ProductService implements IProductService {
     public Pagination getAllProductsByCategory
     (int pageNumber, int pageSize, String sortBy, String orderBy, String category) {
 
-        ProductCategory productCategory;
+        Category byCategoryName = categoryRepository.findByCategoryName(category.toUpperCase())
+                .orElseThrow(() -> new ResponseStatusException
+                        (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.INVALID_CATEGORY, category)));
 
-        try {
-            productCategory = ProductCategory.valueOf(category.toUpperCase(Locale.ENGLISH));
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.INVALID_CATEGORY + category, e);
-        }
 
         Pageable pageable = getPageRequest(pageNumber, pageSize, sortBy, orderBy);
-        Page<Product> pageAll = productRepository.findByCategory(productCategory, pageable);
+        Page<Product> pageAll = productRepository.findByCategory(byCategoryName, pageable);
         List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
 
         return new Pagination(pageAll.getNumber(),
@@ -205,9 +201,11 @@ public class ProductService implements IProductService {
         return product;
     }
 
-    private Category getCategory(String categoryName){
+    private ua.marketplace.entities.Category getCategory(String categoryName){
         validateCategoryNotExist(categoryName);
-        return categoryRepository.findByCategoryName(categoryName);
+        return categoryRepository.findByCategoryName(categoryName)
+                .orElseThrow(() -> new ResponseStatusException
+                (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.INVALID_CATEGORY, categoryName)));
     }
 
     private void validateCategoryNotExist(String categoryName) {
