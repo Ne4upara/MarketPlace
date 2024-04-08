@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "product_photos")
 @Getter
 @Setter
-//@ToString
+@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

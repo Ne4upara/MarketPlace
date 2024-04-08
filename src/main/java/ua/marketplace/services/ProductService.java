@@ -14,7 +14,6 @@ import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.entities.Category;
 import ua.marketplace.entities.Product;
-import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.entities.User;
 import ua.marketplace.mapper.ProductMapper;
 import ua.marketplace.repositoryes.CategoryRepository;
@@ -24,7 +23,6 @@ import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -241,7 +239,6 @@ public class ProductService implements IProductService {
                 .map(p -> {
                     p.setProductName(request.productName());
                     p.setPhotos(imageService.getUpdateLinks(request.productPhotoLink(), p));
-//                    p.setPhotos(imageService.deleteExcessPhotos(0,p));//не обновляет, а добавляет
                     p.setProductPrice(request.productPrice());
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));

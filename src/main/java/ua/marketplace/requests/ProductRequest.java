@@ -1,7 +1,6 @@
 package ua.marketplace.requests;
 
 import jakarta.validation.constraints.*;
-import ua.marketplace.entities.ProductPhoto;
 
 import java.math.BigDecimal;
 import java.util.List;

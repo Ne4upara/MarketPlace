@@ -7,7 +7,7 @@ import ua.marketplace.entities.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    Boolean existsByCategoryName(String pcategoryNamehone);
+    Boolean existsByCategoryName(String categoryName);
 
     Category findByCategoryName(String categoryName);
 }
