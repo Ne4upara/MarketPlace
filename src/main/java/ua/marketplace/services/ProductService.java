@@ -1,5 +1,6 @@
 package ua.marketplace.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -73,7 +74,7 @@ public class ProductService implements IProductService {
     public Pagination getAllProductsByCategory
     (int pageNumber, int pageSize, String sortBy, String orderBy, String category) {
 
-        Category byCategoryName = categoryRepository.findByCategoryName(category.toUpperCase())
+        Category byCategoryName = categoryRepository.findByCategoryName(category.toUpperCase(Locale.ENGLISH))
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.INVALID_CATEGORY, category)));
 
@@ -131,8 +132,11 @@ public class ProductService implements IProductService {
      * @return ProductDto containing details of the product.
      * @throws ResponseStatusException if the product is not found.
      */
+
+    @Transactional
     @Override
     public ProductDto getProductDetails(Long id) {
+        productRepository.incrementProductViews(id); //Треба протестити
         return ProductMapper.PRODUCT_INSTANCE.productToProductDto(getProductById(id));
     }
 
@@ -195,6 +199,10 @@ public class ProductService implements IProductService {
                 .productType(request.productType())
                 .productQuantity(request.productQuantity())
                 .owner(user)
+                .sellerName(request.sellerName())
+                .sellerPhoneNumber(request.sellerPhoneNumber())
+                .sellerEmail(request.sellerEmail())
+                .location(request.location())
                 .build();
 
         product.setPhotos(imageService.getPhotoLinks(request.productPhotoLink(), product));

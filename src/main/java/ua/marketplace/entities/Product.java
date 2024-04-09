@@ -56,6 +56,27 @@ public class Product {
     @Column(name = "quantity")
     private int productQuantity;
 
+    @Column(name = "seller_name")
+    private String sellerName;
+
+    @Column(name = "seller_phone_number")
+    private String sellerPhoneNumber;
+
+    @Column(name = "seller_email")
+    private String sellerEmail;
+
+    @Column(name = "location")
+    private String location;
+
+    @Column(name = "count_view", insertable = false)
+    private int countView;
+
+    @Column(name = "relevancy")
+    private int relevancy;
+
+    @Column(name = "is_enabled", insertable = false)
+    private Boolean isEnabled;
+
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 

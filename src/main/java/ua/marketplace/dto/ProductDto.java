@@ -21,6 +21,11 @@ public record ProductDto(
         LocalDateTime creationDate,
         int rating,
         List<ProductRating> reviews,
-        int productQuantity
+        int productQuantity,
+        String sellerName,
+        String sellerPhoneNumber,
+        String sellerEmail,
+        String location,
+        int countView
 ) {
 }
