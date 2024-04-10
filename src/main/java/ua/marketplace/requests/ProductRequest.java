@@ -1,9 +1,9 @@
 package ua.marketplace.requests;
 
 import jakarta.validation.constraints.*;
-import ua.marketplace.data.ProductCategory;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Represents a request to create a product.
@@ -13,7 +13,7 @@ public record ProductRequest(
         @Size(min = 5, max = 100, message = "Product's name should be between 5 and 100 chars")
         String productName,
 
-        String productPhotoLink,
+        List<String> productPhotoLink,
 
         @NotNull(message = "Product must have a price")
         @Positive(message = "Product price must be positive")
@@ -21,13 +21,13 @@ public record ProductRequest(
         BigDecimal productPrice,
 
         @NotEmpty(message = "Product must have a description")
-        @Size(min = 10, max = 250, message = "Product's description should be between 5 and 250 chars")
-        @Pattern(regexp = "^[а-яА-Я0-9\\s]*$",
-                message = "Description should contain only Cyrillic characters, spaces, and digits")
+        @Size(min = 5, max = 250, message = "Product's description should be between 5 and 250 chars")
+//        @Pattern(regexp = "^[а-яА-Я0-9\\s]*$",
+//                message = "Description should contain only Cyrillic characters, spaces, and digits")
         String productDescription,
 
         @NotNull(message = "You must choice a category for your product's")
-        ProductCategory productCategory,
+        String productCategory,
 
         @NotEmpty(message = "You must choice a type of your product's")
         @Pattern(regexp = "^(new|used)$", message = "Product type must be either 'new' or 'used'")
@@ -35,6 +35,20 @@ public record ProductRequest(
 
         @NotNull(message = "Product quantity must be specified")
         @Positive(message = "Product quantity must be positive")
-        int productQuantity
+        int productQuantity,
+
+        @Size(min = 2, max = 15, message = "Name should be between 2 and 15 characters")
+        @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄґҐ]+$", message = "Name should contain only letters (Latin or Cyrillic)")
+        String sellerName,
+
+        @Size(min = 13, max = 13, message = "Phone should be between 13 digits")
+        @Pattern(regexp = "^\\+380\\d+$", message = "Phone should contain only digits and should be in the format +380..")
+        String sellerPhoneNumber,
+
+        @Email(message = "Enter a valid email")
+        String sellerEmail,
+
+//        @NotNull(message = "Location cannot be null") уточнить по проекту
+        String location
 ) {
 }

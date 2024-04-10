@@ -41,6 +41,23 @@ public class ProductControllerImp implements IProductController {
     }
 
     /**
+     * Retrieves all products by category.
+     *
+     * @return List of MainPageProductDto containing product details by category.
+     */
+    @GetMapping("/s/list/{category}")
+    @ResponseStatus(HttpStatus.OK)
+    public Pagination getAllProductsByCategory(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
+            @Valid @RequestParam(defaultValue = "creationDate")
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "DESC") @Pattern(regexp = "ASC|DESC") String order,
+            @PathVariable String category) {
+        return productService.getAllProductsByCategory(number, size, sort, order, category);
+    }
+
+    /**
      * Retrieves details of a product by its ID.
      *
      * @param id The ID of the product to retrieve.
@@ -78,19 +95,6 @@ public class ProductControllerImp implements IProductController {
     public ProductDto updateProduct
     (Principal principal, @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         return productService.updateProduct(principal, id, request);
-    }
-
-    /**
-     * Rates a product.
-     *
-     * @param productId The ID of the product to rate.
-     * @param rating    The rating to assign to the product.
-     * @return ProductDto containing details of the rated product.
-     */
-    @PatchMapping("/{productId}/rate/{rating}")
-    @ResponseStatus(HttpStatus.OK)
-    public ProductDto rateProduct(Principal principal, @PathVariable Long productId, @PathVariable int rating) {
-        return productService.rateProduct(principal, productId, rating);
     }
 
     /**

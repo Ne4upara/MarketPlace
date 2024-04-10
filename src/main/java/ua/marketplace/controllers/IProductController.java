@@ -25,14 +25,32 @@ import java.security.Principal;
 public interface IProductController {
 
     @Operation(summary = "Get all products for main page",
-            description = "Endpoint to retrieve all products for the main page")
+            description = "Endpoint to retrieve all products for the main page." +
+                    "Sort -> creationDate|productName|productPrice|id.")
     @ApiResponse(responseCode = "200", description = "Successful operation")
     Pagination getAllProductsForMainPage(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
             @Valid @RequestParam(defaultValue = "creationDate")
             @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
-            @Valid @RequestParam(defaultValue = "DESC")  @Pattern(regexp = "ASC|DESC")String order);
+            @Valid @RequestParam(defaultValue = "DESC") @Pattern(regexp = "ASC|DESC") String order);
+
+    @Operation(summary = "Get products details by category",
+            description = "Endpoint to retrieve products by category. " +
+                    " Sort -> creationDate|productName|productPrice|id.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = Pagination.class))),
+            @ApiResponse(responseCode = "409", description = "Invalid category",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
+    })
+    Pagination getAllProductsByCategory(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
+            @Valid @RequestParam(defaultValue = "creationDate")
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "DESC") @Pattern(regexp = "ASC|DESC") String order,
+            @Parameter String category);
 
     @Operation(summary = "Get product details by ID",
             description = "Endpoint to retrieve product details by ID")
@@ -77,21 +95,6 @@ public interface IProductController {
                              @Parameter(description = "Request body containing updated product details",
                                      schema = @Schema(implementation = ProductRequest.class))
                              @Valid @RequestBody ProductRequest request);
-
-    @Operation(summary = "Rate a product", description = "Endpoint to rate a product")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Product rated successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input",
-                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
-            @ApiResponse(responseCode = "401", description = "User not authorized",
-                    content = @Content()),
-            @ApiResponse(responseCode = "404", description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
-    })
-    ProductDto rateProduct(@Parameter(description = "Principal object representing the authenticated user")
-                           Principal principal,
-                           @Parameter(description = "ID of the product to be rated") Long productId,
-                           @Parameter(description = "Rating value to be assigned to the product") int rating);
 
     @Operation(summary = "Delete a product", description = "Endpoint to delete a product")
     @ApiResponses(value = {

@@ -1,9 +1,10 @@
 package ua.marketplace.dto;
 
-import ua.marketplace.data.ProductCategory;
+import ua.marketplace.entities.ProductRating;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Data Transfer Object (DTO) representing product details.
@@ -12,14 +13,19 @@ import java.time.LocalDateTime;
 public record ProductDto(
         Long id,
         String productName,
-        String productPhotoLink,
+        List<String> productPhotoLink,
         BigDecimal productPrice,
         String productDescription,
-        ProductCategory productCategory,
+        String productCategory,
         String productType,
         LocalDateTime creationDate,
-        int productRating,
-        int productRatingCount,
-        int productQuantity
+        int rating,
+        List<ProductRating> reviews,
+        int productQuantity,
+        String sellerName,
+        String sellerPhoneNumber,
+        String sellerEmail,
+        String location,
+        int countView
 ) {
 }

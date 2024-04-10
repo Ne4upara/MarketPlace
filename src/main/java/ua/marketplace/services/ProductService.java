@@ -1,5 +1,6 @@
 package ua.marketplace.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,17 +12,19 @@ import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
+import ua.marketplace.entities.Category;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
 import ua.marketplace.mapper.ProductMapper;
+import ua.marketplace.repositoryes.CategoryRepository;
 import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.utils.ErrorMessageHandler;
 
-import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 /**
@@ -31,10 +34,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ProductService implements IProductService {
 
-    private static final int MIN_RATE = 0;
-    private static final int MAX_RATE = 5;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
+    private final ImageService imageService;
 
     /**
      * Retrieves details of all products for the main page, paginated and sorted.
@@ -49,6 +52,35 @@ public class ProductService implements IProductService {
     public Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy) {
         Page<Product> pageAll = productRepository.findAll(getPageRequest(
                 pageNumber, pageSize, sortBy, orderBy));
+        List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
+
+        return new Pagination(pageAll.getNumber(),
+                pageAll.getTotalElements(),
+                pageAll.getTotalPages(),
+                pageAllContent);
+    }
+
+    /**
+     * Retrieves products paginated filtered by category.
+     *
+     * @param pageNumber The page number to retrieve.
+     * @param pageSize   The number of products per page.
+     * @param sortBy     The field to sort the products by (e.g., "creationDate", "productName", "productPrice", "id").
+     * @param orderBy    The sorting order ("ASC" for ascending, "DESC" for descending).
+     * @param category   The category by which to filter the products.
+     * @return Pagination object containing the paginated list of products for the main page filtered by category.
+     */
+    @Override
+    public Pagination getAllProductsByCategory
+    (int pageNumber, int pageSize, String sortBy, String orderBy, String category) {
+
+        Category byCategoryName = categoryRepository.findByCategoryName(category.toUpperCase(Locale.ENGLISH))
+                .orElseThrow(() -> new ResponseStatusException
+                        (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.INVALID_CATEGORY, category)));
+
+
+        Pageable pageable = getPageRequest(pageNumber, pageSize, sortBy, orderBy);
+        Page<Product> pageAll = productRepository.findByCategory(byCategoryName, pageable);
         List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
 
         return new Pagination(pageAll.getNumber(),
@@ -89,7 +121,7 @@ public class ProductService implements IProductService {
      * @return List of MainPageProductDto containing mapped product details.
      */
     private List<MainPageProductDto> convertProductListToDto(Page<Product> products) {
-        return products.stream().map(ProductMapper.INSTANCE::productToMainPageDto)
+        return products.stream().map(ProductMapper.PRODUCT_INSTANCE::productToMainPageDto)
                 .toList();
     }
 
@@ -100,9 +132,12 @@ public class ProductService implements IProductService {
      * @return ProductDto containing details of the product.
      * @throws ResponseStatusException if the product is not found.
      */
+
+    @Transactional
     @Override
     public ProductDto getProductDetails(Long id) {
-        return ProductMapper.INSTANCE.productToProductDto(getProductById(id));
+        productRepository.incrementProductViews(id); //Треба протестити
+        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(getProductById(id));
     }
 
     /**
@@ -130,7 +165,7 @@ public class ProductService implements IProductService {
         User user = getUserByPrincipal(principal);
         Product product = createProduct(request, user);
 
-        return ProductMapper.INSTANCE.productToProductDto(productRepository.save(product));
+        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(productRepository.save(product));
     }
 
     /**
@@ -154,17 +189,38 @@ public class ProductService implements IProductService {
      * @return The newly created Product entity.
      */
     private Product createProduct(ProductRequest request, User user) {
-        return Product
+
+        Product product = Product
                 .builder()
                 .productName(request.productName())
-                .productPhotoLink(request.productPhotoLink())
                 .productPrice(request.productPrice())
                 .productDescription(request.productDescription())
-                .productCategory(request.productCategory())
+                .category(getCategory(request.productCategory()))
                 .productType(request.productType())
                 .productQuantity(request.productQuantity())
                 .owner(user)
+                .sellerName(request.sellerName())
+                .sellerPhoneNumber(request.sellerPhoneNumber())
+                .sellerEmail(request.sellerEmail())
+                .location(request.location())
                 .build();
+
+        product.setPhotos(imageService.getPhotoLinks(request.productPhotoLink(), product));
+        return product;
+    }
+
+    private ua.marketplace.entities.Category getCategory(String categoryName){
+        validateCategoryNotExist(categoryName);
+        return categoryRepository.findByCategoryName(categoryName)
+                .orElseThrow(() -> new ResponseStatusException
+                (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.INVALID_CATEGORY, categoryName)));
+    }
+
+    private void validateCategoryNotExist(String categoryName) {
+        if (Boolean.FALSE.equals(categoryRepository.existsByCategoryName(categoryName))) {
+            throw new ResponseStatusException
+                    (HttpStatus.CONFLICT, String.format(ErrorMessageHandler.INVALID_CATEGORY, categoryName));
+        }
     }
 
     /**
@@ -184,14 +240,14 @@ public class ProductService implements IProductService {
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
-
+        imageService.deleteExcessPhotos(request.productPhotoLink().size(), product);
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
-                    p.setProductPhotoLink(request.productPhotoLink());
+                    p.setPhotos(imageService.getUpdateLinks(request.productPhotoLink(), p));
                     p.setProductPrice(request.productPrice());
                     p.setProductDescription(request.productDescription());
-                    p.setProductCategory(request.productCategory());
+                    p.setCategory(getCategory(request.productCategory()));
                     p.setProductType(request.productType());
                     p.setProductQuantity(request.productQuantity());
                     return p;
@@ -201,8 +257,11 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.BAD_REQUEST, ErrorMessageHandler.FAILED_PRODUCT_UPDATE));
 
-        return ProductMapper.INSTANCE.productToProductDto(updatedProduct);
+
+        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(updatedProduct);
     }
+
+
 
     /**
      * Checks if the given user is the owner of the product.
@@ -213,42 +272,6 @@ public class ProductService implements IProductService {
      */
     private boolean isProductCreatedByUser(Product product, User user) {
         return product.getOwner().equals(user);
-    }
-
-    /**
-     * Rates a product.
-     *
-     * @param productId The ID of the product to rate.
-     * @param rating    The rating to assign to the product.
-     * @return ProductDto containing details of the rated product.
-     * @throws ResponseStatusException if the rating is invalid or the product is not found.
-     */
-    @Override
-    public ProductDto rateProduct(Principal principal, Long productId, int rating) {
-
-        getUserByPrincipal(principal);
-
-        if (!isRatingValid(rating)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessageHandler.PRODUCT_RATING_ERROR);
-        }
-
-        Product product = getProductById(productId);
-
-        product.setProductRating(product.getProductRating() + rating);
-        product.setProductRatingCount(product.getProductRatingCount() + BigDecimal.ONE.intValue());
-
-        Product saved = productRepository.save(product);
-        return ProductMapper.INSTANCE.productToProductDto(saved);
-    }
-
-    /**
-     * Checks if the given rating value is valid.
-     *
-     * @param rating The rating value to check.
-     * @return true if the rating is valid, false otherwise.
-     */
-    private boolean isRatingValid(int rating) {
-        return rating >= MIN_RATE && rating <= MAX_RATE;
     }
 
     /**

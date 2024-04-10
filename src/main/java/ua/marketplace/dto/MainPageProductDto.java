@@ -12,6 +12,7 @@ public record MainPageProductDto(
         String productName,
         String productType,
         BigDecimal productPrice,
-        int productRating
+        int productRating,
+        int countView
 ) {
 }

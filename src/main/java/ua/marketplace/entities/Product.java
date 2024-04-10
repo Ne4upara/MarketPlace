@@ -3,10 +3,10 @@ package ua.marketplace.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
-import ua.marketplace.data.ProductCategory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,8 +30,8 @@ public class Product {
     @Column(name = "name")
     private String productName;
 
-    @Column(name = "photo")
-    private String productPhotoLink;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ProductPhoto> photos;
 
     @Column(name = "price")
     private BigDecimal productPrice;
@@ -39,8 +39,9 @@ public class Product {
     @Column(name = "description")
     private String productDescription;
 
-    @Column(name = "category")
-    private ProductCategory productCategory;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @Column(name = "product_type")
     private String productType;
@@ -49,17 +50,35 @@ public class Product {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Column(name = "creation_date")
-    private LocalDateTime creationDate;
-
-    @Column(name = "rating")
-    private int productRating;
-
-    @Column(name = "rating_count")
-    private int productRatingCount;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private List<ProductRating> reviews;
 
     @Column(name = "quantity")
     private int productQuantity;
+
+    @Column(name = "seller_name")
+    private String sellerName;
+
+    @Column(name = "seller_phone_number")
+    private String sellerPhoneNumber;
+
+    @Column(name = "seller_email")
+    private String sellerEmail;
+
+    @Column(name = "location")
+    private String location;
+
+    @Column(name = "count_view", insertable = false)
+    private int countView;
+
+    @Column(name = "relevancy")
+    private int relevancy;
+
+    @Column(name = "is_enabled", insertable = false)
+    private Boolean isEnabled;
+
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
 
     @PrePersist
     protected void onCreate() {

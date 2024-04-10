@@ -39,15 +39,6 @@ public interface IProductService {
     ProductDto updateProduct(Principal principal, Long productId, ProductRequest request);
 
     /**
-     * Rates a product.
-     *
-     * @param productId The ID of the product to rate.
-     * @param rating    The rating to assign to the product.
-     * @return ProductDto containing details of the rated product.
-     */
-    ProductDto rateProduct(Principal principal, Long productId, int rating);
-
-    /**
      * Deletes a product.
      *
      * @param principal The principal (typically representing the logged-in user).
@@ -65,4 +56,18 @@ public interface IProductService {
      * @return Pagination object containing the paginated list of products for the main page.
      */
     Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy);
+
+
+    /**
+     * Retrieves products paginated filtered by category.
+     *
+     * @param pageNumber The page number to retrieve.
+     * @param pageSize   The number of products per page.
+     * @param sortBy     The field to sort the products by (e.g., "creationDate", "productName", "productPrice", "id").
+     * @param orderBy    The sorting order ("ASC" for ascending, "DESC" for descending).
+     * @param category   The category by which to filter the products.
+     * @return Pagination object containing the paginated list of products for the main page filtered by category.
+     */
+    Pagination getAllProductsByCategory
+    (int pageNumber, int pageSize, String sortBy, String orderBy, String category);
 }
