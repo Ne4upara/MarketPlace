@@ -13,7 +13,7 @@ import java.util.List;
 public interface ICategoryController {
 
     @Operation(summary = "Get all Category",
-            description = "Endpoint to retrieve all product categories ")
+            description = "Endpoint to retrieve all product categories (id, url link, name for catalog view.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Category.class)))),

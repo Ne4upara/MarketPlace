@@ -7,9 +7,7 @@ CREATE TABLE product_categories (
 INSERT INTO product_categories (name_url, name_ukr) VALUES
     ('for_infants', 'ДЛЯ НЕМОВЛЯТ'),
     ('dolls', 'ЛЯЛЬКИ, ПУПСИ'),
-    ('plush_toy', 'М*ЯКА ІГРАШКА'),
--- апостроф це специфічний символ який не підтримується в SQL :(
-
+    ('plush_toy', 'М`ЯКА ІГРАШКА'),
     ('transformers', 'ТРАНСФОРМЕРИ'),
     ('constructors', 'КОНСТРУКТОРИ'),
     ('puzzles', 'ПАЗЛИ'),

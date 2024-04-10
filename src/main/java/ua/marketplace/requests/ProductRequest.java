@@ -21,9 +21,9 @@ public record ProductRequest(
         BigDecimal productPrice,
 
         @NotEmpty(message = "Product must have a description")
-        @Size(min = 10, max = 250, message = "Product's description should be between 5 and 250 chars")
-        @Pattern(regexp = "^[а-яА-Я0-9\\s]*$",
-                message = "Description should contain only Cyrillic characters, spaces, and digits")
+        @Size(min = 5, max = 250, message = "Product's description should be between 5 and 250 chars")
+//        @Pattern(regexp = "^[а-яА-Я0-9\\s]*$",
+//                message = "Description should contain only Cyrillic characters, spaces, and digits")
         String productDescription,
 
         @NotNull(message = "You must choice a category for your product's")
@@ -48,7 +48,7 @@ public record ProductRequest(
         @Email(message = "Enter a valid email")
         String sellerEmail,
 
-        @NotNull(message = "Location cannot be null")
+//        @NotNull(message = "Location cannot be null") уточнить по проекту
         String location
 ) {
 }
