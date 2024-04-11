@@ -48,6 +48,8 @@ dependencies {
     implementation 'org.jacoco:org.jacoco.report:0.8.7'
     implementation 'com.h2database:h2'
     implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.2.4'
+    implementation 'org.infinispan:infinispan-query-dsl:15.0.0.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
@@ -60,6 +62,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'net.sourceforge.pmd:pmd:6.33.0'
     testImplementation 'net.sourceforge.pmd:pmd-java:6.33.0'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.3'
 }
 
 tasks.named('test') {
