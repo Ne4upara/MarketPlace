@@ -24,7 +24,6 @@ import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Stream;
 
 /**
@@ -74,7 +73,7 @@ public class ProductService implements IProductService {
     public Pagination getAllProductsByCategory
     (int pageNumber, int pageSize, String sortBy, String orderBy, String category) {
 
-        Category byCategoryName = categoryRepository.findByCategoryName(category.toUpperCase(Locale.ENGLISH))
+        Category byCategoryName = categoryRepository.findByCategoryName(category)
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.INVALID_CATEGORY, category)));
 
@@ -197,7 +196,7 @@ public class ProductService implements IProductService {
                 .productDescription(request.productDescription())
                 .category(getCategory(request.productCategory()))
                 .productType(request.productType())
-                .productQuantity(request.productQuantity())
+//                .productQuantity(request.productQuantity())
                 .owner(user)
                 .sellerName(request.sellerName())
                 .sellerPhoneNumber(request.sellerPhoneNumber())
@@ -249,7 +248,7 @@ public class ProductService implements IProductService {
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));
                     p.setProductType(request.productType());
-                    p.setProductQuantity(request.productQuantity());
+//                    p.setProductQuantity(request.productQuantity());
                     return p;
                 })
                 .map(productRepository::save)
