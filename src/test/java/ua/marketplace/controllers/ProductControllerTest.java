@@ -154,7 +154,7 @@ class ProductControllerTest {
                 .productDescription("test description")
                 .category(category)
                 .productType("new")
-                .productQuantity(10)
+//                .productQuantity(10)
                 .owner(null)
                 .build();
     }
