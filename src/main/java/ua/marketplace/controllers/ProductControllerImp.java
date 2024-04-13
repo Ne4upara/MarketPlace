@@ -18,7 +18,7 @@ import java.security.Principal;
  * Controller class for managing product-related operations.
  */
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/v1/products")
 @RequiredArgsConstructor
 public class ProductControllerImp implements IProductController {
 

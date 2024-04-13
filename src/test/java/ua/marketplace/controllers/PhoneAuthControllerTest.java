@@ -40,7 +40,7 @@ class PhoneAuthControllerTest {
                 "Test",
                 "+380123456785");
 
-        mockMvc.perform(post("/api/v1/auth/registration")
+        mockMvc.perform(post("/v1/auth/registration")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isAccepted())
@@ -55,7 +55,7 @@ class PhoneAuthControllerTest {
                 "Test1",
                 "+123456709812");
 
-        mockMvc.perform(post("/api/v1/auth/registration")
+        mockMvc.perform(post("/v1/auth/registration")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())
@@ -71,7 +71,7 @@ class PhoneAuthControllerTest {
                 "s",
                 "+3801");
 
-        mockMvc.perform(post("/api/v1/auth/registration")
+        mockMvc.perform(post("/v1/auth/registration")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())
@@ -97,7 +97,7 @@ class PhoneAuthControllerTest {
         user.setVerificationCode(code);
         userRepository.save(user);
 
-        mockMvc.perform(post("/api/v1/auth/login/code")
+        mockMvc.perform(post("/v1/auth/login/code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isOk())
@@ -113,7 +113,7 @@ class PhoneAuthControllerTest {
                 "12s5",
                 "+123456789012");
 
-        mockMvc.perform(post("/api/v1/auth/login/code")
+        mockMvc.perform(post("/v1/auth/login/code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())
@@ -131,7 +131,7 @@ class PhoneAuthControllerTest {
                 "112",
                 "+38012");
 
-        mockMvc.perform(post("/api/v1/auth/login/code")
+        mockMvc.perform(post("/v1/auth/login/code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())
@@ -165,7 +165,7 @@ class PhoneAuthControllerTest {
         user.setVerificationCode(code);
         userRepository.save(user);
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isConflict())
@@ -180,7 +180,7 @@ class PhoneAuthControllerTest {
         PhoneNumberRequest request = new PhoneNumberRequest(
                 "+123456789012");
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isBadRequest())
@@ -198,7 +198,7 @@ class PhoneAuthControllerTest {
                 .session(session)
                 .buildRequest(session.getServletContext());
 
-        mockMvc.perform(post("/api/v1/auth/logout")
+        mockMvc.perform(post("/v1/auth/logout")
                         .session(session))
                 .andExpect(status().isNoContent());
     }

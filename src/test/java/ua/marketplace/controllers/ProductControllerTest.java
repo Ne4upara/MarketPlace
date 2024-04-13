@@ -37,7 +37,7 @@ class ProductControllerTest {
     void testGetAllProductsForMainPage() throws Exception {
 
         //Given,When,Then
-        mockMvc.perform(get("/api/v1/products/s/list")
+        mockMvc.perform(get("/v1/products/s/list")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(new Pagination(1, 0L, 1, null))))
                 .andExpect(status().isOk());
@@ -57,7 +57,7 @@ class ProductControllerTest {
     void testGetAllProductsByCategoryWithInvalidCategory() throws Exception {
 
         //Given,When,Then
-        mockMvc.perform(get("/api/v1/products/s/list/invalid_category")
+        mockMvc.perform(get("/v1/products/s/list/invalid_category")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -70,7 +70,7 @@ class ProductControllerTest {
         productRepository.save(product);
 
         //When,Then
-        mockMvc.perform(get("/api/v1/products/s/details/1")
+        mockMvc.perform(get("/v1/products/s/details/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(String.valueOf(ProductMapper.PRODUCT_INSTANCE.productToProductDto(product))))
                 .andExpect(status().isOk());

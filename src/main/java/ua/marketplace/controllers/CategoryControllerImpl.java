@@ -10,7 +10,7 @@ import ua.marketplace.services.CategoryService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/v1/categories")
 @RequiredArgsConstructor
 public class CategoryControllerImpl implements ICategoryController {
 

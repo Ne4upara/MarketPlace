@@ -21,7 +21,7 @@ import ua.marketplace.services.PhoneNumberRegistrationService;
  * Controller class for handling authentication-related requests.
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class PhoneAuthControllerImp implements IPhoneAuthController {
 
