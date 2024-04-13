@@ -14,9 +14,8 @@
         <!-- daily rollover -->
         <fileNamePattern>logs/logs-%d{yyyy-MM-dd}.log</fileNamePattern>
 
-        <!-- keep 90 days worth of history capped at 3GB total size -->
-        <maxHistory>90</maxHistory>
-        <totalSizeCap>3GB</totalSizeCap>
+        <maxHistory>7</maxHistory>
+        <totalSizeCap>1GB</totalSizeCap>
     </rollingPolicy>
 
     <encoder>
@@ -24,7 +23,6 @@
     </encoder>
 </appender>
 
-<!-- All the remaining loggers -->
 <root level="info">
     <appender-ref ref="STDOUT"/>
     <appender-ref ref="FILE"/>

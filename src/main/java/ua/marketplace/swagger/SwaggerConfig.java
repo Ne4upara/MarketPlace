@@ -35,7 +35,7 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
          return GroupedOpenApi.builder()
                  .group("marketplace")
                  .packagesToScan("ua.marketplace.controllers")
-                 .pathsToMatch("/api/v1/**")
+                 .pathsToMatch("/**")
                  .build();
      }
  }

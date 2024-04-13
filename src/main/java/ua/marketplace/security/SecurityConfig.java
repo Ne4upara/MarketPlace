@@ -53,14 +53,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(c -> corsConfigurationSource())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/auth/**",
+                        .requestMatchers("/auth/**",
                                 "/swagger/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "/api/v1/products/s/**",
-                                "/api/v1/categories/**",
+                                "/products/s/**",
+                                "/categories/**",
                                 "/actuator/**"
                         ).permitAll()
                         .anyRequest().authenticated()

@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.CodeDto;
@@ -19,7 +21,7 @@ import ua.marketplace.services.PhoneNumberRegistrationService;
  * Controller class for handling authentication-related requests.
  */
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class PhoneAuthControllerImp implements IPhoneAuthController {
 
