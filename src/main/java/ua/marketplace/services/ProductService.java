@@ -203,7 +203,8 @@ public class ProductService implements IProductService {
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));
                     p.setProductType(request.productType());
-                    return p;
+                   
+                  return p;
                 })
                 .map(productRepository::save)
                 .findFirst()
