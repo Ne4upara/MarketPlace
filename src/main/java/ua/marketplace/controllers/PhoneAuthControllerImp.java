@@ -4,8 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.CodeDto;
@@ -70,6 +68,12 @@ public class PhoneAuthControllerImp implements IPhoneAuthController {
         return new PhoneNumberDto(user.getPhoneNumber());
     }
 
+    /**
+     * Handles user logout by invalidating the JWT token.
+     *
+     * @param request The HTTP request.
+     * @param session The HTTP session.
+     */
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(HttpServletRequest request, HttpSession session) {

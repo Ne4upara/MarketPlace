@@ -22,6 +22,7 @@ import ua.marketplace.swagger.responses.ValidationErrorResponse;
 @Tag(name = "Authorization controller",
         description = "Endpoints for registration and authorization users")
 public interface IPhoneAuthController {
+
     @Operation(summary = "User login",
             description = "Endpoint for sending user verification codes")
     @ApiResponses(value = {

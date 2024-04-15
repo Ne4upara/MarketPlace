@@ -6,7 +6,6 @@ CREATE TABLE products (
     category_id INT,
     product_type VARCHAR(10) NOT NULL CHECK (product_type IN ('new', 'used')),
     owner_id INT,
-    quantity INT NOT NULL,
     creation_date TIMESTAMP NOT NULL,
     seller_name VARCHAR(50),
     seller_phone_number VARCHAR(50),

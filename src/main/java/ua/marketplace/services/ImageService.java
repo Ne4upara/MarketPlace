@@ -12,6 +12,9 @@ import ua.marketplace.utils.ErrorMessageHandler;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation of the {@link IImageService} interface for managing images associated with products.
+ */
 @Service
 @RequiredArgsConstructor
 public class ImageService implements IImageService {
@@ -19,6 +22,13 @@ public class ImageService implements IImageService {
     private final PhotoRepository photoRepository;
     private static final int MAX_PHOTOS_ALLOWED = 8;
 
+    /**
+     * Retrieves a list of product photos based on the provided photo URLs and product.
+     *
+     * @param photos  The list of photo URLs.
+     * @param product The product associated with the photos.
+     * @return A list of product photos.
+     */
     @Override
     public List<ProductPhoto> getPhotoLinks(List<String> photos, Product product) {
         List<ProductPhoto> productPhotos = handleEmptyNewPhotoLinks(photos, product);
@@ -46,6 +56,13 @@ public class ImageService implements IImageService {
         }
     }
 
+    /**
+     * Retrieves a list of updated product photo links based on the new photo URLs and product.
+     *
+     * @param newPhotoLinks The list of new photo URLs.
+     * @param product       The product associated with the photos.
+     * @return A list of updated product photos.
+     */
     @Override
     public List<ProductPhoto> getUpdateLinks(List<String> newPhotoLinks, Product product) {
         List<ProductPhoto> productPhotos = handleEmptyNewPhotoLinks(newPhotoLinks, product);
@@ -76,6 +93,12 @@ public class ImageService implements IImageService {
         return productPhotos;
     }
 
+    /**
+     * Deletes excess photos for the product based on the new size.
+     *
+     * @param newSize The new size of the photos.
+     * @param product The product for which to delete excess photos.
+     */
     @Override
     public void deleteExcessPhotos(int newSize, Product product) {
         int currentSize = product.getPhotos().size();

@@ -37,7 +37,7 @@ class PhoneNumberRegistrationServiceTest {
 
         // Given
         PhoneNumberRequest request = new PhoneNumberRequest(
-               "+380999999999");
+                "+380999999999");
 
         User expectedUser = User.builder()
                 .firstName("test")
@@ -80,7 +80,7 @@ class PhoneNumberRegistrationServiceTest {
     void testInputPhoneNumberWithTimeToResendingCodeNotEnd() {
         // Given
         PhoneNumberRequest request = new PhoneNumberRequest(
-               "+380999999999");
+                "+380999999999");
 
         User expectedUser = User.builder()
                 .firstName("test")
@@ -178,7 +178,7 @@ class PhoneNumberRegistrationServiceTest {
         // Given
         PhoneCodeRequest request = new PhoneCodeRequest(
                 "2222",
-               "+380999999999");
+                "+380999999999");
 
         User expectedUser = User.builder()
                 .firstName("test")
@@ -203,7 +203,7 @@ class PhoneNumberRegistrationServiceTest {
     void testInputPhoneCodeMaxAttemptsReached() {
         // Given
         PhoneCodeRequest request = new PhoneCodeRequest(
-              "222",
+                "222",
                 "+380999999999");
 
         User user = User.builder()
@@ -226,8 +226,8 @@ class PhoneNumberRegistrationServiceTest {
     void testInputPhoneCodeTimeUp() {
         // Given
         PhoneCodeRequest request = new PhoneCodeRequest(
-              "2222",
-               "+380999999999");
+                "2222",
+                "+380999999999");
 
         User user = User.builder()
                 .verificationCode(VerificationCode.builder()
@@ -250,8 +250,8 @@ class PhoneNumberRegistrationServiceTest {
 
         // Given
         RegistrationRequest request = new RegistrationRequest(
-               "John",
-               "+380999999999");
+                "John",
+                "+380999999999");
 
         User expectedUser = User.builder()
                 .firstName(request.firstName())

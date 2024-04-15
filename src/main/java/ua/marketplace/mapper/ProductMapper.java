@@ -9,7 +9,6 @@ import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.entities.ProductRating;
 
-
 import java.util.List;
 
 /**
