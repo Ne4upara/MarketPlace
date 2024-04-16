@@ -9,6 +9,10 @@ import ua.marketplace.services.CategoryService;
 
 import java.util.List;
 
+/**
+ * Controller class for managing categories.
+ * Handles requests related to categories.
+ */
 @RestController
 @RequestMapping("/v1/categories")
 @RequiredArgsConstructor
@@ -16,6 +20,11 @@ public class CategoryControllerImpl implements ICategoryController {
 
     private final CategoryService categoryService;
 
+    /**
+     * Retrieves a list of all categories.
+     *
+     * @return A list of all categories.
+     */
     @Override
     @GetMapping("/list")
     public List<Category> getAllCategory() {

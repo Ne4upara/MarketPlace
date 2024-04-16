@@ -5,7 +5,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-
+/**
+ * An entity class representing a product photo in the system.
+ */
 @Entity
 @Table(name = "product_photos")
 @Getter
@@ -39,5 +41,4 @@ public class ProductPhoto {
     protected void onCreate() {
         creationDate = LocalDateTime.now();
     }
-
 }

@@ -8,9 +8,17 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ua.marketplace.entities.ProductPhoto;
 
+/**
+ * Repository interface for accessing and managing ProductPhoto entities.
+ */
 @Repository
 public interface PhotoRepository extends JpaRepository<ProductPhoto, Long> {
 
+    /**
+     * Deletes a product photo by its ID.
+     *
+     * @param photoId The ID of the photo to delete.
+     */
     @Transactional
     @Modifying
     @Query("DELETE FROM ProductPhoto p WHERE  p.id = :photoId")

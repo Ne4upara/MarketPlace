@@ -3,6 +3,9 @@ package ua.marketplace.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * An entity class representing a category in the system.
+ */
 @Entity
 @Table(name = "product_categories")
 @Getter

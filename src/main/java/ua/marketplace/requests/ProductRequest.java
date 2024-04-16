@@ -22,8 +22,6 @@ public record ProductRequest(
 
         @NotEmpty(message = "Product must have a description")
         @Size(min = 5, max = 250, message = "Product's description should be between 5 and 250 chars")
-//        @Pattern(regexp = "^[а-яА-Я0-9\\s]*$",
-//                message = "Description should contain only Cyrillic characters, spaces, and digits")
         String productDescription,
 
         @NotNull(message = "You must choice a category for your product's")
@@ -33,12 +31,10 @@ public record ProductRequest(
         @Pattern(regexp = "^(new|used)$", message = "Product type must be either 'new' or 'used'")
         String productType,
 
-        @NotNull(message = "Product quantity must be specified")
-        @Positive(message = "Product quantity must be positive")
-        int productQuantity,
 
         @Size(min = 2, max = 15, message = "Name should be between 2 and 15 characters")
         @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄґҐ]+$", message = "Name should contain only letters (Latin or Cyrillic)")
+
         String sellerName,
 
         @Size(min = 13, max = 13, message = "Phone should be between 13 digits")
