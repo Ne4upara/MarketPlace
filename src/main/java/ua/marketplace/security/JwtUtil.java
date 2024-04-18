@@ -61,6 +61,11 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
+    /**
+     * Adds the provided token to the blacklist.
+     *
+     * @param token the JWT token to blacklist
+     */
     public void killToken(String token) {
         blackListToken.add(token);
     }
@@ -101,6 +106,11 @@ public class JwtUtil {
                 .compact();
     }
 
+    /**
+     * Clears expired tokens from the blacklist.
+     * This method is scheduled to run at 3:00 AM every day.
+     * Expired tokens are removed from the blacklist to optimize memory usage.
+     */
     @Scheduled(cron = "0 0 3 * * *") //В 3 часа ночи каждый день.
     public void clearBlackListTokens() {
         blackListToken.removeIf(token -> Boolean.TRUE.equals(isTokenExpired(token)));

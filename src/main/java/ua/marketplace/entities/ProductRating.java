@@ -5,6 +5,10 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * An entity class representing a product rating in the system.
+ */
+//TODO
 @Entity
 @Table(name = "product_ratings")
 @Getter

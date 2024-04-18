@@ -1,3 +1,6 @@
+version: '3.7'
+
+
 services:
   postgres:
     image: 'postgres:latest'
@@ -5,3 +8,23 @@ services:
       - variables.env
     ports:
       - '5432:5432'
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+  node_exporter:
+    image: prom/node-exporter
+    ports:
+      - '9100:9100'

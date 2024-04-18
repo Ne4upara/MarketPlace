@@ -8,3 +8,9 @@ CREATE TABLE users (
 );
 
 CREATE INDEX idx_phone_number ON users (phone_number);
+
+ALTER TABLE users ALTER COLUMN creation_date SET DEFAULT now();
+
+INSERT INTO users (phone_number, first_name, role) VALUES
+    ('+380123456789', 'Админ', 'ADMIN'),
+    ('+380999999999','Админ','ADMIN');

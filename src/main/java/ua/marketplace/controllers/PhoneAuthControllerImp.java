@@ -1,5 +1,6 @@
 package ua.marketplace.controllers;
 
+import io.micrometer.core.annotation.Counted;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -19,7 +20,7 @@ import ua.marketplace.services.PhoneNumberRegistrationService;
  * Controller class for handling authentication-related requests.
  */
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class PhoneAuthControllerImp implements IPhoneAuthController {
 
@@ -61,6 +62,7 @@ public class PhoneAuthControllerImp implements IPhoneAuthController {
      * @return PhoneNumberDto containing the response for the registration request.
      */
     @PostMapping("/registration")
+    @Counted(value = "login.code.requests", description = "Number of requests to login code endpoint")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public PhoneNumberDto registration
     (@Valid @RequestBody RegistrationRequest request) {
@@ -68,6 +70,12 @@ public class PhoneAuthControllerImp implements IPhoneAuthController {
         return new PhoneNumberDto(user.getPhoneNumber());
     }
 
+    /**
+     * Handles user logout by invalidating the JWT token.
+     *
+     * @param request The HTTP request.
+     * @param session The HTTP session.
+     */
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(HttpServletRequest request, HttpSession session) {

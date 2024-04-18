@@ -50,11 +50,9 @@ public class Product {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ProductRating> reviews;
 
-    @Column(name = "quantity")
-    private int productQuantity;
 
     @Column(name = "seller_name")
     private String sellerName;

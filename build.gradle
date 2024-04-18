@@ -41,13 +41,17 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.flywaydb:flyway-core'
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
     implementation 'org.jacoco:org.jacoco.core:0.8.7'
     implementation 'org.jacoco:org.jacoco.report:0.8.7'
     implementation 'com.h2database:h2'
     implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.2.4'
+    implementation 'org.infinispan:infinispan-query-dsl:15.0.0.Final'
+    implementation 'ch.qos.logback:logback-core:1.5.4'
+    implementation 'io.micrometer:micrometer-core:1.12.4'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
@@ -60,6 +64,8 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'net.sourceforge.pmd:pmd:6.33.0'
     testImplementation 'net.sourceforge.pmd:pmd-java:6.33.0'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.4'
+
 }
 
 tasks.named('test') {
@@ -83,5 +89,4 @@ task runPmd(type: Pmd) {
     group = 'verification'
     source = sourceSets.main.allJava
     include '**/*.java'
-    exclude '**/MarketplaceApplication.java'
-}
+    exclude '**/MarketplaceApplication.java'}

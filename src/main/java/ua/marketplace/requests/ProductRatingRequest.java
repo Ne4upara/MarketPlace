@@ -2,8 +2,11 @@ package ua.marketplace.requests;
 
 import jakarta.validation.constraints.*;
 
+/**
+ * Represents a request object for submitting product ratings.
+ */
+//TODO
 public record ProductRatingRequest(
-
         @NotNull(message = "Rating don't can be \"null\"")
         @Positive(message = "Rating must be positive")
         @Min(value = 0, message = "Rating should be between 0 and 5")

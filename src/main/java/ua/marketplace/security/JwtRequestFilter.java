@@ -23,7 +23,7 @@ public class JwtRequestFilter extends BasicAuthenticationFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-    
+
     public JwtRequestFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService,
                             JwtUtil jwtUtil) {
 
