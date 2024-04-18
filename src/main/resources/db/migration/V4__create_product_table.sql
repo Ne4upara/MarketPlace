@@ -15,5 +15,4 @@ CREATE TABLE products (
     relevancy INT,
     is_enabled BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (category_id) REFERENCES product_categories(id),
-    FOREIGN KEY (owner_id) REFERENCES users(id)
-);
+    FOREIGN KEY (owner_id) REFERENCES users(id));

@@ -50,6 +50,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator:3.2.4'
     implementation 'org.infinispan:infinispan-query-dsl:15.0.0.Final'
     implementation 'ch.qos.logback:logback-core:1.5.4'
+    implementation 'io.micrometer:micrometer-core:1.12.4'
     implementation 'io.micrometer:micrometer-registry-prometheus'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"

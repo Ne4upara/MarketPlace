@@ -1,5 +1,6 @@
 package ua.marketplace.controllers;
 
+import io.micrometer.core.annotation.Counted;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -61,6 +62,7 @@ public class PhoneAuthControllerImp implements IPhoneAuthController {
      * @return PhoneNumberDto containing the response for the registration request.
      */
     @PostMapping("/registration")
+    @Counted(value = "login.code.requests", description = "Number of requests to login code endpoint")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public PhoneNumberDto registration
     (@Valid @RequestBody RegistrationRequest request) {

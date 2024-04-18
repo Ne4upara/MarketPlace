@@ -1,5 +1,7 @@
 package ua.marketplace.controllers;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -24,13 +26,16 @@ public class ProductControllerImp implements IProductController {
 
     private final ProductService productService;
 
+
     /**
      * Retrieves all products for the main page.
      *
      * @return List of MainPageProductDto containing product details for the main page.
      */
     @GetMapping("/s/list")
+    @Timed("getMainPageList")
     @ResponseStatus(HttpStatus.OK)
+    @Counted(value = "get.list.request", description = "Number of requests to list all endpoint")
     public Pagination getAllProductsForMainPage(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
@@ -77,7 +82,9 @@ public class ProductControllerImp implements IProductController {
      * @return ProductDto containing details of the newly created product.
      */
     @PostMapping("/create")
+    @Timed("getCreateProduct")
     @ResponseStatus(HttpStatus.CREATED)
+    @Counted(value = "create.request", description = "This counted for create request.")
     public ProductDto createProduct(Principal principal, @Valid @RequestBody ProductRequest request) {
         return productService.saveProduct(principal, request);
     }
@@ -91,6 +98,7 @@ public class ProductControllerImp implements IProductController {
      * @return ProductDto containing details of the updated product.
      */
     @PutMapping("/update/{id}")
+    @Timed("getUpdateProduct")
     @ResponseStatus(HttpStatus.OK)
     public ProductDto updateProduct
     (Principal principal, @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
