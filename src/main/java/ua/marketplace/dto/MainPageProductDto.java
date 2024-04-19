@@ -1,5 +1,6 @@
 package ua.marketplace.dto;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -14,5 +15,5 @@ public record MainPageProductDto(
         BigDecimal productPrice,
         int productRating,
         int countView
-) {
+) implements Serializable {
 }
