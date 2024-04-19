@@ -3,7 +3,6 @@ package ua.marketplace.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.redis.core.RedisHash;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,7 +20,6 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@RedisHash("Product")
 public class Product {
 
     @Id
