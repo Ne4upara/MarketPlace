@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ua.marketplace.entities.Category;
 import ua.marketplace.entities.Product;
+import ua.marketplace.entities.User;
 
 /**
  * A repository interface for accessing product data in the database.
@@ -35,4 +36,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Modifying
     @Query("UPDATE Product p SET p.countView = p.countView + 1 WHERE p.id = :id")
     void incrementProductViews(@Param("id") Long id);
+
+    Page<Product> findAllByOwner(User user, Pageable pageable);
 }

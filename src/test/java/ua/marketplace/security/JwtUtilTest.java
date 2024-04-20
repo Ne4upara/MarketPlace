@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import ua.marketplace.repositoryes.BlackListRepository;
 
 import static org.mockito.Mockito.when;
 
@@ -20,6 +21,9 @@ class JwtUtilTest {
 
     @Mock
     private UserDetailsService service;
+
+    @Mock
+    private BlackListRepository blackListRepository;
     @InjectMocks
     private JwtUtil jwtUtil;
 

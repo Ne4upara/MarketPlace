@@ -6,6 +6,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import ua.marketplace.entities.BlackListToken;
+import ua.marketplace.repositoryes.BlackListRepository;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,7 +27,7 @@ public class JwtUtil {
 
     private static final String SECRET_KEY = System.getenv("JWT_SECRET");
     private final UserDetailsService userDetailsService;
-    private final Set<String> blackListToken = new HashSet<>();
+    private final BlackListRepository blackList;
 
     /**
      * Generates a JWT token for the given username.
@@ -48,7 +51,11 @@ public class JwtUtil {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())
                 && !isTokenExpired(token)
-                && !blackListToken.contains(token));
+                && !isTokenInBlackList(token));
+    }
+
+    private boolean isTokenInBlackList(String token) {
+        return blackList.existsByToken(token);
     }
 
     /**
@@ -67,7 +74,11 @@ public class JwtUtil {
      * @param token the JWT token to blacklist
      */
     public void killToken(String token) {
-        blackListToken.add(token);
+        BlackListToken blackListToken = BlackListToken.builder()
+                .token(token)
+                .expiredTokens(extractExpiration(token))
+                .build();
+        blackList.save(blackListToken);
     }
 
     private Date extractExpiration(String token) {
@@ -111,8 +122,11 @@ public class JwtUtil {
      * This method is scheduled to run at 3:00 AM every day.
      * Expired tokens are removed from the blacklist to optimize memory usage.
      */
-    @Scheduled(cron = "0 0 3 * * *") //В 3 часа ночи каждый день.
+//    @Scheduled(cron = "0 0 3 * * *") //В 3 часа ночи каждый день.
+    @Scheduled(fixedDelay = 6 * 60 * 60 * 1000) // каждые 6 часов
     public void clearBlackListTokens() {
-        blackListToken.removeIf(token -> Boolean.TRUE.equals(isTokenExpired(token)));
+        List<BlackListToken> expiredTokens = blackList.findAllExpiredTokens();
+        blackList.deleteAll(expiredTokens);
+
     }
 }
