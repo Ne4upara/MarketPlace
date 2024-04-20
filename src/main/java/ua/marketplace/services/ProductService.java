@@ -102,6 +102,19 @@ public class ProductService implements IProductService {
                 .toList();
     }
 
+    public Pagination getViewMyProduct (
+            int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal){
+        User user = getUserByPrincipal(principal);
+        Pageable pageable = getPageRequest(pageNumber, pageSize, sortBy, orderBy);
+        Page<Product> pageAll = productRepository.findAllByOwner(user, pageable);
+        List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
+
+        return new Pagination(pageAll.getNumber(),
+                pageAll.getTotalElements(),
+                pageAll.getTotalPages(),
+                pageAllContent);
+    }
+
     /**
      * Retrieves details of a product by its ID.
      *

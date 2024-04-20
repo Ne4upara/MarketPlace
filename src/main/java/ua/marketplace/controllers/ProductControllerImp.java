@@ -116,4 +116,16 @@ public class ProductControllerImp implements IProductController {
     public void deleteProduct(Principal principal, @PathVariable Long id) {
         productService.deleteProduct(principal, id);
     }
+
+    @GetMapping("/view/product")
+    @ResponseStatus(HttpStatus.OK)
+    public Pagination getViewMyProduct(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
+            @Valid @RequestParam(defaultValue = "creationDate")
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
+            Principal principal){
+        return productService.getViewMyProduct(number, size, sort, order, principal);
+    }
 }
