@@ -68,7 +68,7 @@ public class ProductControllerImp implements IProductController {
      * @param id The ID of the product to retrieve.
      * @return ProductDto containing details of the product.
      */
-    @GetMapping("/s/view/{id}")
+    @GetMapping("/s/view/details/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProductDto getProductDetailsById(@PathVariable Long id) {
         return productService.getProductDetails(id);
