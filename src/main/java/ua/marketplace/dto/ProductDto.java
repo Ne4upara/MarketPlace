@@ -2,6 +2,7 @@ package ua.marketplace.dto;
 
 import ua.marketplace.entities.ProductRating;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,5 +28,5 @@ public record ProductDto(
         String sellerEmail,
         String location,
         int countView
-) {
+) implements Serializable {
 }

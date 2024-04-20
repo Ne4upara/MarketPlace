@@ -1,5 +1,8 @@
 package ua.marketplace.services;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
@@ -17,6 +20,7 @@ public interface IProductService {
      * @param id The ID of the product to retrieve.
      * @return ProductDto containing details of the product.
      */
+    @Cacheable(value = "product", key = "#id")
     ProductDto getProductDetails(Long id);
 
     /**
@@ -26,6 +30,10 @@ public interface IProductService {
      * @param request   ProductRequest containing details of the product to be saved.
      * @return ProductDto containing details of the newly saved product.
      */
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#result.id"),
+            @CacheEvict(value = "products", allEntries = true)
+    })
     ProductDto saveProduct(Principal principal, ProductRequest request);
 
     /**
@@ -36,6 +44,10 @@ public interface IProductService {
      * @param request   ProductRequest containing details to update the product.
      * @return ProductDto containing details of the updated product.
      */
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "products", allEntries = true)
+    })
     ProductDto updateProduct(Principal principal, Long productId, ProductRequest request);
 
     /**
@@ -44,6 +56,10 @@ public interface IProductService {
      * @param principal The principal (typically representing the logged-in user).
      * @param productId The ID of the product to be deleted.
      */
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "products", allEntries = true) // Clear all products cache
+    })
     void deleteProduct(Principal principal, Long productId);
 
     /**
@@ -55,6 +71,7 @@ public interface IProductService {
      * @param orderBy    The sorting order ("ASC" for ascending, "DESC" for descending).
      * @return Pagination object containing the paginated list of products for the main page.
      */
+    @Cacheable(value = "products", key = "{#pageNumber, #pageSize, #sortBy, #orderBy}")
     Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy);
 
 
@@ -68,6 +85,7 @@ public interface IProductService {
      * @param category   The category by which to filter the products.
      * @return Pagination object containing the paginated list of products for the main page filtered by category.
      */
+    @Cacheable(value = "productsByCategory", key = "{#pageNumber, #pageSize, #sortBy, #orderBy, #category}")
     Pagination getAllProductsByCategory
     (int pageNumber, int pageSize, String sortBy, String orderBy, String category);
 }

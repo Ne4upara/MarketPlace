@@ -1,6 +1,5 @@
 version: '3.7'
 
-
 services:
   postgres:
     image: 'postgres:latest'
@@ -28,3 +27,10 @@ services:
     image: prom/node-exporter
     ports:
       - '9100:9100'
+
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    container_name: redis
+    ports:
+      - '6379:6379'
