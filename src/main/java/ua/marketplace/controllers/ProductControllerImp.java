@@ -32,7 +32,7 @@ public class ProductControllerImp implements IProductController {
      *
      * @return List of MainPageProductDto containing product details for the main page.
      */
-    @GetMapping("/s/list")
+    @GetMapping("/s/view")
     @Timed("getMainPageList")
     @ResponseStatus(HttpStatus.OK)
     @Counted(value = "get.list.request", description = "Number of requests to list all endpoint")
@@ -50,7 +50,7 @@ public class ProductControllerImp implements IProductController {
      *
      * @return List of MainPageProductDto containing product details by category.
      */
-    @GetMapping("/s/list/{category}")
+    @GetMapping("/s/view/{category}")
     @ResponseStatus(HttpStatus.OK)
     public Pagination getAllProductsByCategory(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
@@ -68,7 +68,7 @@ public class ProductControllerImp implements IProductController {
      * @param id The ID of the product to retrieve.
      * @return ProductDto containing details of the product.
      */
-    @GetMapping("/s/details/{id}")
+    @GetMapping("/s/view/details/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProductDto getProductDetailsById(@PathVariable Long id) {
         return productService.getProductDetails(id);
@@ -115,5 +115,17 @@ public class ProductControllerImp implements IProductController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(Principal principal, @PathVariable Long id) {
         productService.deleteProduct(principal, id);
+    }
+
+    @GetMapping("/view/my-profile/all")
+    @ResponseStatus(HttpStatus.OK)
+    public Pagination getViewMyProduct(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
+            @Valid @RequestParam(defaultValue = "creationDate")
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
+            Principal principal){
+        return productService.getViewMyProduct(number, size, sort, order, principal);
     }
 }

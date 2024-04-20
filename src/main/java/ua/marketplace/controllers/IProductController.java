@@ -110,4 +110,12 @@ public interface IProductController {
     void deleteProduct(@Parameter(description = "Principal object representing the authenticated user")
                        Principal principal,
                        @Parameter(description = "ID of the product to be deleted") Long id);
+
+    Pagination getViewMyProduct(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
+            @Valid @RequestParam(defaultValue = "creationDate")
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
+            Principal principal);
 }
