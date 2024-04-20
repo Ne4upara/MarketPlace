@@ -32,7 +32,7 @@ public class ProductControllerImp implements IProductController {
      *
      * @return List of MainPageProductDto containing product details for the main page.
      */
-    @GetMapping("/s/list")
+    @GetMapping("/s/view")
     @Timed("getMainPageList")
     @ResponseStatus(HttpStatus.OK)
     @Counted(value = "get.list.request", description = "Number of requests to list all endpoint")
@@ -50,7 +50,7 @@ public class ProductControllerImp implements IProductController {
      *
      * @return List of MainPageProductDto containing product details by category.
      */
-    @GetMapping("/s/list/{category}")
+    @GetMapping("/s/view/{category}")
     @ResponseStatus(HttpStatus.OK)
     public Pagination getAllProductsByCategory(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
@@ -68,7 +68,7 @@ public class ProductControllerImp implements IProductController {
      * @param id The ID of the product to retrieve.
      * @return ProductDto containing details of the product.
      */
-    @GetMapping("/s/details/{id}")
+    @GetMapping("/s/view/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProductDto getProductDetailsById(@PathVariable Long id) {
         return productService.getProductDetails(id);
@@ -117,7 +117,7 @@ public class ProductControllerImp implements IProductController {
         productService.deleteProduct(principal, id);
     }
 
-    @GetMapping("/view/product")
+    @GetMapping("/view/my-profile/all")
     @ResponseStatus(HttpStatus.OK)
     public Pagination getViewMyProduct(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
