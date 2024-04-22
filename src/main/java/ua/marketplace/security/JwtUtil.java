@@ -112,7 +112,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(userDetailsService.loadUserByUsername(subject).getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + (1000 ))) // 10 days * 60 * 60 * 24 * 10
+                .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 10))) // 10 days
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
