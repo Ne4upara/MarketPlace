@@ -1,5 +1,6 @@
 package ua.marketplace.services;
 
+import io.github.classgraph.Resource;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -8,7 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import ua.marketplace.dto.ImageDto;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
@@ -21,9 +24,14 @@ import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.utils.ErrorMessageHandler;
+import ua.marketplace.utils.Utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -105,7 +113,7 @@ public class ProductService implements IProductService {
     @Override
     public Pagination getViewMyProduct (
             int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal){
-        User user = getUserByPrincipal(principal);
+        User user = utils.getUserByPrincipal(principal);
         Pageable pageable = getPageRequest(pageNumber, pageSize, sortBy, orderBy);
         Page<Product> pageAll = productRepository.findAllByOwner(user, pageable);
         List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
@@ -145,17 +153,17 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductDto saveProduct(Principal principal, ProductRequest request) {
-        User user = getUserByPrincipal(principal);
+        User user = utils.getUserByPrincipal(principal);
         Product product = createProduct(request, user);
 
         return ProductMapper.PRODUCT_INSTANCE.productToProductDto(productRepository.save(product));
     }
 
-    private User getUserByPrincipal(Principal principal) {
-        return userRepository.findByPhoneNumber(principal.getName())
-                .orElseThrow(() -> new ResponseStatusException
-                        (HttpStatus.UNAUTHORIZED, ErrorMessageHandler.USER_NOT_AUTHORIZED));
-    }
+//    private User getUserByPrincipal(Principal principal) {
+//        return userRepository.findByPhoneNumber(principal.getName())
+//                .orElseThrow(() -> new ResponseStatusException
+//                        (HttpStatus.UNAUTHORIZED, ErrorMessageHandler.USER_NOT_AUTHORIZED));
+//    }
 
     private Product createProduct(ProductRequest request, User user) {
 
@@ -202,7 +210,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductDto updateProduct(Principal principal, Long productId, ProductRequest request) {
-        User user = getUserByPrincipal(principal);
+        User user = utils.getUserByPrincipal(principal);
         Product product = getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
@@ -242,7 +250,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public void deleteProduct(Principal principal, Long productId) {
-        User user = getUserByPrincipal(principal);
+        User user = utils.getUserByPrincipal(principal);
         Product product = getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
@@ -251,5 +259,21 @@ public class ProductService implements IProductService {
         }
 
         productRepository.delete(product);
+    }
+
+        private final Utils utils;
+    public ImageDto saveImage(MultipartFile files, Principal principal, Long id) {
+        User user = utils.getUserByPrincipal(principal);
+
+        String uploadsDir = "C:\\Users\\Tom\\IdeaProjects\\MarketPlaceNew\\upload\\";
+        String fileName = utils.getRandomString() + files.getOriginalFilename();
+        String filePath = uploadsDir + fileName;
+        try {
+            File destFile = new File(filePath);
+            files.transferTo(destFile);
+        }catch (ResponseStatusException | IOException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        return null;
     }
 }

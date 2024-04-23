@@ -9,9 +9,12 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
+import ua.marketplace.dto.ImageDto;
 import ua.marketplace.requests.ProductRequest;
+import ua.marketplace.services.ImageService;
 import ua.marketplace.services.ProductService;
 
 import java.security.Principal;
@@ -25,6 +28,7 @@ import java.security.Principal;
 public class ProductControllerImp implements IProductController {
 
     private final ProductService productService;
+    private final ImageService imageService;
 
 
     /**
@@ -117,7 +121,7 @@ public class ProductControllerImp implements IProductController {
         productService.deleteProduct(principal, id);
     }
 
-    @GetMapping("/view/my-profile/all")
+    @GetMapping("/my-profile/view/all")
     @ResponseStatus(HttpStatus.OK)
     public Pagination getViewMyProduct(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
@@ -127,5 +131,12 @@ public class ProductControllerImp implements IProductController {
             @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
             Principal principal){
         return productService.getViewMyProduct(number, size, sort, order, principal);
+    }
+
+    @PostMapping("/my-profile/{id}/upload")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ImageDto uploadImage(@RequestParam("files")MultipartFile files, Principal principal,
+                                @PathVariable Long id){
+        return productService.saveImage(files, principal, id);
     }
 }
