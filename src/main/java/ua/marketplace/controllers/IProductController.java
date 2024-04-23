@@ -27,7 +27,7 @@ public interface IProductController {
 
     @Operation(summary = "Get all products for main page",
             description = "Endpoint to retrieve all products for the main page." +
-                    "Sort -> creationDate|productName|productPrice|id.")
+                    "Sort -> creationDate, productName, productPrice, id.")
     @ApiResponse(responseCode = "200", description = "Successful operation")
     Pagination getAllProductsForMainPage(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
@@ -38,7 +38,7 @@ public interface IProductController {
 
     @Operation(summary = "Get products details by category",
             description = "Endpoint to retrieve products by category. " +
-                    " Sort -> creationDate|productName|productPrice|id.")
+                    "Sort -> creationDate, productName, productPrice, id.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = Pagination.class))),
@@ -111,6 +111,13 @@ public interface IProductController {
                        Principal principal,
                        @Parameter(description = "ID of the product to be deleted") Long id);
 
+    @Operation(summary = "Get all my products.",
+            description = "Endpoint to retrieve all my products." +
+                    "Sort -> creationDate, productName, productPrice, id.")
+    @ApiResponses(value =  {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "403", description = "JWT token is missing")
+    })
     Pagination getViewMyProduct(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
