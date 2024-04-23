@@ -1,6 +1,6 @@
 package ua.marketplace.security;
 
-import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,8 +56,8 @@ public class JwtRequestFilter extends BasicAuthenticationFilter {
             jwt = authorizationHeader.substring(7);
             try {
             username = jwtUtil.extractUsername(jwt);
-            } catch (ExpiredJwtException e) {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            } catch (JwtException e) {
+                response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
                 response.getWriter().write("JWT token has expired");
                 response.setContentType("application/json");
                 return;
