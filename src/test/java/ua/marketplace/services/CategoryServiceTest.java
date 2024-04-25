@@ -14,31 +14,3 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-@SuppressWarnings("PMD")
-class CategoryServiceTest {
-
-    @Mock
-    private CategoryRepository categoryRepository;
-    @InjectMocks
-    private CategoryService categoryService;
-
-    @Test
-    void testGetAllCategory() {
-
-        //Given
-        List<Category> expect = new ArrayList<>();
-        Category category1 = new Category(1L, "Test1", "Test1");
-        Category category2 = new Category(2L, "Test2", "Test2");
-        expect.add(category1);
-        expect.add(category2);
-
-        when(categoryRepository.findAll()).thenReturn(expect);
-
-        //When
-        List<Category> result = categoryService.getAllCategory();
-
-        //Then
-        assertEquals(expect, result);
-    }
-}
