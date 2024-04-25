@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 
 import ua.marketplace.entities.BlackListToken;
 
+/**
+ * Interface for BlackListToken repository, extending JpaRepository to provide basic CRUD operations.
+ */
 public interface BlackListRepository extends JpaRepository <BlackListToken, Long> {
 
-    Boolean existsByToken(String token);
+    /**
 
-    @Query("SELECT b FROM BlackListToken b WHERE b.expiredTokens < CURRENT_TIMESTAMP")
-    List<BlackListToken> findAllExpiredTokens();
-}
