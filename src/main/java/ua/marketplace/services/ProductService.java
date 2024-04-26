@@ -13,10 +13,12 @@ import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.entities.Category;
+import ua.marketplace.entities.Favorite;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
 import ua.marketplace.mapper.ProductMapper;
 import ua.marketplace.repositoryes.CategoryRepository;
+import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
@@ -37,6 +39,7 @@ public class ProductService implements IProductService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ImageService imageService;
+    private final FavoriteRepository favoriteRepository;
 
     /**
      * Retrieves details of all products for the main page, paginated and sorted.
@@ -251,5 +254,27 @@ public class ProductService implements IProductService {
         }
 
         productRepository.delete(product);
+    }
+
+    @Override
+    public void getFavorite(Principal principal, Long id){
+        User user = getUserByPrincipal(principal);
+        Product productById = getProductById(id);
+        Favorite favorite = Favorite.builder()
+                .user(user)
+                .product(productById)
+                .build();
+        favoriteRepository.save(favorite);
+    }
+
+    @Override
+    @Transactional //проверить
+    public void deleteFavorite(Principal principal, Long id){
+        User userByPrincipal = getUserByPrincipal(principal);
+        Product productById = getProductById(id);
+        Favorite byUserAndProduct = favoriteRepository.findByUserAndProduct(userByPrincipal, productById);
+        userByPrincipal.getFavorites().remove(byUserAndProduct);
+        productById.getFavorites().remove(byUserAndProduct);
+        favoriteRepository.delete(byUserAndProduct);
     }
 }

@@ -102,4 +102,8 @@ public interface IProductService {
     @Cacheable(value = "products", key = "{#pageNumber, #pageSize, #sortBy, #orderBy, #principal}")
     Pagination getViewMyProduct (
             int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal);
+
+    void getFavorite(Principal principal, Long id);
+
+    void deleteFavorite(Principal principal, Long id);
 }

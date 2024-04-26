@@ -128,4 +128,16 @@ public class ProductControllerImp implements IProductController {
             Principal principal){
         return productService.getViewMyProduct(number, size, sort, order, principal);
     }
+
+    @PostMapping("/favorite/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void getFavoriteProduct(Principal principal, @PathVariable Long id){
+        productService.getFavorite(principal, id);
+    }
+
+    @DeleteMapping("/favorite/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFavorite(Principal principal, @PathVariable Long id){
+        productService.deleteFavorite(principal, id);
+    }
 }

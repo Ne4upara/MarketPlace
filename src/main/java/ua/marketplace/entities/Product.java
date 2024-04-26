@@ -2,6 +2,7 @@ package ua.marketplace.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.lang3.builder.ToStringExclude;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
@@ -51,8 +52,12 @@ public class Product {
     private User owner;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ToStringExclude
     private List<ProductRating> reviews;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ToStringExclude
+    private List<Favorite> favorites;
 
     @Column(name = "seller_name")
     private String sellerName;

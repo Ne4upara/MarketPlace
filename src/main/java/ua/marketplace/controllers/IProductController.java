@@ -11,8 +11,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
@@ -125,4 +125,17 @@ public interface IProductController {
             @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
             @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
             Principal principal);
+
+    @Operation(summary = "Add product to favorite.",
+            description = "Endpoint to add product to favorite.")
+    @ApiResponses(value =  {
+            @ApiResponse(responseCode = "204", description = "Successful operation")})
+    void getFavoriteProduct(Principal principal, @PathVariable Long id);
+
+
+    @Operation(summary = "Delete product favorite.",
+            description = "Endpoint to delete product is favorite.")
+    @ApiResponses(value =  {
+            @ApiResponse(responseCode = "204", description = "Successful operation")})
+    void deleteFavorite(Principal principal, @PathVariable Long id);
 }
