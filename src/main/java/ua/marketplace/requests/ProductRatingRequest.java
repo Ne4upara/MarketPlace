@@ -15,4 +15,5 @@ public record ProductRatingRequest(
 
         @Size(max = 250, message = "Review should be max 250 characters")
         String review) {
+
 }

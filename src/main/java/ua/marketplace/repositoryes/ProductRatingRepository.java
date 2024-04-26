@@ -8,4 +8,5 @@ import ua.marketplace.entities.ProductRating;
  */
 //TODO
 public interface ProductRatingRepository extends JpaRepository<ProductRating, Long> {
+
 }

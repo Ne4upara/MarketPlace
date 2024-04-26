@@ -47,4 +47,5 @@ public record ProductRequest(
 //        @NotNull(message = "Location cannot be null") уточнить по проекту
         String location
 ) {
+
 }

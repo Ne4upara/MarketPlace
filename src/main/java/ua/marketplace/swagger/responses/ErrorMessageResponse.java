@@ -6,4 +6,5 @@ public record ErrorMessageResponse(
         @Schema(description = "Error message")
         String errorMessage
 ) {
+
 }

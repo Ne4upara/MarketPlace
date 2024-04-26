@@ -39,4 +39,5 @@ public class ProductRating {
 
     @Column(name = "create_at")
     private LocalDateTime createAt;
+
 }

@@ -12,4 +12,5 @@ public interface IProductRatingService {
     ProductRatingDto updateRating(Principal principal, Long id, ProductRatingRequest request);
 
     void deleteRating(Principal principal, Long id);
+
 }

@@ -19,4 +19,5 @@ public class RedisCacheConfig {
             .cacheDefaults(cacheConfiguration)
             .build();
     }
+
 }

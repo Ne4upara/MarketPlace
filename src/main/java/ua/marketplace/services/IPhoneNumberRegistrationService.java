@@ -34,4 +34,5 @@ public interface IPhoneNumberRegistrationService {
      * @return User representing the registered user.
      */
     User registrationUser(RegistrationRequest request);
+
 }

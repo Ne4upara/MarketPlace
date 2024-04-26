@@ -59,4 +59,5 @@ public class ApplicationExceptionHandler {
         errorMap.put(ErrorMessageHandler.ERROR_MESSAGE, errorMessage);
         return ResponseEntity.status(ex.getStatusCode()).body(errorMap);
     }
+
 }

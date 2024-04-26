@@ -37,4 +37,5 @@ public class VerificationCode {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
 }

@@ -51,4 +51,5 @@ public class HttpRequestResponseLogger extends OncePerRequestFilter {
         LOGGER.info("Request: {} {} from {} - Response: {} {} in {} ms"
                 , method, url, remoteAddr, statusCode, contentType, duration);
     }
+
 }

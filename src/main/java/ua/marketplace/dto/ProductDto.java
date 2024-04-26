@@ -29,4 +29,5 @@ public record ProductDto(
         String location,
         int countView
 ) implements Serializable {
+
 }

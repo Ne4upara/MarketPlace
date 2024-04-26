@@ -5,4 +5,5 @@ CREATE TABLE product_photos (
     main_page BOOLEAN,
     creation_date TIMESTAMP NOT NULL,
     FOREIGN KEY (product_id) REFERENCES products(id)
+
 );

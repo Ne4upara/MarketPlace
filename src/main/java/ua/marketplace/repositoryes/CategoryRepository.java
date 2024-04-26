@@ -27,4 +27,5 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
      * @return Optional containing the category with the specified name, or empty if not found.
      */
     Optional<Category> findByCategoryName(String categoryName);
+
 }

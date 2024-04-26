@@ -46,5 +46,6 @@ public interface ProductRatingMapper {
      */
     default String getUsername(ProductRating productRating) {
         return productRating.getUser().getFirstName();
+
     }
 }

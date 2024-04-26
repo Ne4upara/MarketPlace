@@ -8,4 +8,5 @@ public record ValidationErrorResponse(
         @Schema(description = "Validation errors")
         Map<String, String> errorMessage
 ) {
+
 }

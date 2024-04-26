@@ -122,4 +122,5 @@ class ImageServiceTest {
         assertEquals(2, product.getPhotos().size());
         verify(photoRepository, times(1)).deleteByPhotoId(anyLong());
     }
+
 }

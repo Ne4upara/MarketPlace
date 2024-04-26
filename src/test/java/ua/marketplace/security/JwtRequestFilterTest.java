@@ -66,4 +66,5 @@ class JwtRequestFilterTest {
         assert SecurityContextHolder.getContext().getAuthentication() != null;
         verify(filterChain).doFilter(request, response);
     }
+
 }

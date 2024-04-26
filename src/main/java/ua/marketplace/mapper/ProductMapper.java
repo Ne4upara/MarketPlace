@@ -81,4 +81,5 @@ public interface ProductMapper {
     default String getProductCategory(Product product) {
         return product.getCategory().getCategoryName();
     }
+
 }
