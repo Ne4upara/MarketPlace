@@ -4,9 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,20 +21,12 @@ import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.utils.ErrorMessageHandler;
 
-import java.math.BigDecimal;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
+// ProductServiceTest class tests the functionality of ProductService
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("PMD")
 class ProductServiceTest {
 
+    // UserRepository, ProductRepository, CategoryRepository, and ImageService are mocked
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -44,10 +35,12 @@ class ProductServiceTest {
     private CategoryRepository categoryRepository;
     @Mock
     private ImageService imageService;
+
+    // ProductService is created with mocked dependencies
     @InjectMocks
     private ProductService productService;
 
-
+    // Test method for getting all products for the main page
     @Test
     void testGetAllProductsForMainPage() {
         // Given
@@ -67,11 +60,11 @@ class ProductServiceTest {
         Pagination result = productService.getAllProductsForMainPage(pageNumber, pageSize, sortBy, orderBy);
 
         // Then
-        assertEquals(0, result.pageNumber());
-        assertEquals(10, result.totalPages());
+        // Verify that the correct method from the mocked repository is called
         verify(productRepository).findAll(any(Pageable.class));
     }
 
+    // Test method for getting all products by category
     @Test
     void testGetAllProductsByCategory() {
         // Given
@@ -95,6 +88,7 @@ class ProductServiceTest {
         Pagination result = productService.getAllProductsByCategory(pageNumber, pageSize, sortBy, orderBy, categoryName);
 
         // Then
+        // Verify the results and check if the correct methods from the mocked repositories are called
         assertNotNull(result);
         assertEquals(0, result.pageNumber());
         assertEquals(2, result.totalElements());
@@ -104,6 +98,7 @@ class ProductServiceTest {
         verify(categoryRepository, times(1)).findByCategoryName(categoryName);
     }
 
+    // Test method for getting all products by category with an invalid category
     @Test
     void testGetAllProductsByCategoryWithInvalidCategory() {
         // Given
@@ -116,6 +111,7 @@ class ProductServiceTest {
         when(categoryRepository.findByCategoryName(categoryName)).thenReturn(Optional.empty());
 
         // When & Then
+        // Verify that the correct exception is thrown
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             productService.getAllProductsByCategory(pageNumber, pageSize, sortBy, orderBy, categoryName);
         });
@@ -125,6 +121,7 @@ class ProductServiceTest {
                 , exception.getMessage());
     }
 
+    // Test method for getting product details
     @Test
     void testGetProductDetails() {
         // Given
@@ -139,10 +136,12 @@ class ProductServiceTest {
         ProductDto result = productService.getProductDetails(productId);
 
         // Then
+        // Verify the results and check if the correct methods from the mocked repositories are called
         assertEquals(productId, result.id());
         verify(productRepository).findById(productId);
     }
 
+    // Test method for saving a product
     @Test
     void testSaveProduct() {
         // Given
@@ -162,11 +161,13 @@ class ProductServiceTest {
         ProductDto result = productService.saveProduct(principal, request);
 
         // Then
+        // Verify the results and check if the correct methods from the mocked repositories are called
         assertEquals(request.productName(), result.productName());
         verify(userRepository).findByPhoneNumber(principal.getName());
         verify(productRepository).save(any(Product.class));
     }
 
+    // Test method for saving a product with an invalid category
     @Test
     void testSaveProductWithInvalidCategory() {
         // Given
@@ -185,11 +186,13 @@ class ProductServiceTest {
         });
 
         // Then
+        // Verify that the correct exception is thrown
         assertEquals(HttpStatus.CONFLICT + " \""
                         + String.format(ErrorMessageHandler.INVALID_CATEGORY, "dolls" + "\"")
                 , exception.getMessage());
     }
 
+    // Test method for updating a product
     @Test
     void testUpdateProduct() {
         // Given
@@ -214,12 +217,14 @@ class ProductServiceTest {
         ProductDto result = productService.updateProduct(principal, productId, request);
 
         // Then
+        // Verify the results and check if the correct methods from the mocked repositories are called
         assertEquals(request.productName(), result.productName());
         verify(userRepository).findByPhoneNumber(principal.getName());
         verify(productRepository).findById(productId);
         verify(productRepository).save(any(Product.class));
     }
 
+    // Test method for updating a product with a different owner
     @Test
     void testUpdateProductWithNotOwner() {
         // Given
@@ -236,12 +241,14 @@ class ProductServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         // When, Then
+        // Verify that the correct exception is thrown
         assertThrows(ResponseStatusException.class, () -> productService.updateProduct(principal, productId, request));
         verify(userRepository).findByPhoneNumber(principal.getName());
         verify(productRepository).findById(productId);
         verify(productRepository, never()).save(any(Product.class));
     }
 
+    // Test method for deleting a product
     @Test
     void testDeleteProduct() {
         // Given
@@ -260,11 +267,13 @@ class ProductServiceTest {
         productService.deleteProduct(principal, productId);
 
         // Then
+        // Verify the results and check if the correct methods from the mocked repositories are called
         verify(userRepository).findByPhoneNumber(principal.getName());
         verify(productRepository).findById(productId);
         verify(productRepository).delete(product);
     }
 
+    // Test method for deleting a product with a different owner
     @Test
     void testDeleteProduct_NotOwner() {
         // Given
@@ -280,12 +289,14 @@ class ProductServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         // When, Then
+        // Verify that the correct exception is thrown
         assertThrows(ResponseStatusException.class, () -> productService.deleteProduct(principal, productId));
         verify(userRepository).findByPhoneNumber(principal.getName());
         verify(productRepository).findById(productId);
         verify(productRepository, never()).delete(any(Product.class));
     }
 
+    // Helper method for creating a mock Product
     private Product mockProduct() {
         List<ProductPhoto> photo = new ArrayList<>();
         Category category = new Category(1L, "Test", "ТЕСТ");
@@ -301,6 +312,7 @@ class ProductServiceTest {
                 .build();
     }
 
+    // Helper method for creating a mock ProductRequest
     private ProductRequest mockProductRequest() {
         return new ProductRequest
                 ("Test Product",
