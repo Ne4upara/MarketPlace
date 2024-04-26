@@ -118,5 +118,4 @@ task runPmd(type: Pmd) {
     group = 'verification'
     source = sourceSets.main.allJava
     include '**/*.java'
-    exclude '**/MarketplaceApplication.java' // Exclude the main application class from PMD analysis
-}
+    exclude '**/MarketplaceApplication.java'}

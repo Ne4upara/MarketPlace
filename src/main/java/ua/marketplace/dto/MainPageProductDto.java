@@ -16,4 +16,5 @@ public record MainPageProductDto(
         int productRating,
         int countView
 ) implements Serializable {
+
 }

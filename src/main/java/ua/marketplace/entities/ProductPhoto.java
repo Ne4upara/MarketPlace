@@ -59,4 +59,5 @@ public class ProductPhoto {
     protected void onCreate() {
         creationDate = LocalDateTime.now();
     }
+
 }

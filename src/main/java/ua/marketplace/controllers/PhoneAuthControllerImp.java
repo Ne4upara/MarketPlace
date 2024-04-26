@@ -87,5 +87,6 @@ public class PhoneAuthControllerImp implements IPhoneAuthController {
 
         session.invalidate(); // Invalidate the HTTP session
     }
+
 }
 

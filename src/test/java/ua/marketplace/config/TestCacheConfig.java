@@ -15,4 +15,5 @@ public class TestCacheConfig {
     public CacheManager testCacheManager() {
         return new ConcurrentMapCacheManager();
     }
+
 }

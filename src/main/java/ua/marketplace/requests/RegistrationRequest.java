@@ -23,4 +23,5 @@ public record RegistrationRequest(
         @Pattern(regexp = "^\\+380\\d+$", 
             message = "Phone should contain only digits and should be in the format +380..")
         String phoneNumber) {
+
 }

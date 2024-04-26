@@ -33,4 +33,5 @@ public class BlackListToken {
     protected void onCreate() {
         creationDate = LocalDateTime.now();
     }
+
 }

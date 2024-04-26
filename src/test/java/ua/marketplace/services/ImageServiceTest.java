@@ -145,4 +145,5 @@ class ImageServiceTest {
         // Assert that the PhotoRepository's deleteByPhotoId method was called once with the correct argument
         verify(photoRepository, times(1)).deleteByPhotoId(anyLong());
     }
+
 }

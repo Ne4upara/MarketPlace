@@ -6,4 +6,5 @@ package ua.marketplace.dto;
 public record PhoneNumberDto(
         String phoneNumber
 ) {
+
 }

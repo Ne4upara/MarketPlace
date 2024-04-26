@@ -1,122 +1,132 @@
 package ua.marketplace.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationConfiguration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import ua.marketplace.entities.BlackListToken;
+import ua.marketplace.repositoryes.BlackListRepository;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
+
+import java.security.Key;
+import java.util.*;
+import java.util.function.Function;
 
 /**
- * Configuration class for security settings in the application.
- * This class defines various beans and configurations for security-related features, such as password encoding,
- * CORS, and the security filter chain.
+ * Utility class for handling JSON Web Tokens (JWT).
  */
-@Configuration
-@EnableWebSecurity
+@Component
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class JwtUtil {
 
-    // Injecting dependencies
-    private final JwtUtil jwtUtil;
-    private final CustomUserDetailsService userDetailsService;
-    private final AuthenticationConfiguration authenticationConfiguration;
+    private static final String SECRET_KEY = System.getenv("JWT_SECRET");
+    private final UserDetailsService userDetailsService;
+    private final BlackListRepository blackList;
 
-    // Defining a bean for password encoder
     /**
-     * Configures a bean for password encoding using BCryptPasswordEncoder.
-     * This bean is used for encoding and matching passwords in the application.
+     * Generates a JWT token for the given username.
      *
-     * @return the BCryptPasswordEncoder instance
+     * @param username the username for which to generate the token
+     * @return the generated JWT token
      */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public String generateToken(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, username);
     }
 
-    // Configuring the security filter chain
     /**
-     * Configures the security filter chain with various security settings.
-     * This filter chain defines how the application handles authentication and authorization.
+     * Validates a JWT token against the provided UserDetails.
      *
-     * @param http the HttpSecurity object to configure
-     * @return the configured security filter chain
-     * @throws Exception if an error occurs during configuration
+     * @param token       the JWT token to validate
+     * @param userDetails the UserDetails to validate against
+     * @return true if the token is valid for the user, false otherwise
      */
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        // Configuring various security settings, such as CSRF, CORS, and authorization
-        http
-                .csrf(AbstractHttpConfigurer::disable) // Disabling CSRF protection
-                .cors(c -> corsConfigurationSource()) // Configuring CORS
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/v1/auth/**",
-                                "/swagger/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**",
-                                "/webjars/**",
-                                "/v1/products/s/**",
-                                "/v1/categories/**",
-                                "/actuator/**"
-                        ).permitAll() // Permitting access to specific endpoints for all users
-                        .anyRequest().authenticated() // Requiring authentication for any other requests
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS) // Always creating a new session
-                )
-                .addFilterBefore(
-                        new JwtRequestFilter(authenticationManager(), userDetailsService, jwtUtil),
-                        UsernamePasswordAuthenticationFilter.class // Adding a custom filter before the UsernamePasswordAuthenticationFilter
-                );
-
-        return http.build(); // Building and returning the configured SecurityFilterChain
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())
+                && !isTokenExpired(token)
+                && !isTokenInBlackList(token));
     }
 
-    // Defining a bean for CORS configuration source
-    /**
-     * Configures a bean for CORS configuration source.
-     * This bean is used to define which origins, methods, and headers are allowed for cross-origin requests.
-     *
-     * @return the CorsConfigurationSource instance
-     */
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Allowing all origins, methods, and headers for simplicity
-        configuration.addAllowedOrigin("*");
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Applying the configuration to all requests
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
+    private boolean isTokenInBlackList(String token) {
+        return blackList.existsByToken(token);
     }
 
-    // Defining a bean for authentication manager
     /**
-     * Configures a bean for the authentication manager.
-     * This bean is responsible for authenticating users based on the provided credentials.
+     * Extracts the username from the given JWT token.
      *
-     * @return the AuthenticationManager instance
-     * @throws Exception if an error occurs during authentication manager creation
+     * @param token the JWT token from which to extract the username
+     * @return the username extracted from the token
      */
-    @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    /**
+     * Adds the provided token to the blacklist.
+     *
+     * @param token the JWT token to blacklist
+     */
+    public void killToken(String token) {
+        BlackListToken blackListToken = BlackListToken.builder()
+                .token(token)
+                .expiredTokens(extractExpiration(token))
+                .build();
+        blackList.save(blackListToken);
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    private Key getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private String createToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetailsService.loadUserByUsername(subject).getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 10))) // 10 days
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * Clears expired tokens from the blacklist.
+     * This method is scheduled to run at 3:00 AM every day.
+     * Expired tokens are removed from the blacklist to optimize memory usage.
+     */
+//    @Scheduled(cron = "0 0 3 * * *") //В 3 часа ночи каждый день.
+    @Scheduled(fixedDelay = 6 * 60 * 60 * 1000) // каждые 6 часов
+    public void clearBlackListTokens() {
+        List<BlackListToken> expiredTokens = blackList.findAllExpiredTokens();
+        blackList.deleteAll(expiredTokens);
+
     }
 }

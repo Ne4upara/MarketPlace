@@ -136,4 +136,5 @@ public class JwtUtil {
         List<BlackListToken> expiredTokens = blackList.findAllExpiredTokens();
         blackList.deleteAll(expiredTokens);
     }
+
 }

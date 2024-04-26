@@ -122,4 +122,5 @@ public interface IProductController {
             @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
             // Principal object representing the authenticated user
             Principal principal);
+
 }

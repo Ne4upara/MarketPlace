@@ -28,5 +28,6 @@ class CategoryControllerTest { // Test class for CategoryController
                 .andExpect(status().isOk()) // Expect an OK status (200)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)); // Expect the content type to be JSON
     }
+
 }
 

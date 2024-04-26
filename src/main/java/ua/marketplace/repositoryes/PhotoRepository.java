@@ -23,4 +23,5 @@ public interface PhotoRepository extends JpaRepository<ProductPhoto, Long> {
     @Modifying
     @Query("DELETE FROM ProductPhoto p WHERE  p.id = :photoId")
     void deleteByPhotoId(@Param("photoId") Long photoId);
+
 }

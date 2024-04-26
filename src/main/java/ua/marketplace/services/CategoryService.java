@@ -25,4 +25,5 @@ public class CategoryService implements ICategoryService {
     public List<Category> getAllCategory() {
         return categoryRepository.findAll();
     }
+
 }

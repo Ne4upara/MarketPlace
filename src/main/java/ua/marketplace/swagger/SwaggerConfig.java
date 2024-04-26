@@ -38,4 +38,5 @@ public class SwaggerConfig implements WebMvcConfigurer {
                 .pathsToMatch("/v1/**")
                 .build();
     }
+
 }
