@@ -19,5 +19,4 @@ public interface ICategoryController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Category.class)))),
     })
     List<Category> getAllCategory();
-
 }

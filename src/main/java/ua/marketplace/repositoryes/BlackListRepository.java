@@ -12,5 +12,4 @@ public interface BlackListRepository extends JpaRepository <BlackListToken, Long
 
     @Query("SELECT b FROM BlackListToken b WHERE b.expiredTokens < CURRENT_TIMESTAMP")
     List<BlackListToken> findAllExpiredTokens();
-
 }

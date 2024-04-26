@@ -20,5 +20,4 @@ public class Config {
     public TimedAspect timedAspect(MeterRegistry registry) {
         return new TimedAspect(registry);
     }
-
 }

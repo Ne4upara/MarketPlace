@@ -38,5 +38,4 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getFirstName(),
                 Collections.emptyList());
     }
-
 }

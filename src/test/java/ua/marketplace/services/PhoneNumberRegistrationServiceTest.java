@@ -288,5 +288,4 @@ class PhoneNumberRegistrationServiceTest {
         assertEquals("409 CONFLICT \"Phone already exists: " + request.phoneNumber() + "\"",
                 exception.getMessage());
     }
-
 }

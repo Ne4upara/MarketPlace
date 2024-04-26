@@ -7,5 +7,4 @@ import ua.marketplace.entities.VerificationCode;
  * Repository interface for managing VerificationCode entities.
  */
 public interface VerificationCodeRepository extends JpaRepository<VerificationCode, Long> {
-
 }
