@@ -56,4 +56,5 @@ public record ProductRequest(
         // The location of the seller.
         String location
 ) {
+
 }

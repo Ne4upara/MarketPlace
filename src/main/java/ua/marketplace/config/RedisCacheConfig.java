@@ -19,4 +19,5 @@ public class RedisCacheConfig {
             .cacheDefaults(cacheConfiguration) // Sets the default cache configuration
             .build(); // Builds and returns the Redis cache manager
     }
+
 }

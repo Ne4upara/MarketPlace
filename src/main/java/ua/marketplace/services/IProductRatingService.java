@@ -15,5 +15,6 @@ public interface IProductRatingService {
 
     // Method to delete a product rating by a user
     void deleteRating(Principal principal, Long id);
+
 }
 

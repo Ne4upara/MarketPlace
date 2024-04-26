@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import java.io.IOException;
+
 /**
  * A filter responsible for processing JWT authentication requests.
  * This filter intercepts incoming requests, extracts JWT tokens from them,
@@ -24,14 +26,6 @@ public class JwtRequestFilter extends BasicAuthenticationFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
-    /**
-     * Constructs a new JwtRequestFilter instance with the given AuthenticationManager,
-     * UserDetailsService, and JwtUtil.
-     *
-     * @param authenticationManager the AuthenticationManager for handling authentication
-     * @param userDetailsService   the UserDetailsService for loading user details
-     * @param jwtUtil             the JwtUtil for handling JWT token operations
-     */
     public JwtRequestFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService,
                             JwtUtil jwtUtil) {
 
@@ -58,15 +52,11 @@ public class JwtRequestFilter extends BasicAuthenticationFilter {
         String username = null;
         String jwt = null;
 
-        // Check if the request contains an Authorization header starting with "Bearer "
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7); // Extract the JWT token
+            jwt = authorizationHeader.substring(7);
             try {
-                // Extract the username from the JWT token
-                username = jwtUtil.extractUsername(jwt);
+            username = jwtUtil.extractUsername(jwt);
             } catch (JwtException e) {
-                // If the JWT token has expired, set the response status to 418 (I'm a teapot)
-                // and write an error message
                 response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
                 response.getWriter().write("JWT token has expired");
                 response.setContentType("application/json");
@@ -74,7 +64,6 @@ public class JwtRequestFilter extends BasicAuthenticationFilter {
             }
         }
 
-        // If a valid username and JWT token are present, authenticate the user
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
@@ -90,7 +79,6 @@ public class JwtRequestFilter extends BasicAuthenticationFilter {
             }
         }
 
-        // Invoke the next filter in the chain
         chain.doFilter(request, response);
     }
 }

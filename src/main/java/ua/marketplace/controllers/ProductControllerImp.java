@@ -14,24 +14,23 @@ import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.services.ProductService;
 
+import java.security.Principal;
+
 /**
- * Controller class for managing product-related operations. This class handles HTTP requests for product-related operations, such as retrieving, creating, updating, and deleting products.
+ * Controller class for managing product-related operations.
  */
 @RestController
 @RequestMapping("/v1/products")
 @RequiredArgsConstructor
 public class ProductControllerImp implements IProductController {
 
-    private final ProductService productService; // Dependency injection of ProductService
+    private final ProductService productService;
+
 
     /**
      * Retrieves all products for the main page.
      *
-     * @param number      Zero-based index of the first product to retrieve (default is 0).
-     * @param size        Number of products to retrieve (default is 10).
-     * @param sort        Field to sort the products by (default is creationDate, other options are productName, productPrice, id).
-     * @param order       Sorting direction (default is DESC, other option is ASC).
-     * @return Pagination object containing a list of MainPageProductDto and total elements.
+     * @return List of MainPageProductDto containing product details for the main page.
      */
     @GetMapping("/s/view")
     @Timed("getMainPageList")
@@ -49,12 +48,7 @@ public class ProductControllerImp implements IProductController {
     /**
      * Retrieves all products by category.
      *
-     * @param number      Zero-based index of the first product to retrieve (default is 0).
-     * @param size        Number of products to retrieve (default is 10).
-     * @param sort        Field to sort the products by (default is creationDate, other options are productName, productPrice, id).
-     * @param order       Sorting direction (default is DESC, other option is ASC).
-     * @param category    Category of the products to retrieve.
-     * @return Pagination object containing a list of MainPageProductDto and total elements.
+     * @return List of MainPageProductDto containing product details by category.
      */
     @GetMapping("/s/view/{category}")
     @ResponseStatus(HttpStatus.OK)
@@ -123,16 +117,6 @@ public class ProductControllerImp implements IProductController {
         productService.deleteProduct(principal, id);
     }
 
-    /**
-     * Retrieves all products for the user's profile.
-     *
-     * @param number      Zero-based index of the first product to retrieve (default is 0).
-     * @param size        Number of products to retrieve (default is 10).
-     * @param sort        Field to sort the products by (default is creationDate, other options are productName, productPrice, id).
-     * @param order       Sorting direction (default is ASC, other option is DESC).
-     * @param principal   The principal (typically representing the logged-in user).
-     * @return Pagination object containing a list of ProductDto and total elements.
-     */
     @GetMapping("/view/my-profile/all")
     @ResponseStatus(HttpStatus.OK)
     public Pagination getViewMyProduct(

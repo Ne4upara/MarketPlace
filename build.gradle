@@ -1,59 +1,47 @@
-// Define the plugins used in this project
 plugins {
-    id 'java' // Java plugin for basic Java project support
-    id 'org.springframework.boot' version '3.2.2' // Spring Boot plugin for easy configuration of Spring Boot applications
-    id 'io.spring.dependency-management' version '1.1.4' // Dependency management plugin for Spring Boot projects
-    id 'jacoco' // JaCoCo plugin for code coverage reports
-    id 'pmd' // PMD plugin for static code analysis
+    id 'java'
+    id 'org.springframework.boot' version '3.2.2'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'jacoco'
+    id 'pmd'
 }
 
-// Set the group and version for this project
 group = 'ua'
 version = '0.0.1'
 
-// Configure Java source compatibility
 java {
     sourceCompatibility = '17'
 }
 
-// Apply the Jacoco configuration
 apply from: 'jacoco-config.gradle'
 
-// Configure JaCoCo settings
 jacoco {
     toolVersion = "0.8.7"
 }
 
-// Configure PMD settings
 pmd {
     toolVersion = '6.33.0'
-    ruleSets = ['java-basic', 'java-design', 'java-unusedcode'] // Rulesets to be used for PMD analysis
-    ignoreFailures = false // Fail the build if PMD violations are found
+    ruleSets = ['java-basic', 'java-design', 'java-unusedcode']
+    ignoreFailures = false
 }
 
-// Configuration for the compileOnly configuration
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
 }
 
-// Define the repositories for dependency resolution
 repositories {
     mavenCentral()
 }
 
-// Define the dependencies for this project
 dependencies {
-    // Spring Boot dependencies
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.flywaydb:flyway-core'
-
-    // Other dependencies
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
     implementation 'org.jacoco:org.jacoco.core:0.8.7'
@@ -65,46 +53,31 @@ dependencies {
     implementation 'ch.qos.logback:logback-core:1.5.4'
     implementation 'io.micrometer:micrometer-core:1.12.4'
     implementation 'io.micrometer:micrometer-registry-prometheus'
-
-    // Mapstruct and Lombok dependencies
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
-
-    // JJWT dependencies
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
-
-    // Database dependency
     runtimeOnly 'org.postgresql:postgresql'
-
-    // Lombok dependency
     compileOnly 'org.projectlombok:lombok'
-
-    // Development dependency
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-
-    // Test dependencies
+    annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'net.sourceforge.pmd:pmd:6.33.0'
     testImplementation 'net.sourceforge.pmd:pmd-java:6.33.0'
     testImplementation 'ch.qos.logback:logback-classic:1.5.4'
+
 }
 
-// Configure the test task to use JUnit Platform
 tasks.named('test') {
     useJUnitPlatform()
 }
 
-// Configure JaCoCo test report task
 tasks.jacocoTestReport {
-    // Generate XML and HTML reports
     reports {
         xml.required = true
         html.required = true
     }
-
-    // After the evaluation phase, update the class directories
     afterEvaluate {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it, excludes: jacocoExcludes)
@@ -112,11 +85,9 @@ tasks.jacocoTestReport {
     }
 }
 
-// Define the PMD task for static code analysis
 task runPmd(type: Pmd) {
     description = 'Run PMD analysis on the Java source code'
     group = 'verification'
     source = sourceSets.main.allJava
     include '**/*.java'
-    exclude '**/MarketplaceApplication.java' // Exclude the main application class from PMD analysis
-}
+    exclude '**/MarketplaceApplication.java'}

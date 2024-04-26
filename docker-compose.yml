@@ -1,14 +1,36 @@
-# This is the version of the Docker Compose file format we are using.
 version: '3.7'
 
-# The 'postgres' service uses the 'postgres:latest' image to create a container
-# running the latest version of PostgreSQL. It loads environment variables
-# from a file named 'variables.env' and maps port 5432 from the container to
-# the host machine.
 services:
   postgres:
     image: 'postgres:latest'
     env_file:
       - variables.env
     ports:
-      - '543
+      - '5432:5432'
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+  node_exporter:
+    image: prom/node-exporter
+    ports:
+      - '9100:9100'
+
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    container_name: redis
+    ports:
+      - '6379:6379'

@@ -22,5 +22,4 @@ FROM ubuntu:latest AS build
 # Update the package lists for upgrades and new package installations
 RUN apt-get update
 
-# Install the openjdk-17-jdk package
-RUN apt-get install -y openjdk-1
+ENTRYPOINT ["java", "-jar", "app/MarketPlace-0.0.1.jar"]

@@ -15,4 +15,5 @@ public interface ICategoryService {
      * @return A list of all categories.
      */
     List<Category> getAllCategory();
+
 }

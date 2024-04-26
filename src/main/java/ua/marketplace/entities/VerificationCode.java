@@ -7,11 +7,9 @@ import java.time.LocalDateTime;
 
 /**
  * An entity class representing a verification code in the user.
- * This class uses Lombok annotations for generating boilerplate code such as getters, setters,
- * toString, builder, and constructors.
  */
-@Entity // Marks this class as an entity, which maps to a database table
-@Table(name = "verification_codes") // Specifies the name of the database table
+@Entity
+@Table(name = "verification_codes")
 @Getter
 @Setter
 @ToString
@@ -20,5 +18,23 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class VerificationCode {
 
-    /**
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @Column(name = "code")
+    private String code;
+
+    @Column(name = "created_code", insertable = false)
+    private LocalDateTime createdTimeCode;
+
+    @Column(name = "entry_by_code", insertable = false)
+    private Boolean isEntryByCode;
+
+    @Column(name = "login_attempt", columnDefinition = "0", insertable = false)
+    private int loginAttempt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+}

@@ -9,4 +9,5 @@ public record Pagination(
         int totalPages,
         List<MainPageProductDto> body
 ) implements Serializable {
+
 }

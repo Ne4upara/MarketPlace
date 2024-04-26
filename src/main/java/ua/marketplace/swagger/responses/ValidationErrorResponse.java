@@ -13,5 +13,6 @@ public record ValidationErrorResponse(
         @Schema(description = "Validation errors") // Describes the errorMessage field in the Swagger documentation
         Map<String, String> errorMessage
 ) {
+
 }
 

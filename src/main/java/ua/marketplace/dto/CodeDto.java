@@ -7,4 +7,5 @@ public record CodeDto(
         String token,
         String firstName
 ) {
+
 }

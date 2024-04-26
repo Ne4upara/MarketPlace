@@ -59,4 +59,5 @@ public record ProductDto(
         // The number of times the product details have been viewed
         int countView
 ) implements Serializable {
+
 }
