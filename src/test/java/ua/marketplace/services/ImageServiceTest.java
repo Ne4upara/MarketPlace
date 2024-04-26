@@ -16,20 +16,19 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-// The test class for ImageService
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("PMD")
 class ImageServiceTest {
 
-    // Mock the PhotoRepository
     @Mock
     private PhotoRepository photoRepository;
 
-    // Inject the mocked PhotoRepository into ImageService
     @InjectMocks
     private ImageService imageService;
 
-    // Test method for getPhotoLinks
     @Test
     void testGetPhotoLinks() {
         // Given
@@ -40,20 +39,14 @@ class ImageServiceTest {
         List<ProductPhoto> result = imageService.getPhotoLinks(photos, product);
 
         // Then
-        // Assert that the result is not null and has the correct size
         assertNotNull(result);
         assertEquals(3, result.size());
-
-        // Assert that the first ProductPhoto has the correct photoLink and isMainPage value
         assertEquals(photos.get(0), result.get(0).getPhotoLink());
         assertTrue(result.get(0).isMainPage());
-
-        // Assert that the second and third ProductPhotos have the correct isMainPage value
         assertFalse(result.get(1).isMainPage());
         assertFalse(result.get(2).isMainPage());
     }
 
-    // Test method for getPhotoLinks with more than 8 images
     @Test
     void testGetPhotoLinksWithOver8Img() {
         // Given
@@ -62,7 +55,6 @@ class ImageServiceTest {
         Product product = new Product();
 
         // When & Then
-        // Assert that a ResponseStatusException is thrown with the correct error message
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             imageService.getPhotoLinks(photos, product);
         });
@@ -72,7 +64,6 @@ class ImageServiceTest {
                 , exception.getMessage());
     }
 
-    // Test method for getUpdateLinks
     @Test
     void testGetUpdateLinks() {
         // Given
@@ -87,21 +78,15 @@ class ImageServiceTest {
         List<ProductPhoto> result = imageService.getUpdateLinks(newPhotoLinks, product);
 
         // Then
-        // Assert that the result is not null and has the correct size
         assertNotNull(result);
         assertEquals(2, result.size());
-
-        // Assert that the first ProductPhoto has the correct photoLink and isMainPage value
         assertEquals(newPhotoLinks.get(0), result.get(0).getPhotoLink());
         assertFalse(result.get(0).isMainPage());
-
-        // Assert that the second ProductPhoto has the correct photoLink and isMainPage value
         assertEquals(existingPhotos.get(0), result.get(0));
         assertEquals(newPhotoLinks.get(1), result.get(1).getPhotoLink());
         assertFalse(result.get(1).isMainPage());
     }
 
-    // Test method for handleEmptyNewPhotoLinks
     @Test
     void testHandleEmptyNewPhotoLinks_Empty() throws Exception {
         // Given
@@ -109,22 +94,17 @@ class ImageServiceTest {
         Product product = new Product();
 
         // When
-        // Use reflection to call the private handleEmptyNewPhotoLinks method
         Method method = ImageService.class.getDeclaredMethod("handleEmptyNewPhotoLinks", List.class, Product.class);
         method.setAccessible(true);
         List<ProductPhoto> result = (List<ProductPhoto>) method.invoke(imageService, newPhotoLinks, product);
 
         // Then
-        // Assert that the result is not null and has the correct size
         assertNotNull(result);
         assertEquals(1, result.size());
-
-        // Assert that the ProductPhoto has the correct photoLink and isMainPage value
         assertEquals(ErrorMessageHandler.DEFAULT_IMAGE_LINK, result.get(0).getPhotoLink());
         assertTrue(result.get(0).isMainPage());
     }
 
-    // Test method for deleteExcessPhotos
     @Test
     void testDeleteExcessPhotos() {
         // Given
@@ -139,11 +119,7 @@ class ImageServiceTest {
         imageService.deleteExcessPhotos(2, product);
 
         // Then
-        // Assert that the product has the correct number of ProductPhotos
         assertEquals(2, product.getPhotos().size());
-
-        // Assert that the PhotoRepository's deleteByPhotoId method was called once with the correct argument
         verify(photoRepository, times(1)).deleteByPhotoId(anyLong());
     }
-
 }
