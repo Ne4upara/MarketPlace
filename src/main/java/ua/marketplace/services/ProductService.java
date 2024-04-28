@@ -246,12 +246,12 @@ public class ProductService implements IProductService {
         if (Boolean.FALSE.equals(favoriteRepository.existsByUserAndProduct(user, product)) || "FALSE".equals(exists)) {
             throw new ResponseStatusException
                     (HttpStatus.BAD_REQUEST, String.format(
-                            ErrorMessageHandler.PRODUCT_NOT_FOUND, product.getProductName()));
+                            ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
         }
         if (Boolean.TRUE.equals(favoriteRepository.existsByUserAndProduct(user, product)) || "TRUE".equals(exists)) {
             throw new ResponseStatusException
                     (HttpStatus.BAD_REQUEST, String.format(
-                            ErrorMessageHandler.PRODUCT_NOT_FOUND, product.getProductName()));
+                            ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
         }
 
     }

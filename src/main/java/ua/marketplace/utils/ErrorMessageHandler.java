@@ -87,6 +87,8 @@ public final class ErrorMessageHandler {
      */
     public static final String MAX_LOAD_PHOTO = "Max load photo 8";
 
+    public static final String INVALID_FAVORITE = "Invalid product ID %s to add, or remove to (from) favorites.";
+
     /**
      * Error message indicating that a review was not found.
      */

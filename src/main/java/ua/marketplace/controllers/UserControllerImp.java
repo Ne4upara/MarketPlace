@@ -6,8 +6,10 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.Pagination;
+import ua.marketplace.entities.User;
 import ua.marketplace.services.UserService;
 
 import java.security.Principal;
@@ -29,5 +31,17 @@ public class UserControllerImp implements IUserController{
             @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
             Principal principal){
         return userService.getViewMyProduct(number, size, sort, order, principal);
+    }
+
+    @GetMapping("/info")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUserInfo(Principal principal){
+        return null;
+    }
+
+    @GetMapping("/favorite/all")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity getAllFavorite(Principal principal){//поменять возврат
+        return null;
     }
 }

@@ -45,6 +45,8 @@ class ProductServiceTest {
     @Mock
     private UtilsService utilsService;
     @Mock
+    private UserService userService;
+    @Mock
     private ImageService imageService;
     @InjectMocks
     private ProductService productService;
@@ -73,7 +75,7 @@ class ProductServiceTest {
 //        assertEquals(10, result.totalPages());
 //        verify(productRepository).findAll(any(Pageable.class));
 //    }
-//
+
 //    @Test
 //    void testGetAllProductsByCategory() {
 //        // Given
@@ -145,53 +147,53 @@ class ProductServiceTest {
         verify(productRepository).findById(productId);
     }
 
-//    @Test
-//    void testSaveProduct() {
-//        // Given
-//        Principal principal = () -> "user@example.com";
-//        ProductRequest request = mockProductRequest();
-//
-//        // Mocking
-//        User user = new User();
+    @Test
+    void testSaveProduct() {
+        // Given
+        Principal principal = () -> "user@example.com";
+        ProductRequest request = mockProductRequest();
+
+        // Mocking
+        User user = new User();
 //        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
-//        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
-//        when(categoryRepository.existsByCategoryName(request.productCategory()))
-//                .thenReturn(true);
-//        when(categoryRepository.findByCategoryName(request.productCategory()))
-//                .thenReturn(Optional.of(new Category(2L, "dolls", "test")));
-//
-//        // When
-//        ProductDto result = productService.saveProduct(principal, request);
-//
-//        // Then
-//        assertEquals(request.productName(), result.productName());
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(categoryRepository.existsByCategoryName(request.productCategory()))
+                .thenReturn(true);
+        when(categoryRepository.findByCategoryName(request.productCategory()))
+                .thenReturn(Optional.of(new Category(2L, "dolls", "test")));
+
+        // When
+        ProductDto result = productService.saveProduct(principal, request);
+
+        // Then
+        assertEquals(request.productName(), result.productName());
 //        verify(userRepository).findByPhoneNumber(principal.getName());
-//        verify(productRepository).save(any(Product.class));
-//    }
-//
-//    @Test
-//    void testSaveProductWithInvalidCategory() {
-//        // Given
-//        Principal principal = () -> "user@example.com";
-//        ProductRequest request = mockProductRequest();
-//
-//        // Mocking
-//        User user = new User();
+        verify(productRepository).save(any(Product.class));
+    }
+
+    @Test
+    void testSaveProductWithInvalidCategory() {
+        // Given
+        Principal principal = () -> "user@example.com";
+        ProductRequest request = mockProductRequest();
+
+        // Mocking
+        User user = new User();
 //        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
-//        when(categoryRepository.existsByCategoryName(request.productCategory()))
-//                .thenReturn(false);
-//
-//        // When
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-//            productService.saveProduct(principal, request);
-//        });
-//
-//        // Then
-//        assertEquals(HttpStatus.CONFLICT + " \""
-//                        + String.format(ErrorMessageHandler.INVALID_CATEGORY, "dolls" + "\"")
-//                , exception.getMessage());
-//    }
-//
+        when(categoryRepository.existsByCategoryName(request.productCategory()))
+                .thenReturn(false);
+
+        // When
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            productService.saveProduct(principal, request);
+        });
+
+        // Then
+        assertEquals(HttpStatus.CONFLICT + " \""
+                        + String.format(ErrorMessageHandler.INVALID_CATEGORY, "dolls" + "\"")
+                , exception.getMessage());
+    }
+
 //    @Test
 //    void testUpdateProduct() {
 //        // Given
@@ -221,33 +223,33 @@ class ProductServiceTest {
 //        verify(productRepository).findById(productId);
 //        verify(productRepository).save(any(Product.class));
 //    }
-//
-//    @Test
-//    void testUpdateProductWithNotOwner() {
-//        // Given
-//        Principal principal = () -> "user@example.com";
-//        Long productId = 1L;
-//        ProductRequest request = mockProductRequest();
-//
-//        User user = new User();
-//        Product product = new Product();
-//        product.setOwner(new User());
-//
-//        // Mocking
+
+    @Test
+    void testUpdateProductWithNotOwner() {
+        // Given
+        Principal principal = () -> "user@example.com";
+        Long productId = 1L;
+        ProductRequest request = mockProductRequest();
+
+        User user = new User();
+        Product product = new Product();
+        product.setOwner(new User());
+
+        // Mocking
 //        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
-//        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-//
-//        // When, Then
-//        assertThrows(ResponseStatusException.class, () -> productService.updateProduct(principal, productId, request));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        // When, Then
+        assertThrows(ResponseStatusException.class, () -> productService.updateProduct(principal, productId, request));
 //        verify(userRepository).findByPhoneNumber(principal.getName());
-//        verify(productRepository).findById(productId);
-//        verify(productRepository, never()).save(any(Product.class));
-//    }
-//
+        verify(productRepository).findById(productId);
+        verify(productRepository, never()).save(any(Product.class));
+    }
+
 //    @Test
 //    void testDeleteProduct() {
 //        // Given
-//        Principal principal = () -> "user@example.com";
+//        Principal principal = () -> "userexamplecom";
 //        Long productId = 1L;
 //
 //        User user = new User();
@@ -266,27 +268,27 @@ class ProductServiceTest {
 //        verify(productRepository).findById(productId);
 //        verify(productRepository).delete(product);
 //    }
-//
-//    @Test
-//    void testDeleteProduct_NotOwner() {
-//        // Given
-//        Principal principal = () -> "user@example.com";
-//        Long productId = 1L;
-//
-//        User user = new User();
-//        Product product = new Product();
-//        product.setOwner(new User());
-//
-//        // Mocking
+
+    @Test
+    void testDeleteProduct_NotOwner() {
+        // Given
+        Principal principal = () -> "userexample";
+        Long productId = 1L;
+
+        User user = new User();
+        Product product = new Product();
+        product.setOwner(new User());
+
+        // Mocking
 //        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
-//        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-//
-//        // When, Then
-//        assertThrows(ResponseStatusException.class, () -> productService.deleteProduct(principal, productId));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        // When, Then
+        assertThrows(ResponseStatusException.class, () -> productService.deleteProduct(principal, productId));
 //        verify(userRepository).findByPhoneNumber(principal.getName());
-//        verify(productRepository).findById(productId);
-//        verify(productRepository, never()).delete(any(Product.class));
-//    }
+        verify(productRepository).findById(productId);
+        verify(productRepository, never()).delete(any(Product.class));
+    }
 
     private Product mockProduct() {
         List<ProductPhoto> photo = new ArrayList<>();
