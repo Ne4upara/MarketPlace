@@ -74,7 +74,6 @@ public interface IProductService {
     @Cacheable(value = "products", key = "{#pageNumber, #pageSize, #sortBy, #orderBy}")
     Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy);
 
-
     /**
      * Retrieves products paginated filtered by category.
      *
@@ -88,20 +87,6 @@ public interface IProductService {
     @Cacheable(value = "productsByCategory", key = "{#pageNumber, #pageSize, #sortBy, #orderBy, #category}")
     Pagination getAllProductsByCategory
     (int pageNumber, int pageSize, String sortBy, String orderBy, String category);
-
-    /**
-     * Retrieves products paginated for view all my products.
-     *
-     * @param pageNumber The page number to retrieve.
-     * @param pageSize   The number of products per page.
-     * @param sortBy     The field to sort the products by (e.g., "creationDate", "productName", "productPrice", "id").
-     * @param orderBy    The sorting order ("ASC" for ascending, "DESC" for descending).
-     * @param principal  The principal (typically representing the logged-in user).
-     * @return Pagination object containing the paginated list of products for the main page.
-     */
-    @Cacheable(value = "products", key = "{#pageNumber, #pageSize, #sortBy, #orderBy, #principal}")
-    Pagination getViewMyProduct (
-            int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal);
 
     void getFavorite(Principal principal, Long id);
 

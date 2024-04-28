@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
@@ -110,21 +109,6 @@ public interface IProductController {
     void deleteProduct(@Parameter(description = "Principal object representing the authenticated user")
                        Principal principal,
                        @Parameter(description = "ID of the product to be deleted") Long id);
-
-    @Operation(summary = "Get all my products.",
-            description = "Endpoint to retrieve all my products." +
-                    "Sort -> creationDate, productName, productPrice, id.")
-    @ApiResponses(value =  {
-            @ApiResponse(responseCode = "200", description = "Successful operation"),
-            @ApiResponse(responseCode = "403", description = "JWT token is missing")
-    })
-    Pagination getViewMyProduct(
-            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
-            @Valid @RequestParam(defaultValue = "10") @Positive int size,
-            @Valid @RequestParam(defaultValue = "creationDate")
-            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
-            @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
-            Principal principal);
 
     @Operation(summary = "Add product to favorite.",
             description = "Endpoint to add product to favorite.")
