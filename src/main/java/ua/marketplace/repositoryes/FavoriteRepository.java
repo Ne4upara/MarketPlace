@@ -8,4 +8,6 @@ import ua.marketplace.entities.User;
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     Favorite findByUserAndProduct(User user, Product product);
+
+    Boolean existsByUserAndProduct(User user, Product product);
 }

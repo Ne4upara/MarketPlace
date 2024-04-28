@@ -136,7 +136,7 @@ public class ProductService implements IProductService {
     private Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException
-                        (HttpStatus.NOT_FOUND, ErrorMessageHandler.PRODUCT_NOT_FOUND + id));
+                        (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.PRODUCT_NOT_FOUND, id)));
     }
 
     /**
@@ -260,6 +260,7 @@ public class ProductService implements IProductService {
     public void getFavorite(Principal principal, Long id){
         User user = getUserByPrincipal(principal);
         Product productById = getProductById(id);
+        validateFavorite(user, productById, "TRUE");
         Favorite favorite = Favorite.builder()
                 .user(user)
                 .product(productById)
@@ -272,9 +273,28 @@ public class ProductService implements IProductService {
     public void deleteFavorite(Principal principal, Long id){
         User userByPrincipal = getUserByPrincipal(principal);
         Product productById = getProductById(id);
+        validateFavorite(userByPrincipal,productById, "FALSE");
         Favorite byUserAndProduct = favoriteRepository.findByUserAndProduct(userByPrincipal, productById);
         userByPrincipal.getFavorites().remove(byUserAndProduct);
         productById.getFavorites().remove(byUserAndProduct);
         favoriteRepository.delete(byUserAndProduct);
+    }
+
+    private void validateFavorite(User user, Product product, String ex) {
+        switch (ex) {
+            case "FALSE" -> {
+                if (Boolean.FALSE.equals(favoriteRepository.existsByUserAndProduct(user, product))) {
+                    throw new ResponseStatusException
+                            (HttpStatus.CONFLICT, String.format(ErrorMessageHandler.PRODUCT_NOT_FOUND, product));
+                }
+            }
+            case "TRUE" -> {
+                if (Boolean.TRUE.equals(favoriteRepository.existsByUserAndProduct(user, product))) {
+                    throw new ResponseStatusException
+                            (HttpStatus.CONFLICT, String.format(ErrorMessageHandler.PHONE_ALREADY_EXIST, product));
+                }
+            }
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessageHandler.ERROR_MESSAGE);
+        }
     }
 }
