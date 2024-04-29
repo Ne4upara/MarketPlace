@@ -39,6 +39,10 @@ public interface IUserController {
 
     @Operation(summary = "Get all user's favorite products.",
             description = "Endpoint get all user's favorite products.")
+    @ApiResponses(value =  {
+            @ApiResponse(responseCode = "204", description = "Successful operation"),
+            @ApiResponse(responseCode = "403", description = "JWT token is missing")
+    })
     Pagination getAllFavorite(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,

@@ -113,13 +113,17 @@ public interface IProductController {
     @Operation(summary = "Add product to favorite.",
             description = "Endpoint to add product to favorite.")
     @ApiResponses(value =  {
-            @ApiResponse(responseCode = "204", description = "Successful operation")})
+            @ApiResponse(responseCode = "204", description = "Successful operation"),
+            @ApiResponse(responseCode = "400", description = "You cannot add a product a second time")
+    })
     void getFavoriteProduct(Principal principal, @PathVariable Long id);
 
 
     @Operation(summary = "Delete product favorite.",
             description = "Endpoint to delete product is favorite.")
     @ApiResponses(value =  {
-            @ApiResponse(responseCode = "204", description = "Successful operation")})
+            @ApiResponse(responseCode = "204", description = "Successful operation"),
+            @ApiResponse(responseCode = "400", description = "You cannot remove a non-existent product")
+    })
     void deleteFavorite(Principal principal, @PathVariable Long id);
 }
