@@ -9,7 +9,6 @@ import ua.marketplace.dto.Pagination;
 import ua.marketplace.entities.Favorite;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
-import ua.marketplace.mapper.ProductMapper;
 import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
 
@@ -44,24 +43,11 @@ public class UserService implements IUserService {
         User user = utilsService.getUserByPrincipal(principal);
         Pageable pageable = utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy);
         Page<Favorite> favoritesPage = favoriteRepository.findAllByUser(user, pageable);
-        List<Favorite> favoriteList = favoritesPage.getContent();
-        List<Product> productList = getProductFavorite(favoriteList);
-        List<MainPageProductDto> pageAllContent = getListMainPage(productList);
+        Page<Product> productFavorite = favoritesPage.map(Favorite::getProduct);
+        List<MainPageProductDto> pageAllContent = utilsService.convertProductListToDto(productFavorite);
         return new Pagination(favoritesPage.getNumber(),
                 favoritesPage.getTotalElements(),
                 favoritesPage.getTotalPages(),
                 pageAllContent);
-    }
-
-    private List<Product> getProductFavorite(List<Favorite> favoriteList) {
-        return favoriteList.stream()
-                .map(Favorite::getProduct)
-                .toList();
-    }
-
-    private List<MainPageProductDto> getListMainPage(List<Product> productList) {
-        return productList.stream()
-                .map(ProductMapper.PRODUCT_INSTANCE::productToMainPageDto)
-                .toList();
     }
 }
