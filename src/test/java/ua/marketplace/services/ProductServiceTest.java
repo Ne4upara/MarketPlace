@@ -5,20 +5,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
-import ua.marketplace.entities.Category;
-import ua.marketplace.entities.Product;
-import ua.marketplace.entities.ProductPhoto;
-import ua.marketplace.entities.User;
+import ua.marketplace.entities.*;
 import ua.marketplace.repositoryes.CategoryRepository;
+import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
-import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.utils.ErrorMessageHandler;
 
@@ -37,76 +32,78 @@ import static org.mockito.Mockito.*;
 class ProductServiceTest {
 
     @Mock
-    private UserRepository userRepository;
-    @Mock
     private ProductRepository productRepository;
     @Mock
     private CategoryRepository categoryRepository;
     @Mock
     private UtilsService utilsService;
     @Mock
-    private UserService userService;
-    @Mock
     private ImageService imageService;
+    @Mock
+    private FavoriteRepository favoriteRepository;
     @InjectMocks
     private ProductService productService;
 
 
-//    @Test
-//    void testGetAllProductsForMainPage() {
-//        // Given
-//        int pageNumber = 0;
-//        int pageSize = 10;
-//        String sortBy = "productName";
-//        String orderBy = "ASC";
-//
-//        // Mocking
-//        Page<Product> mockedPage = mock(Page.class);
-//        when(productRepository.findAll(any(Pageable.class))).thenReturn(mockedPage);
-//        when(mockedPage.getNumber()).thenReturn(0);
-//        when(mockedPage.getTotalElements()).thenReturn(100L);
-//        when(mockedPage.getTotalPages()).thenReturn(10);
-//
-//        // When
-//        Pagination result = productService.getAllProductsForMainPage(pageNumber, pageSize, sortBy, orderBy);
-//
-//        // Then
-//        assertEquals(0, result.pageNumber());
-//        assertEquals(10, result.totalPages());
-//        verify(productRepository).findAll(any(Pageable.class));
-//    }
+    @Test
+    void testGetAllProductsForMainPage() {
+        // Given
+        int pageNumber = 0;
+        int pageSize = 10;
+        String sortBy = "productName";
+        String orderBy = "ASC";
 
-//    @Test
-//    void testGetAllProductsByCategory() {
-//        // Given
-//        int pageNumber = 0;
-//        int pageSize = 10;
-//        String sortBy = "productName";
-//        String orderBy = "ASC";
-//        String categoryName = "Test";
-//
-//        Product product = mockProduct();
-//
-//        when(categoryRepository.findByCategoryName(categoryName)).thenReturn(Optional.of(product.getCategory()));
-//
-//        List<Product> productList = new ArrayList<>();
-//        productList.add(product);
-//        productList.add(mockProduct());
-//        Page<Product> page = new PageImpl<>(productList);
-//        when(productRepository.findByCategory(any(Category.class), any(Pageable.class))).thenReturn(page);
-//
-//        // When
-//        Pagination result = productService.getAllProductsByCategory(pageNumber, pageSize, sortBy, orderBy, categoryName);
-//
-//        // Then
-//        assertNotNull(result);
-//        assertEquals(0, result.pageNumber());
-//        assertEquals(2, result.totalElements());
-//        assertEquals(1, result.totalPages());
-//        assertNotNull(result.body());
-//        assertEquals(2, result.body().size());
-//        verify(categoryRepository, times(1)).findByCategoryName(categoryName);
-//    }
+        // Mocking
+        Page<Product> mockedPage = mock(Page.class);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending());
+        when(utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy)).thenReturn(pageRequest);
+        when(productRepository.findAll(any(Pageable.class))).thenReturn(mockedPage);
+        when(mockedPage.getNumber()).thenReturn(0);
+        when(mockedPage.getTotalElements()).thenReturn(100L);
+        when(mockedPage.getTotalPages()).thenReturn(10);
+
+        // When
+        Pagination result = productService.getAllProductsForMainPage(pageNumber, pageSize, sortBy, orderBy);
+
+        // Then
+        assertEquals(0, result.pageNumber());
+        assertEquals(10, result.totalPages());
+        verify(productRepository).findAll(any(Pageable.class));
+    }
+
+    @Test
+    void testGetAllProductsByCategory() {
+        // Given
+        int pageNumber = 0;
+        int pageSize = 10;
+        String sortBy = "productName";
+        String orderBy = "ASC";
+        String categoryName = "dolls";
+
+        Product product = mockProduct();
+
+        when(categoryRepository.findByCategoryName(categoryName)).thenReturn(Optional.of(product.getCategory()));
+
+        List<Product> productList = new ArrayList<>();
+        productList.add(product);
+        productList.add(mockProduct());
+        Page<Product> page = new PageImpl<>(productList);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending());
+        when(utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy)).thenReturn(pageRequest);
+        when(productRepository.findByCategory(any(Category.class), any(Pageable.class))).thenReturn(page);
+
+        // When
+        Pagination result = productService.getAllProductsByCategory(pageNumber, pageSize, sortBy, orderBy, categoryName);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.pageNumber());
+        assertEquals(2, result.totalElements());
+        assertEquals(1, result.totalPages());
+        assertNotNull(result.body());
+        assertEquals(0, result.body().size());
+        verify(categoryRepository, times(1)).findByCategoryName(categoryName);
+    }
 
     @Test
     void testGetAllProductsByCategoryWithInvalidCategory() {
@@ -155,7 +152,7 @@ class ProductServiceTest {
 
         // Mocking
         User user = new User();
-//        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(categoryRepository.existsByCategoryName(request.productCategory()))
                 .thenReturn(true);
@@ -167,7 +164,6 @@ class ProductServiceTest {
 
         // Then
         assertEquals(request.productName(), result.productName());
-//        verify(userRepository).findByPhoneNumber(principal.getName());
         verify(productRepository).save(any(Product.class));
     }
 
@@ -179,7 +175,7 @@ class ProductServiceTest {
 
         // Mocking
         User user = new User();
-//        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
         when(categoryRepository.existsByCategoryName(request.productCategory()))
                 .thenReturn(false);
 
@@ -194,35 +190,34 @@ class ProductServiceTest {
                 , exception.getMessage());
     }
 
-//    @Test
-//    void testUpdateProduct() {
-//        // Given
-//        Principal principal = () -> "user@example.com";
-//        Long productId = 1L;
-//        ProductRequest request = mockProductRequest();
-//
-//        User user = new User();
-//        Product product = new Product();
-//        product.setOwner(user);
-//
-//        // Mocking
-//        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
-//        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-//        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
-//        when(categoryRepository.existsByCategoryName(request.productCategory()))
-//                .thenReturn(true);
-//        when(categoryRepository.findByCategoryName(request.productCategory()))
-//                .thenReturn(Optional.of(new Category(2L, "dolls", "test")));
-//
-//        // When
-//        ProductDto result = productService.updateProduct(principal, productId, request);
-//
-//        // Then
-//        assertEquals(request.productName(), result.productName());
-//        verify(userRepository).findByPhoneNumber(principal.getName());
-//        verify(productRepository).findById(productId);
-//        verify(productRepository).save(any(Product.class));
-//    }
+    @Test
+    void testUpdateProduct() {
+        // Given
+        Principal principal = () -> "user@example.com";
+        Long productId = 1L;
+        ProductRequest request = mockProductRequest();
+
+        User user = new User();
+        Product product = new Product();
+        product.setOwner(user);
+
+        // Mocking
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(categoryRepository.existsByCategoryName(request.productCategory()))
+                .thenReturn(true);
+        when(categoryRepository.findByCategoryName(request.productCategory()))
+                .thenReturn(Optional.of(new Category(2L, "dolls", "test")));
+
+        // When
+        ProductDto result = productService.updateProduct(principal, productId, request);
+
+        // Then
+        assertEquals(request.productName(), result.productName());
+        verify(productRepository).findById(productId);
+        verify(productRepository).save(any(Product.class));
+    }
 
     @Test
     void testUpdateProductWithNotOwner() {
@@ -236,38 +231,36 @@ class ProductServiceTest {
         product.setOwner(new User());
 
         // Mocking
-//        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         // When, Then
         assertThrows(ResponseStatusException.class, () -> productService.updateProduct(principal, productId, request));
-//        verify(userRepository).findByPhoneNumber(principal.getName());
         verify(productRepository).findById(productId);
         verify(productRepository, never()).save(any(Product.class));
     }
 
-//    @Test
-//    void testDeleteProduct() {
-//        // Given
-//        Principal principal = () -> "userexamplecom";
-//        Long productId = 1L;
-//
-//        User user = new User();
-//        Product product = new Product();
-//        product.setOwner(user);
-//
-//        // Mocking
-//        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
-//        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-//
-//        // When
-//        productService.deleteProduct(principal, productId);
-//
-//        // Then
-//        verify(userRepository).findByPhoneNumber(principal.getName());
-//        verify(productRepository).findById(productId);
-//        verify(productRepository).delete(product);
-//    }
+    @Test
+    void testDeleteProduct() {
+        // Given
+        Principal principal = () -> "userexamplecom";
+        Long productId = 1L;
+
+        User user = new User();
+        Product product = new Product();
+        product.setOwner(user);
+
+        // Mocking
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        // When
+        productService.deleteProduct(principal, productId);
+
+        // Then
+        verify(productRepository).findById(productId);
+        verify(productRepository).delete(product);
+    }
 
     @Test
     void testDeleteProduct_NotOwner() {
@@ -280,19 +273,137 @@ class ProductServiceTest {
         product.setOwner(new User());
 
         // Mocking
-//        when(userRepository.findByPhoneNumber(principal.getName())).thenReturn(Optional.of(user));
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         // When, Then
         assertThrows(ResponseStatusException.class, () -> productService.deleteProduct(principal, productId));
-//        verify(userRepository).findByPhoneNumber(principal.getName());
         verify(productRepository).findById(productId);
         verify(productRepository, never()).delete(any(Product.class));
     }
 
+    @Test
+    void testGetFavorite_AddFavoriteSuccessfully() {
+        // Given
+        Principal principal = () -> "user@example.com";
+        Product product = new Product();
+
+        // Mocking
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(new User());
+        when(favoriteRepository.existsByUserAndProduct(any(User.class), any(Product.class))).thenReturn(false);
+        when(productRepository.findById(any())).thenReturn(Optional.of(product));
+
+        // When
+        productService.getFavorite(principal, product.getId());
+
+        // Then
+        verify(favoriteRepository, times(1)).save(any(Favorite.class));
+    }
+
+    @Test
+    void testGetFavorite_AddDuplicateFavorite() {
+        // Given
+        Principal principal = () -> "user@example.com";
+        Product product = new Product();
+
+        // Mocking
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(new User());
+
+        // When,Then
+        assertThrows(ResponseStatusException.class, () -> productService.getFavorite(principal, product.getId()));
+    }
+
+    @Test
+    void testDeleteFavorite_RemoveFavoriteSuccessfully() {
+
+        // Given
+        Principal principal = () -> "user@example.com";
+        User user = new User();
+        Product product = new Product();
+        Favorite favorite = new Favorite();
+        List<Favorite> favorites = new ArrayList<>();
+        favorites.add(favorite);
+        favorite.setProduct(product);
+        favorite.setUser(user);
+        user.setFavorites(favorites);
+        product.setFavorites(favorites);
+
+        // Mocking
+        when(productRepository.findById(any())).thenReturn(Optional.of(product));
+        when(favoriteRepository.existsByUserAndProduct(any(User.class), any(Product.class)))
+                .thenReturn(true);
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+        when(favoriteRepository.findByUserAndProduct(any(User.class), any(Product.class)))
+                .thenReturn(favorite);
+
+        // When
+        productService.deleteFavorite(principal, product.getId());
+
+        // Then
+        verify(favoriteRepository, times(1)).delete(any(Favorite.class));
+    }
+
+    @Test
+    void testDeleteFavorite_RemoveNonExistingFavorite() {
+
+        //Given
+        Principal principal = () -> "user@example.com";
+        Product product = new Product();
+
+        // Mock
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(new User());
+        lenient().when(favoriteRepository.findByUserAndProduct(any(User.class), any(Product.class))).thenReturn(null);
+
+        // When, Then
+        assertThrows(ResponseStatusException.class, () -> productService.deleteFavorite(principal, product.getId()));
+    }
+
+    @Test
+    void testGetFavorite_InvalidFavorite() {
+
+        // Given
+        Principal principal = () -> "user@example.com";
+        Product product = new Product();
+        User user = new User();
+        user.setId(1L);
+
+        // Mocking
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+        lenient().when(favoriteRepository.existsByUserAndProduct(any(User.class), any(Product.class)))
+                .thenReturn(true);
+
+        // When, Then
+        assertThrows(ResponseStatusException.class,
+                () -> productService.getFavorite(principal, product.getId()));
+    }
+
+    @Test
+    void testDeleteFavorite_InvalidFavorite() {
+        // Given
+        Principal principal = () -> "user@example.com";
+        User user = new User();
+        Product product = new Product();
+        Favorite favorite = new Favorite();
+        List<Favorite> favorites = new ArrayList<>();
+        favorites.add(favorite);
+        favorite.setProduct(product);
+        favorite.setUser(user);
+        user.setFavorites(favorites);
+        product.setFavorites(favorites);
+
+        // Mocking
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+        lenient().when(favoriteRepository.findByUserAndProduct(any(User.class), any(Product.class)))
+                .thenReturn(favorite);
+
+        // Then
+        assertThrows(ResponseStatusException.class,
+                () -> productService.deleteFavorite(principal, product.getId()));
+    }
+
     private Product mockProduct() {
         List<ProductPhoto> photo = new ArrayList<>();
-        Category category = new Category(1L, "Test", "ТЕСТ");
+        Category category = new Category(1L, "dolls", "Ляльки, Пупси");
         return Product
                 .builder()
                 .productName("test")

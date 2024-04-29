@@ -130,7 +130,7 @@ class ProductControllerTest {
     }
 
     @Test
-    void testAddFavoriteProduct() throws Exception{
+    void testAddFavoriteProduct() throws Exception {
 
         ProductRequest request = mockProductRequest();
         Product product = mockProduct();
