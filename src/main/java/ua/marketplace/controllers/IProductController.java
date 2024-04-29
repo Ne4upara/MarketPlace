@@ -7,12 +7,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
@@ -61,7 +61,7 @@ public interface IProductController {
             @ApiResponse(responseCode = "404", description = "Product not found",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
-    ProductDto getProductDetailsById(@Parameter(description = "ID of the product") Long id);
+    ProductDto getProductDetailsById(@Parameter(description = "ID of the product") Long id, HttpSession session);
 
     @Operation(summary = "Create a new product", description = "Endpoint to create a new product")
     @ApiResponses(value = {
@@ -111,18 +111,22 @@ public interface IProductController {
                        Principal principal,
                        @Parameter(description = "ID of the product to be deleted") Long id);
 
-    @Operation(summary = "Get all my products.",
-            description = "Endpoint to retrieve all my products." +
-                    "Sort -> creationDate, productName, productPrice, id.")
+    @Operation(summary = "Add product to favorite.",
+            description = "Endpoint to add product to favorite.")
     @ApiResponses(value =  {
-            @ApiResponse(responseCode = "200", description = "Successful operation"),
-            @ApiResponse(responseCode = "403", description = "JWT token is missing")
+            @ApiResponse(responseCode = "204", description = "Successful operation"),
+            @ApiResponse(responseCode = "400", description = "You cannot add a product a second time"
+            ,content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
-    Pagination getViewMyProduct(
-            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
-            @Valid @RequestParam(defaultValue = "10") @Positive int size,
-            @Valid @RequestParam(defaultValue = "creationDate")
-            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
-            @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
-            Principal principal);
+    void getFavoriteProduct(Principal principal, @PathVariable Long id);
+
+
+    @Operation(summary = "Delete product favorite.",
+            description = "Endpoint to delete product is favorite.")
+    @ApiResponses(value =  {
+            @ApiResponse(responseCode = "204", description = "Successful operation"),
+            @ApiResponse(responseCode = "400", description = "You cannot remove a non-existent product"
+                    , content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
+    })
+    void deleteFavorite(Principal principal, @PathVariable Long id);
 }

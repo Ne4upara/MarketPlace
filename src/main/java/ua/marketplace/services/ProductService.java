@@ -1,11 +1,10 @@
 package ua.marketplace.services;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,12 +12,13 @@ import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.entities.Category;
+import ua.marketplace.entities.Favorite;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
 import ua.marketplace.mapper.ProductMapper;
 import ua.marketplace.repositoryes.CategoryRepository;
+import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
-import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.utils.ErrorMessageHandler;
 
@@ -34,9 +34,10 @@ import java.util.stream.Stream;
 public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ImageService imageService;
+    private final FavoriteRepository favoriteRepository;
+    private final UtilsService utilsService;
 
     /**
      * Retrieves details of all products for the main page, paginated and sorted.
@@ -49,9 +50,9 @@ public class ProductService implements IProductService {
      */
     @Override
     public Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy) {
-        Page<Product> pageAll = productRepository.findAll(getPageRequest(
+        Page<Product> pageAll = productRepository.findAll(utilsService.getPageRequest(
                 pageNumber, pageSize, sortBy, orderBy));
-        List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
+        List<MainPageProductDto> pageAllContent = utilsService.convertProductListToDto(pageAll);
 
         return new Pagination(pageAll.getNumber(),
                 pageAll.getTotalElements(),
@@ -77,38 +78,9 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.INVALID_CATEGORY, category)));
 
-
-        Pageable pageable = getPageRequest(pageNumber, pageSize, sortBy, orderBy);
+        Pageable pageable = utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy);
         Page<Product> pageAll = productRepository.findByCategory(byCategoryName, pageable);
-        List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
-
-        return new Pagination(pageAll.getNumber(),
-                pageAll.getTotalElements(),
-                pageAll.getTotalPages(),
-                pageAllContent);
-    }
-
-    private Pageable getPageRequest(int num, int size, String sortBy, String orderBy) {
-        return PageRequest.of(num, size, isSort(sortBy, orderBy));
-    }
-
-    private Sort isSort(String sortBy, String orderBy) {
-        if ("ASC".equals(orderBy)) return Sort.by(sortBy).ascending();
-        return Sort.by(sortBy).descending();
-    }
-
-    private List<MainPageProductDto> convertProductListToDto(Page<Product> products) {
-        return products.stream().map(ProductMapper.PRODUCT_INSTANCE::productToMainPageDto)
-                .toList();
-    }
-
-    @Override
-    public Pagination getViewMyProduct (
-            int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal){
-        User user = getUserByPrincipal(principal);
-        Pageable pageable = getPageRequest(pageNumber, pageSize, sortBy, orderBy);
-        Page<Product> pageAll = productRepository.findAllByOwner(user, pageable);
-        List<MainPageProductDto> pageAllContent = convertProductListToDto(pageAll);
+        List<MainPageProductDto> pageAllContent = utilsService.convertProductListToDto(pageAll);
 
         return new Pagination(pageAll.getNumber(),
                 pageAll.getTotalElements(),
@@ -126,14 +98,22 @@ public class ProductService implements IProductService {
     @Transactional
     @Override
     public ProductDto getProductDetails(Long id) {
-        productRepository.incrementProductViews(id); //Треба протестити
+//        productRepository.incrementProductViews(id); //Треба протестити
         return ProductMapper.PRODUCT_INSTANCE.productToProductDto(getProductById(id));
+    }
+
+    public void incrementViewProduct(HttpSession session, Long id){ //Надо тестировать!!
+        String attributeName = "visited_product_" + id;
+        if (session.getAttribute(attributeName) == null) {
+            productRepository.incrementProductViews(id);
+            session.setAttribute(attributeName, "up");
+        }
     }
 
     private Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException
-                        (HttpStatus.NOT_FOUND, ErrorMessageHandler.PRODUCT_NOT_FOUND + id));
+                        (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.PRODUCT_NOT_FOUND, id)));
     }
 
     /**
@@ -145,16 +125,10 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductDto saveProduct(Principal principal, ProductRequest request) {
-        User user = getUserByPrincipal(principal);
+        User user = utilsService.getUserByPrincipal(principal);
         Product product = createProduct(request, user);
 
         return ProductMapper.PRODUCT_INSTANCE.productToProductDto(productRepository.save(product));
-    }
-
-    private User getUserByPrincipal(Principal principal) {
-        return userRepository.findByPhoneNumber(principal.getName())
-                .orElseThrow(() -> new ResponseStatusException
-                        (HttpStatus.UNAUTHORIZED, ErrorMessageHandler.USER_NOT_AUTHORIZED));
     }
 
     private Product createProduct(ProductRequest request, User user) {
@@ -177,7 +151,7 @@ public class ProductService implements IProductService {
         return product;
     }
 
-    private ua.marketplace.entities.Category getCategory(String categoryName) {
+    private Category getCategory(String categoryName) {
         validateCategoryNotExist(categoryName);
         return categoryRepository.findByCategoryName(categoryName)
                 .orElseThrow(() -> new ResponseStatusException
@@ -202,7 +176,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductDto updateProduct(Principal principal, Long productId, ProductRequest request) {
-        User user = getUserByPrincipal(principal);
+        User user = utilsService.getUserByPrincipal(principal);
         Product product = getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
@@ -217,8 +191,8 @@ public class ProductService implements IProductService {
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));
                     p.setProductType(request.productType());
-                   
-                  return p;
+
+                    return p;
                 })
                 .map(productRepository::save)
                 .findFirst()
@@ -242,7 +216,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public void deleteProduct(Principal principal, Long productId) {
-        User user = getUserByPrincipal(principal);
+        User user = utilsService.getUserByPrincipal(principal);
         Product product = getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
@@ -253,4 +227,41 @@ public class ProductService implements IProductService {
         productRepository.delete(product);
     }
 
+    @Override
+    public void getFavorite(Principal principal, Long id) {
+        User user = utilsService.getUserByPrincipal(principal);
+        Product productById = getProductById(id);
+        validateFavorite(user, productById, "TRUE");
+        Favorite favorite = Favorite.builder()
+                .user(user)
+                .product(productById)
+                .build();
+        favoriteRepository.save(favorite);
+    }
+
+    @Override
+    @Transactional //проверить
+    public void deleteFavorite(Principal principal, Long id) {
+        User userByPrincipal = utilsService.getUserByPrincipal(principal);
+        Product productById = getProductById(id);
+        validateFavorite(userByPrincipal, productById, "FALSE");
+        Favorite byUserAndProduct = favoriteRepository.findByUserAndProduct(userByPrincipal, productById);
+        userByPrincipal.getFavorites().remove(byUserAndProduct);
+        productById.getFavorites().remove(byUserAndProduct);
+        favoriteRepository.delete(byUserAndProduct);
+    }
+
+    private void validateFavorite(User user, Product product, String exists) {
+        if (Boolean.FALSE.equals(favoriteRepository.existsByUserAndProduct(user, product)) && "FALSE".equals(exists)) {
+            throw new ResponseStatusException
+                    (HttpStatus.BAD_REQUEST, String.format(
+                            ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
+        }
+        if (Boolean.TRUE.equals(favoriteRepository.existsByUserAndProduct(user, product)) && "TRUE".equals(exists)) {
+            throw new ResponseStatusException
+                    (HttpStatus.BAD_REQUEST, String.format(
+                            ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
+        }
+
+    }
 }
