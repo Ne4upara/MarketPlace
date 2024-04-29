@@ -243,12 +243,12 @@ public class ProductService implements IProductService {
     }
 
     private void validateFavorite(User user, Product product, String exists) {
-        if (Boolean.FALSE.equals(favoriteRepository.existsByUserAndProduct(user, product)) || "FALSE".equals(exists)) {
+        if (Boolean.FALSE.equals(favoriteRepository.existsByUserAndProduct(user, product)) && "FALSE".equals(exists)) {
             throw new ResponseStatusException
                     (HttpStatus.BAD_REQUEST, String.format(
                             ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
         }
-        if (Boolean.TRUE.equals(favoriteRepository.existsByUserAndProduct(user, product)) || "TRUE".equals(exists)) {
+        if (Boolean.TRUE.equals(favoriteRepository.existsByUserAndProduct(user, product)) && "TRUE".equals(exists)) {
             throw new ResponseStatusException
                     (HttpStatus.BAD_REQUEST, String.format(
                             ErrorMessageHandler.INVALID_FAVORITE, product.getId()));

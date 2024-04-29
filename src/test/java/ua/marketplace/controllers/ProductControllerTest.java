@@ -129,6 +129,32 @@ class ProductControllerTest {
 
     }
 
+    @Test
+    void testAddFavoriteProduct() throws Exception{
+
+        ProductRequest request = mockProductRequest();
+        Product product = mockProduct();
+        productRepository.save(product);
+
+        mockMvc.perform(post("/v1/products/favorite/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
+    }
+
+    @Test
+    void testRemoveFavoriteProduct() throws Exception {
+
+        ProductRequest request = mockProductRequest();
+
+        mockMvc.perform(delete("/v1/products/favorite/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
+    }
+
     private Product mockProduct() {
         List<ProductPhoto> photo = new ArrayList<>();
         Category category = new Category(1L, "Test", "ТЕСТ");

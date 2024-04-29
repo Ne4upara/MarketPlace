@@ -47,6 +47,7 @@ public class ProductControllerImp implements IProductController {
     /**
      * Retrieves all products by category.
      *
+     * @param category We transfer the category to receive goods according to it
      * @return List of MainPageProductDto containing product details by category.
      */
     @GetMapping("/s/view/{category}")
@@ -116,12 +117,24 @@ public class ProductControllerImp implements IProductController {
         productService.deleteProduct(principal, id);
     }
 
+    /**
+     * This is the endpoint to add a product to your favorites
+     *
+     * @param principal The principal (typically representing the logged-in user).
+     * @param id ID of the product to be added to favorites.
+     */
     @PostMapping("/favorite/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void getFavoriteProduct(Principal principal, @PathVariable Long id){
         productService.getFavorite(principal, id);
     }
 
+    /**
+     * This is the endpoint to remove a product from your favorite
+     *
+     * @param principal The principal (typically representing the logged-in user).
+     * @param id ID of the product to be removed from favorites.
+     */
     @DeleteMapping("/favorite/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFavorite(Principal principal, @PathVariable Long id){

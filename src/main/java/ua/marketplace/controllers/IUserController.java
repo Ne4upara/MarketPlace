@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.entities.User;
@@ -40,5 +39,11 @@ public interface IUserController {
 
     @Operation(summary = "Get all user's favorite products.",
             description = "Endpoint get all user's favorite products.")
-    ResponseEntity getAllFavorite(Principal principal);
+    Pagination getAllFavorite(
+            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+            @Valid @RequestParam(defaultValue = "10") @Positive int size,
+            @Valid @RequestParam(defaultValue = "creationDate")
+            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+            @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
+            Principal principal);
 }

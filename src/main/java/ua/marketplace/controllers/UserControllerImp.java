@@ -21,6 +21,12 @@ public class UserControllerImp implements IUserController{
 
     private final UserService userService;
 
+    /**
+     * This is the endpoint for viewing all user products.
+     *
+     * @param principal The principal (typically representing the logged-in user).
+     * @return A MainPageProductDto list containing information about all the user's products.
+     */
     @GetMapping("/view/all")
     @ResponseStatus(HttpStatus.OK)
     public Pagination getViewMyProduct(
@@ -41,7 +47,13 @@ public class UserControllerImp implements IUserController{
 
     @GetMapping("/favorite/all")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity getAllFavorite(Principal principal){//поменять возврат
-        return null;
+    public Pagination getAllFavorite(
+        @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
+        @Valid @RequestParam(defaultValue = "10") @Positive int size,
+        @Valid @RequestParam(defaultValue = "creationDate")
+        @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
+        @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
+        Principal principal){
+        return userService.getAllFavorite(number, size, sort, order, principal);
     }
 }
