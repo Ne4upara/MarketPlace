@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
-import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.services.ProductService;
 
@@ -27,7 +26,6 @@ import java.security.Principal;
 public class ProductControllerImp implements IProductController {
 
     private final ProductService productService;
-    private final ProductRepository productRepository;
 
     /**
      * Retrieves all products for the main page.

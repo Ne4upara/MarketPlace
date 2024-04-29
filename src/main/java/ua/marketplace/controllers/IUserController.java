@@ -1,6 +1,7 @@
 package ua.marketplace.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,10 +21,10 @@ public interface IUserController {
 
     @Operation(summary = "Get all my products.",
             description = "Endpoint to retrieve all my products." +
-                    "Sort -> creationDate, productName, productPrice, id.")
+                    " Sort -> creationDate, productName, productPrice, id.")
     @ApiResponses(value =  {
             @ApiResponse(responseCode = "200", description = "Successful operation"),
-            @ApiResponse(responseCode = "403", description = "JWT token is missing")
+            @ApiResponse(responseCode = "403", description = "JWT token is missing", content = @Content())
     })
     Pagination getViewMyProduct(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
@@ -38,10 +39,11 @@ public interface IUserController {
     User getUserInfo(Principal principal);
 
     @Operation(summary = "Get all user's favorite products.",
-            description = "Endpoint get all user's favorite products.")
+            description = "Endpoint get all user's favorite products." +
+                    " Sort -> creationDate, productName, productPrice, id.")
     @ApiResponses(value =  {
-            @ApiResponse(responseCode = "204", description = "Successful operation"),
-            @ApiResponse(responseCode = "403", description = "JWT token is missing")
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "403", description = "JWT token is missing",content = @Content())
     })
     Pagination getAllFavorite(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,

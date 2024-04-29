@@ -4,7 +4,6 @@ package ua.marketplace.utils;
  * This class, {@code ErrorMessageHandler}, contains static final strings representing
  * error messages used throughout the application. By using these predefined error
  * messages, the application can maintain consistency and improve readability.
- *
  * The error messages cover various scenarios, such as user authorization, product
  * updates, invalid input, and more.
  */
@@ -26,8 +25,6 @@ public final class ErrorMessageHandler {
 
     /**
      * Error message indicating that a product with the specified ID was not found.
-     *
-     * @param productId The ID of the product that was not found.
      */
     public static final String PRODUCT_NOT_FOUND = "Not found product with ID: %s";
 
@@ -38,8 +35,6 @@ public final class ErrorMessageHandler {
 
     /**
      * Error message indicating that a phone number already exists in the system.
-     *
-     * @param phone The phone number that already exists.
      */
     public static final String PHONE_ALREADY_EXIST = "Phone already exists: %s";
 
@@ -70,15 +65,11 @@ public final class ErrorMessageHandler {
 
     /**
      * Error message indicating that a user with the specified phone number was not found.
-     *
-     * @param phone The phone number of the user that was not found.
      */
     public static final String USER_NOT_FOUND = "User with this phone not found %s";
 
     /**
      * Error message indicating that an invalid category was provided.
-     *
-     * @param category The invalid category.
      */
     public static final String INVALID_CATEGORY = "Invalid category: %s";
 
