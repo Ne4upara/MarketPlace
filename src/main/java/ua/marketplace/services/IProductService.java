@@ -1,5 +1,6 @@
 package ua.marketplace.services;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;

@@ -2,6 +2,7 @@ package ua.marketplace.controllers;
 
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
+import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.services.ProductService;
 
@@ -25,6 +27,7 @@ import java.security.Principal;
 public class ProductControllerImp implements IProductController {
 
     private final ProductService productService;
+    private final ProductRepository productRepository;
 
     /**
      * Retrieves all products for the main page.
@@ -52,6 +55,8 @@ public class ProductControllerImp implements IProductController {
      */
     @GetMapping("/s/view/{category}")
     @ResponseStatus(HttpStatus.OK)
+    @Timed("getCategoriesProduct")
+    @Counted(value = "get.category.product", description = "Number request to category list")
     public Pagination getAllProductsByCategory(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
@@ -70,7 +75,9 @@ public class ProductControllerImp implements IProductController {
      */
     @GetMapping("/s/view/details/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductDto getProductDetailsById(@PathVariable Long id) {
+    @Timed("getProductDetails")
+    public ProductDto getProductDetailsById(@PathVariable Long id, HttpSession session) {
+        productService.incrementViewProduct(session, id);
         return productService.getProductDetails(id);
     }
 
@@ -113,6 +120,7 @@ public class ProductControllerImp implements IProductController {
      */
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Timed("getDeleteProduct")
     public void deleteProduct(Principal principal, @PathVariable Long id) {
         productService.deleteProduct(principal, id);
     }

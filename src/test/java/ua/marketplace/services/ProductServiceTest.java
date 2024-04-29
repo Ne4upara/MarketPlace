@@ -1,5 +1,6 @@
 package ua.marketplace.services;
 
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -134,6 +135,7 @@ class ProductServiceTest {
         // Mocking
         Product product = mockProduct();
         product.setId(productId);
+        HttpSession session;
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         // When

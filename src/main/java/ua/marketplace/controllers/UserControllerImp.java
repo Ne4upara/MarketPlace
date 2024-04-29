@@ -1,5 +1,6 @@
 package ua.marketplace.controllers;
 
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -29,6 +30,7 @@ public class UserControllerImp implements IUserController{
      */
     @GetMapping("/view/all")
     @ResponseStatus(HttpStatus.OK)
+    @Timed("getViewUserProduct")
     public Pagination getViewMyProduct(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
@@ -47,6 +49,7 @@ public class UserControllerImp implements IUserController{
 
     @GetMapping("/favorite/all")
     @ResponseStatus(HttpStatus.OK)
+    @Timed("getAllFavoriteForUser")
     public Pagination getAllFavorite(
         @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
         @Valid @RequestParam(defaultValue = "10") @Positive int size,

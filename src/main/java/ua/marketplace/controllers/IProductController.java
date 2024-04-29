@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -60,7 +61,7 @@ public interface IProductController {
             @ApiResponse(responseCode = "404", description = "Product not found",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
-    ProductDto getProductDetailsById(@Parameter(description = "ID of the product") Long id);
+    ProductDto getProductDetailsById(@Parameter(description = "ID of the product") Long id, HttpSession session);
 
     @Operation(summary = "Create a new product", description = "Endpoint to create a new product")
     @ApiResponses(value = {

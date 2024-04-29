@@ -1,5 +1,6 @@
 package ua.marketplace.services;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -97,8 +98,16 @@ public class ProductService implements IProductService {
     @Transactional
     @Override
     public ProductDto getProductDetails(Long id) {
-        productRepository.incrementProductViews(id); //Треба протестити
+//        productRepository.incrementProductViews(id); //Треба протестити
         return ProductMapper.PRODUCT_INSTANCE.productToProductDto(getProductById(id));
+    }
+
+    public void incrementViewProduct(HttpSession session, Long id){ //Надо тестировать!!
+        String attributeName = "visited_product_" + id;
+        if (session.getAttribute(attributeName) == null) {
+            productRepository.incrementProductViews(id);
+            session.setAttribute(attributeName, "up");
+        }
     }
 
     private Product getProductById(Long id) {
