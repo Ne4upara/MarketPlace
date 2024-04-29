@@ -2,6 +2,7 @@ package ua.marketplace.controllers;
 
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -26,7 +27,6 @@ public class ProductControllerImp implements IProductController {
 
     private final ProductService productService;
 
-
     /**
      * Retrieves all products for the main page.
      *
@@ -48,10 +48,13 @@ public class ProductControllerImp implements IProductController {
     /**
      * Retrieves all products by category.
      *
+     * @param category We transfer the category to receive goods according to it
      * @return List of MainPageProductDto containing product details by category.
      */
     @GetMapping("/s/view/{category}")
     @ResponseStatus(HttpStatus.OK)
+    @Timed("getCategoriesProduct")
+    @Counted(value = "get.category.product", description = "Number request to category list")
     public Pagination getAllProductsByCategory(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
@@ -70,7 +73,9 @@ public class ProductControllerImp implements IProductController {
      */
     @GetMapping("/s/view/details/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductDto getProductDetailsById(@PathVariable Long id) {
+    @Timed("getProductDetails")
+    public ProductDto getProductDetailsById(@PathVariable Long id, HttpSession session) {
+        productService.incrementViewProduct(session, id);
         return productService.getProductDetails(id);
     }
 
@@ -113,20 +118,33 @@ public class ProductControllerImp implements IProductController {
      */
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Timed("getDeleteProduct")
     public void deleteProduct(Principal principal, @PathVariable Long id) {
         productService.deleteProduct(principal, id);
     }
 
-    @GetMapping("/view/my-profile/all")
-    @ResponseStatus(HttpStatus.OK)
-    public Pagination getViewMyProduct(
-            @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
-            @Valid @RequestParam(defaultValue = "10") @Positive int size,
-            @Valid @RequestParam(defaultValue = "creationDate")
-            @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
-            @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
-            Principal principal){
-        return productService.getViewMyProduct(number, size, sort, order, principal);
+    /**
+     * This is the endpoint to add a product to your favorites
+     *
+     * @param principal The principal (typically representing the logged-in user).
+     * @param id ID of the product to be added to favorites.
+     */
+    @PostMapping("/favorite/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void getFavoriteProduct(Principal principal, @PathVariable Long id){
+        productService.getFavorite(principal, id);
+    }
+
+    /**
+     * This is the endpoint to remove a product from your favorite
+     *
+     * @param principal The principal (typically representing the logged-in user).
+     * @param id ID of the product to be removed from favorites.
+     */
+    @DeleteMapping("/favorite/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFavorite(Principal principal, @PathVariable Long id){
+        productService.deleteFavorite(principal, id);
     }
 }
 

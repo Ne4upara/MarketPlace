@@ -1,11 +1,13 @@
 package ua.marketplace.entities;
 
-import jakarta.persistence.*; // For handling JPA annotations
-import lombok.*; // For generating boilerplate code like getters, setters, etc.
-import org.hibernate.proxy.HibernateProxy; // For handling Hibernate proxies
+import jakarta.persistence.*;
+import lombok.*;
+import org.apache.commons.lang3.builder.ToStringExclude;
+import org.hibernate.proxy.HibernateProxy;
 
-import java.time.LocalDateTime; // For handling date and time
-import java.util.Objects; // For handling null values and objects
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * An entity class representing a user in the system. This class is mapped to the 'users' table in the database.
@@ -34,6 +36,10 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude // Exclude VerificationCode from toString() to avoid infinite recursion
     private VerificationCode verificationCode; // The user's verification code
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ToStringExclude
+    private List<Favorite> favorites;
 
     @Column(name = "role", insertable = false)
     private String role; // The user's role, populated from the Role entity

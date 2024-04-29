@@ -5,7 +5,7 @@ package ua.marketplace.dto;
  */
 public record CodeDto(
         String token,
-        String firstName
+        String firstName //need delete
 ) {
 
 }
