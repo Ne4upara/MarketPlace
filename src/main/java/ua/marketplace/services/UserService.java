@@ -6,14 +6,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
+import ua.marketplace.dto.UserDto;
 import ua.marketplace.entities.Favorite;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
+import ua.marketplace.mapper.UserMapper;
 import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +52,11 @@ public class UserService implements IUserService {
                 favoritesPage.getTotalElements(),
                 favoritesPage.getTotalPages(),
                 pageAllContent);
+    }
+
+    public UserDto getUserInfo(Principal principal){
+        User user = utilsService.getUserByPrincipal(principal);
+        Set<Favorite> favorites = favoriteRepository.findByUser(user);
+        return UserMapper.USER_MAPPER.userToUserDTO(user, favorites);
     }
 }

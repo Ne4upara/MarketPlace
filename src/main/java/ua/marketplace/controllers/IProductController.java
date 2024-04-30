@@ -27,7 +27,7 @@ public interface IProductController {
 
     @Operation(summary = "Get all products for main page",
             description = "Endpoint to retrieve all products for the main page." +
-                    "Sort -> creationDate, productName, productPrice, id.")
+                    "Sort -> creationDate, productName, productPrice, id. Order -> ASC. DESC.")
     @ApiResponse(responseCode = "200", description = "Successful operation")
     Pagination getAllProductsForMainPage(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
@@ -38,7 +38,7 @@ public interface IProductController {
 
     @Operation(summary = "Get products details by category",
             description = "Endpoint to retrieve products by category. " +
-                    "Sort -> creationDate, productName, productPrice, id.")
+                    "Sort -> creationDate, productName, productPrice, id. Order -> ASC. DESC.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = Pagination.class))),
