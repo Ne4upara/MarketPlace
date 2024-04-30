@@ -7,6 +7,8 @@ import ua.marketplace.entities.Favorite;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
 
+import java.util.Set;
+
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     Favorite findByUserAndProduct(User user, Product product);
@@ -14,4 +16,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     Boolean existsByUserAndProduct(User user, Product product);
 
     Page<Favorite> findAllByUser(User user, Pageable pageable);
+
+    Set<Favorite> findByUser(User user);
+
 }

@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ua.marketplace.dto.Pagination;
-import ua.marketplace.entities.User;
+import ua.marketplace.dto.UserDto;
 import ua.marketplace.services.UserService;
 
 import java.security.Principal;
@@ -42,8 +42,8 @@ public class UserControllerImp implements IUserController{
 
     @GetMapping("/info")
     @ResponseStatus(HttpStatus.OK)
-    public User getUserInfo(Principal principal){
-        return null;
+    public UserDto getUserInfo(Principal principal){
+        return userService.getUserInfo(principal);
     }
 
     @GetMapping("/favorite/all")

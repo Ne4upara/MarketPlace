@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.web.bind.annotation.RequestParam;
 import ua.marketplace.dto.Pagination;
-import ua.marketplace.entities.User;
+import ua.marketplace.dto.UserDto;
 
 import java.security.Principal;
 
@@ -21,7 +21,7 @@ public interface IUserController {
 
     @Operation(summary = "Get all my products.",
             description = "Endpoint to retrieve all my products." +
-                    " Sort -> creationDate, productName, productPrice, id.")
+                    " Sort -> creationDate, productName, productPrice, id. Order -> ASC. DESC.")
     @ApiResponses(value =  {
             @ApiResponse(responseCode = "200", description = "Successful operation"),
             @ApiResponse(responseCode = "403", description = "JWT token is missing", content = @Content())
@@ -36,11 +36,11 @@ public interface IUserController {
 
     @Operation(summary = "Get all info user.",
             description = "Endpoint get all info user.")
-    User getUserInfo(Principal principal);
+    UserDto getUserInfo(Principal principal);
 
     @Operation(summary = "Get all user's favorite products.",
             description = "Endpoint get all user's favorite products." +
-                    " Sort -> creationDate, productName, productPrice, id.")
+                    " Sort -> creationDate, productName, productPrice, id. Order -> ASC. DESC.")
     @ApiResponses(value =  {
             @ApiResponse(responseCode = "200", description = "Successful operation"),
             @ApiResponse(responseCode = "403", description = "JWT token is missing",content = @Content())

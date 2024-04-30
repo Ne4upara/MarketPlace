@@ -36,7 +36,7 @@ class UserControllerImpTest {
     @Test
     void testGetUserInfo() throws Exception {
         mockMvc.perform(get("/v1/my-profile/info"))
-                .andExpect(status().isOk());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
