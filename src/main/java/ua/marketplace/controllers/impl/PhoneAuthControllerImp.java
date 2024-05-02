@@ -1,4 +1,4 @@
-package ua.marketplace.controllers;
+package ua.marketplace.controllers.impl;
 
 import io.micrometer.core.annotation.Counted;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ua.marketplace.controllers.IPhoneAuthController;
 import ua.marketplace.dto.CodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
@@ -14,7 +15,7 @@ import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.security.JwtUtil;
-import ua.marketplace.services.PhoneNumberRegistrationService;
+import ua.marketplace.services.impl.PhoneNumberRegistrationService;
 
 /**
  * Controller class for handling authentication-related requests.
@@ -87,6 +88,4 @@ public class PhoneAuthControllerImp implements IPhoneAuthController {
 
         session.invalidate();
     }
-
 }
-

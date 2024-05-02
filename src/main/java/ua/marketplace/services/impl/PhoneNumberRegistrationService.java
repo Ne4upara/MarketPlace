@@ -1,4 +1,4 @@
-package ua.marketplace.services;
+package ua.marketplace.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +11,7 @@ import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
+import ua.marketplace.services.IPhoneNumberRegistrationService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.math.BigDecimal;
@@ -159,5 +160,4 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
                 .phoneNumber(phoneNumber)
                 .build();
     }
-
 }

@@ -7,6 +7,4 @@ import ua.marketplace.entities.ProductRating;
  * Repository interface for accessing and managing ProductRating entities.
  */
 //TODO
-public interface ProductRatingRepository extends JpaRepository<ProductRating, Long> {
-
-}
+public interface ProductRatingRepository extends JpaRepository<ProductRating, Long> {}

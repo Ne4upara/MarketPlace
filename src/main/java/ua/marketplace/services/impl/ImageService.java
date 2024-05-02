@@ -1,4 +1,4 @@
-package ua.marketplace.services;
+package ua.marketplace.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.repositoryes.PhotoRepository;
+import ua.marketplace.services.IImageService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.util.ArrayList;

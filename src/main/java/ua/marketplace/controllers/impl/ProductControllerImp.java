@@ -1,4 +1,4 @@
-package ua.marketplace.controllers;
+package ua.marketplace.controllers.impl;
 
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
@@ -10,10 +10,11 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ua.marketplace.controllers.IProductController;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
-import ua.marketplace.services.ProductService;
+import ua.marketplace.services.impl.ProductService;
 
 import java.security.Principal;
 
@@ -147,4 +148,3 @@ public class ProductControllerImp implements IProductController {
         productService.deleteFavorite(principal, id);
     }
 }
-

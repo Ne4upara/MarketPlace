@@ -6,14 +6,19 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Entity class representing an order list.
+ * Contains information about the order list, including its ID, associated user,
+ * list of products, and total price.
+ */
 @Entity
-@Table(name = "buckets")
+@Table(name = "order_list")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Bucket {
+public class OrderList {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +28,7 @@ public class Bucket {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "product_bucket",
             joinColumns = @JoinColumn(name = "product_bucket_id"),

@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ua.marketplace.entities.Category;
 import ua.marketplace.repositoryes.CategoryRepository;
+import ua.marketplace.services.impl.CategoryService;
 
 import java.util.ArrayList;
 import java.util.List;

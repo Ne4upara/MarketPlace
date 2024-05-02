@@ -12,6 +12,8 @@ import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
 import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
+import ua.marketplace.services.impl.UserService;
+import ua.marketplace.services.impl.UtilsService;
 
 import java.security.Principal;
 import java.util.Collections;

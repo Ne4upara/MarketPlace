@@ -37,6 +37,10 @@ public class ProductPhoto {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
+    /**
+     * Callback method executed before the entity is persisted.
+     * Sets the creation date to the current date and time.
+     */
     @PrePersist
     protected void onCreate() {
         creationDate = LocalDateTime.now();

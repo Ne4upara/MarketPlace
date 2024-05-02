@@ -10,18 +10,15 @@ import jakarta.validation.constraints.Size;
  */
 public record RegistrationRequest(
 
-        // `firstName` field
-        @Size(min = 2, max = 15, 
+        @Size(min = 2, max = 15,
             message = "Name should be between 2 and 15 characters")
         @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄґҐ]+$", 
             message = "Name should contain only letters (Latin or Cyrillic)")
         String firstName,
 
-        // `phoneNumber` field
-        @Size(min = 13, max = 13, 
+        @Size(min = 13, max = 13,
             message = "Phone should be between 13 digits")
         @Pattern(regexp = "^\\+380\\d+$", 
             message = "Phone should contain only digits and should be in the format +380..")
         String phoneNumber) {
-
 }

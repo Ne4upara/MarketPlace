@@ -54,7 +54,7 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
-    private Bucket bucket;
+    private OrderList orderList;
 
     /**
      * A method called before the entity is persisted to the database. Sets the creation date to the current date and time.
@@ -63,11 +63,11 @@ public class User {
     protected void onCreate() {
         creationDate = LocalDateTime.now();
 
-        if(this.bucket == null){
-            this.bucket = new Bucket();
-            this.bucket.setUser(this);
-            this.bucket.setProducts(new ArrayList<>());
-            this.bucket.setTotalPrice(BigDecimal.ZERO);
+        if(this.orderList == null){
+            this.orderList = new OrderList();
+            this.orderList.setUser(this);
+            this.orderList.setProducts(new ArrayList<>());
+            this.orderList.setTotalPrice(BigDecimal.ZERO);
         }
     }
 
@@ -96,4 +96,3 @@ public class User {
     }
 
 }
-

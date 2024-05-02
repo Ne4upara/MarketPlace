@@ -5,6 +5,11 @@ import java.util.Date;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Entity class representing a blacklisted token.
+ * Contains information about the blacklisted token, including its ID,
+ * token value, expiration date, and creation date.
+ */
 @Entity
 @Table(name = "black_list")
 @Getter
@@ -29,9 +34,12 @@ public class BlackListToken {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
+    /**
+     * Callback method executed before the entity is persisted.
+     * Sets the creation date to the current date and time.
+     */
     @PrePersist
     protected void onCreate() {
         creationDate = LocalDateTime.now();
     }
-
 }

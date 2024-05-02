@@ -16,6 +16,9 @@ import ua.marketplace.repositoryes.CategoryRepository;
 import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.requests.ProductRequest;
+import ua.marketplace.services.impl.ImageService;
+import ua.marketplace.services.impl.ProductService;
+import ua.marketplace.services.impl.UtilsService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.math.BigDecimal;
@@ -136,14 +139,14 @@ class ProductServiceTest {
         Product product = mockProduct();
         product.setId(productId);
         HttpSession session;
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(utilsService.getProductById(productId)).thenReturn(product);
 
         // When
         ProductDto result = productService.getProductDetails(productId);
 
         // Then
         assertEquals(productId, result.id());
-        verify(productRepository).findById(productId);
+        verify(utilsService).getProductById(productId);
     }
 
     @Test
@@ -205,7 +208,7 @@ class ProductServiceTest {
 
         // Mocking
         when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(utilsService.getProductById(productId)).thenReturn(product);
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(categoryRepository.existsByCategoryName(request.productCategory()))
                 .thenReturn(true);
@@ -217,7 +220,7 @@ class ProductServiceTest {
 
         // Then
         assertEquals(request.productName(), result.productName());
-        verify(productRepository).findById(productId);
+        verify(utilsService).getProductById(productId);
         verify(productRepository).save(any(Product.class));
     }
 
@@ -234,11 +237,11 @@ class ProductServiceTest {
 
         // Mocking
         when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(utilsService.getProductById(productId)).thenReturn(product);
 
         // When, Then
         assertThrows(ResponseStatusException.class, () -> productService.updateProduct(principal, productId, request));
-        verify(productRepository).findById(productId);
+        verify(utilsService).getProductById(productId);
         verify(productRepository, never()).save(any(Product.class));
     }
 
@@ -254,13 +257,13 @@ class ProductServiceTest {
 
         // Mocking
         when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(utilsService.getProductById(productId)).thenReturn(product);
 
         // When
         productService.deleteProduct(principal, productId);
 
         // Then
-        verify(productRepository).findById(productId);
+        verify(utilsService).getProductById(productId);
         verify(productRepository).delete(product);
     }
 
@@ -276,11 +279,11 @@ class ProductServiceTest {
 
         // Mocking
         when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(utilsService.getProductById(productId)).thenReturn(product);
 
         // When, Then
         assertThrows(ResponseStatusException.class, () -> productService.deleteProduct(principal, productId));
-        verify(productRepository).findById(productId);
+        verify(utilsService).getProductById(productId);
         verify(productRepository, never()).delete(any(Product.class));
     }
 
@@ -293,7 +296,7 @@ class ProductServiceTest {
         // Mocking
         when(utilsService.getUserByPrincipal(principal)).thenReturn(new User());
         when(favoriteRepository.existsByUserAndProduct(any(User.class), any(Product.class))).thenReturn(false);
-        when(productRepository.findById(any())).thenReturn(Optional.of(product));
+        when(utilsService.getProductById(any())).thenReturn(product);
 
         // When
         productService.getFavorite(principal, product.getId());
@@ -331,7 +334,7 @@ class ProductServiceTest {
         product.setFavorites(favorites);
 
         // Mocking
-        when(productRepository.findById(any())).thenReturn(Optional.of(product));
+        when(utilsService.getProductById(any())).thenReturn(product);
         when(favoriteRepository.existsByUserAndProduct(any(User.class), any(Product.class)))
                 .thenReturn(true);
         when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
@@ -354,6 +357,7 @@ class ProductServiceTest {
 
         // Mock
         when(utilsService.getUserByPrincipal(principal)).thenReturn(new User());
+        when(utilsService.getProductById(product.getId())).thenReturn(product);
         lenient().when(favoriteRepository.findByUserAndProduct(any(User.class), any(Product.class))).thenReturn(null);
 
         // When, Then
@@ -371,6 +375,7 @@ class ProductServiceTest {
 
         // Mocking
         when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+        when(utilsService.getProductById(product.getId())).thenReturn(product);
         lenient().when(favoriteRepository.existsByUserAndProduct(any(User.class), any(Product.class)))
                 .thenReturn(true);
 
@@ -395,6 +400,7 @@ class ProductServiceTest {
 
         // Mocking
         when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+        when(utilsService.getProductById(product.getId())).thenReturn(product);
         lenient().when(favoriteRepository.findByUserAndProduct(any(User.class), any(Product.class)))
                 .thenReturn(favorite);
 

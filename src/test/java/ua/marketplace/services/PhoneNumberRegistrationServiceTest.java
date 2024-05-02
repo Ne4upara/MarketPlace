@@ -13,6 +13,7 @@ import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
+import ua.marketplace.services.impl.PhoneNumberRegistrationService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;

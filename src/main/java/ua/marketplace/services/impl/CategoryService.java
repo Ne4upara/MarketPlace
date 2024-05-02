@@ -1,9 +1,10 @@
-package ua.marketplace.services;
+package ua.marketplace.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ua.marketplace.entities.Category;
 import ua.marketplace.repositoryes.CategoryRepository;
+import ua.marketplace.services.ICategoryService;
 
 import java.util.List;
 
@@ -25,5 +26,4 @@ public class CategoryService implements ICategoryService {
     public List<Category> getAllCategory() {
         return categoryRepository.findAll();
     }
-
 }

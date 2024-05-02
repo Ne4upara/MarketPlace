@@ -21,6 +21,4 @@ public record ProductRatingDto(
         String review,
         LocalDateTime createAt
 ) {
-
 }
-

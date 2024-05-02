@@ -1,4 +1,4 @@
-CREATE TABLE buckets (
+CREATE TABLE order_list (
     id SERIAL PRIMARY KEY,
     user_id BIGINT,
     total_price NUMERIC,
@@ -8,6 +8,6 @@ CREATE TABLE buckets (
 CREATE TABLE product_bucket (
     product_bucket_id BIGINT,
     product_id BIGINT,
-    FOREIGN KEY (product_bucket_id) REFERENCES buckets(id),
+    FOREIGN KEY (product_bucket_id) REFERENCES order_list(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
