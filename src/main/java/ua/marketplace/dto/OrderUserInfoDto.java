@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * Contains summarized information about the order list, including its ID,
  * the count of products in the order, and the total price.
  */
-public record OrderListForMainPageDto(
+public record OrderUserInfoDto(
         Long id,
         int count,
         BigDecimal totalPrice

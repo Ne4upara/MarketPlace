@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ua.marketplace.controllers.IOrderListController;
 import ua.marketplace.dto.OrderListDto;
-import ua.marketplace.dto.OrderListForMainPageDto;
+import ua.marketplace.dto.OrderUserInfoDto;
 import ua.marketplace.services.impl.OrderListService;
 
 import java.security.Principal;
@@ -41,7 +41,7 @@ public class OrderListControllerImp implements IOrderListController {
      */
     @PostMapping("/add/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public OrderListForMainPageDto addProductToOrderList(Principal principal, @PathVariable Long id){
+    public OrderUserInfoDto addProductToOrderList(Principal principal, @PathVariable Long id){
         return orderListService.addToBucket(id,principal);
     }
 
@@ -54,7 +54,7 @@ public class OrderListControllerImp implements IOrderListController {
      */
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public OrderListForMainPageDto deleteProductFromOrderList(Principal principal, @PathVariable Long id){
+    public OrderUserInfoDto deleteProductFromOrderList(Principal principal, @PathVariable Long id){
         return orderListService.deleteFromOrderList(id,principal);
     }
 }

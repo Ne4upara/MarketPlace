@@ -1,7 +1,7 @@
 package ua.marketplace.services;
 
 import ua.marketplace.dto.OrderListDto;
-import ua.marketplace.dto.OrderListForMainPageDto;
+import ua.marketplace.dto.OrderUserInfoDto;
 
 import java.security.Principal;
 
@@ -25,7 +25,7 @@ public interface IOrderList {
      * @param principal The principal representing the authenticated user.
      * @return The DTO representing the updated order list for the main page.
      */
-    OrderListForMainPageDto addToBucket(Long productId, Principal principal);
+    OrderUserInfoDto addToBucket(Long productId, Principal principal);
 
     /**
      * Deletes a product from the order list associated with the authenticated user.
@@ -34,5 +34,5 @@ public interface IOrderList {
      * @param principal The principal representing the authenticated user.
      * @return The DTO representing the updated order list for the main page.
      */
-    OrderListForMainPageDto deleteFromOrderList(Long productId, Principal principal);
+    OrderUserInfoDto deleteFromOrderList(Long productId, Principal principal);
 }

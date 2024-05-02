@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import ua.marketplace.dto.OrderListDto;
-import ua.marketplace.dto.OrderListForMainPageDto;
+import ua.marketplace.dto.OrderUserInfoDto;
 import ua.marketplace.dto.ProductFromOrderListDto;
 import ua.marketplace.entities.OrderList;
 import ua.marketplace.entities.Product;
@@ -37,14 +37,14 @@ public interface OrderListMapper {
     ProductFromOrderListDto productToProductFromOrderListDto(Product product);
 
     /**
-     * Converts an OrderList entity to an OrderListForMainPageDto.
+     * Converts an OrderList entity to an OrderUserInfoDto.
      * Calculates the count of products in the order list.
      *
      * @param orderList The OrderList entity to convert.
-     * @return The corresponding OrderListForMainPageDto.
+     * @return The corresponding OrderUserInfoDto.
      */
     @Mapping(target = "count", expression = "java(getProductCount(orderList))")
-    OrderListForMainPageDto orderListToOrderListForMainPageDto(OrderList orderList);
+    OrderUserInfoDto orderListToOrderUserInfoDto(OrderList orderList);
 
     /**
      * Helper method to calculate the count of products in an OrderList.

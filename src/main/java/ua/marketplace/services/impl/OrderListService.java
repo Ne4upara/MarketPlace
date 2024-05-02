@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.dto.OrderListDto;
-import ua.marketplace.dto.OrderListForMainPageDto;
+import ua.marketplace.dto.OrderUserInfoDto;
 import ua.marketplace.entities.OrderList;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
@@ -50,7 +50,7 @@ public class OrderListService implements IOrderList {
      */
     @Override
     @Transactional
-    public OrderListForMainPageDto addToBucket(Long productId, Principal principal) {
+    public OrderUserInfoDto addToBucket(Long productId, Principal principal) {
 
         Product productById = utilsService.getProductById(productId);
 
@@ -58,7 +58,7 @@ public class OrderListService implements IOrderList {
         orderList.getProducts().add(productById);
         orderList.setTotalPrice(orderList.getTotalPrice().add(productById.getProductPrice()));
         OrderList savedOrderList = orderListRepository.save(orderList);
-        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderListForMainPageDto(savedOrderList);
+        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(savedOrderList);
     }
 
     /**
@@ -71,7 +71,7 @@ public class OrderListService implements IOrderList {
      */
     @Override
     @Transactional
-    public OrderListForMainPageDto deleteFromOrderList(Long productId, Principal principal) {
+    public OrderUserInfoDto deleteFromOrderList(Long productId, Principal principal) {
 
         Product productById = utilsService.getProductById(productId);
         OrderList orderList = getBucketByPrincipal(principal);
@@ -79,9 +79,9 @@ public class OrderListService implements IOrderList {
         productExistInBucket(orderList, productById);
 
         orderList.getProducts().remove(productById);
-        orderList.setTotalPrice(decrementTotalPrice(orderList,productById));
+        orderList.setTotalPrice(subtractTotalPrice(orderList,productById));
         OrderList savedOrderList = orderListRepository.save(orderList);
-        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderListForMainPageDto(savedOrderList);
+        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(savedOrderList);
     }
 
     private OrderList getBucketByPrincipal(Principal principal) {
@@ -104,7 +104,7 @@ public class OrderListService implements IOrderList {
         }
     }
 
-    private BigDecimal decrementTotalPrice(OrderList orderList, Product product){
+    private BigDecimal subtractTotalPrice(OrderList orderList, Product product){
         orderList.setTotalPrice(orderList.getTotalPrice().subtract(product.getProductPrice()));
         if(orderList.getTotalPrice().doubleValue() <= 0){
             return BigDecimal.ZERO;

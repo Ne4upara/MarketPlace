@@ -28,7 +28,7 @@ public interface UserMapper {
      */
     @Mapping(target = "favorite_id", expression = "java(getAllFavorite(favorites))")
     @Mapping(target = "order_list",
-            expression = "java(OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderListForMainPageDto(user.getOrderList()))")
+            expression = "java(OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(user.getOrderList()))")
     UserDto userToUserDTO(User user, Set<Favorite> favorites );
 
     /**
