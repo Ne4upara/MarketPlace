@@ -309,13 +309,19 @@ class ProductServiceTest {
     void testGetFavorite_AddDuplicateFavorite() {
         // Given
         Principal principal = () -> "user@example.com";
+        Long productId = 123L;
+
+        User user = new User();
         Product product = new Product();
+        product.setId(productId);
 
         // Mocking
-        when(utilsService.getUserByPrincipal(principal)).thenReturn(new User());
+        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+        when(utilsService.getProductById(productId)).thenReturn(product);
+        when(favoriteRepository.existsByUserAndProduct(user, product)).thenReturn(true);
 
-        // When,Then
-        assertThrows(ResponseStatusException.class, () -> productService.getFavorite(principal, product.getId()));
+        // When, Then
+        assertThrows(ResponseStatusException.class, () -> productService.getFavorite(principal, productId));
     }
 
     @Test
