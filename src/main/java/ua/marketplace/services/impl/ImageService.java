@@ -3,14 +3,31 @@ package ua.marketplace.services.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import ua.marketplace.dto.ImageDto;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.repositoryes.PhotoRepository;
 import ua.marketplace.services.IImageService;
 import ua.marketplace.utils.ErrorMessageHandler;
+import net.coobird.thumbnailator.Thumbnails;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,7 +38,9 @@ import java.util.List;
 public class ImageService implements IImageService {
 
     private final PhotoRepository photoRepository;
+    private final UtilsService utilsService;
     private static final int MAX_PHOTOS_ALLOWED = 8;
+    private static final String BUCKET = "testingbucket00-0-1";
 
     /**
      * Retrieves a list of product photos based on the provided photo URLs and product.
@@ -114,4 +133,46 @@ public class ImageService implements IImageService {
             }
         }
     }
+
+    public ImageDto upLoadFile(List<MultipartFile> files, Principal principal, Long id) {
+        utilsService.getUserByPrincipal(principal);
+        List<String> uploadFiles = new ArrayList<>();
+        S3Client s3Client = S3Client.builder()
+                .region(Region.EU_CENTRAL_1)
+                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .build();
+        try {
+            for (MultipartFile file : files) {
+                String randomName = utilsService.getRandomName() + file.getName();
+
+                s3Client.putObject(PutObjectRequest.builder()
+                        .bucket(BUCKET)
+                        .key(randomName + ".jpg")
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                        .build(), RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+                uploadFiles.add("https://testingbucket00-0-1.s3.eu-central-1.amazonaws.com/" + randomName + ".jpg");
+            }
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(ErrorMessageHandler.INVALID_CATEGORY, files));
+        }
+        return new ImageDto(uploadFiles);
+    }
+
+    public InputStream resizeImageTo700KB(MultipartFile file) throws IOException {
+        // Прочитать изображение в байтовый массив
+        BufferedImage image = ImageIO.read(file.getInputStream());
+
+        // Уменьшить размер и качество изображения до 700 КБайт с помощью библиотеки Thumbnailator
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Thumbnails.of(image)
+                .size(700, 700)  // Указать размер
+                .outputQuality(0.8) // Указать качество (от 0.0 до 1.0)
+                .outputFormat("jpg") // Указать формат изображения (можно изменить на другой, если нужно)
+                .toOutputStream(outputStream);
+
+        // Вернуть уменьшенное изображение в виде InputStream
+        return new ByteArrayInputStream(outputStream.toByteArray());
+    }
+
+
 }

@@ -10,13 +10,17 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ua.marketplace.controllers.IProductController;
+import ua.marketplace.dto.ImageDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
+import ua.marketplace.services.impl.ImageService;
 import ua.marketplace.services.impl.ProductService;
 
 import java.security.Principal;
+import java.util.List;
 
 /**
  * Controller class for managing product-related operations.
@@ -27,6 +31,7 @@ import java.security.Principal;
 public class ProductControllerImp implements IProductController {
 
     private final ProductService productService;
+    private final ImageService imageService;
 
     /**
      * Retrieves all products for the main page.
@@ -146,5 +151,12 @@ public class ProductControllerImp implements IProductController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFavorite(Principal principal, @PathVariable Long id){
         productService.deleteFavorite(principal, id);
+    }
+
+    @PostMapping("/upload/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ImageDto uploadImage(@RequestParam("files") List<MultipartFile> files, Principal principal,
+                                @PathVariable Long id){
+        return imageService.upLoadFile(files, principal, id);
     }
 }
