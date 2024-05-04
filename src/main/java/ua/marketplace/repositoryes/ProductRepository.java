@@ -38,5 +38,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     void incrementProductViews(@Param("id") Long id);
 
     Page<Product> findAllByOwner(User user, Pageable pageable);
-
 }

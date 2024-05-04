@@ -1,4 +1,4 @@
-package ua.marketplace.services;
+package ua.marketplace.services.impl;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -20,6 +20,7 @@ import ua.marketplace.repositoryes.CategoryRepository;
 import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.requests.ProductRequest;
+import ua.marketplace.services.IProductService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.security.Principal;
@@ -99,7 +100,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductDto getProductDetails(Long id) {
 //        productRepository.incrementProductViews(id); //Треба протестити
-        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(getProductById(id));
+        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(utilsService.getProductById(id));
     }
 
     public void incrementViewProduct(HttpSession session, Long id){ //Надо тестировать!!
@@ -108,12 +109,6 @@ public class ProductService implements IProductService {
             productRepository.incrementProductViews(id);
             session.setAttribute(attributeName, "up");
         }
-    }
-
-    private Product getProductById(Long id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException
-                        (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.PRODUCT_NOT_FOUND, id)));
     }
 
     /**
@@ -177,7 +172,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductDto updateProduct(Principal principal, Long productId, ProductRequest request) {
         User user = utilsService.getUserByPrincipal(principal);
-        Product product = getProductById(productId);
+        Product product = utilsService.getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
@@ -217,7 +212,7 @@ public class ProductService implements IProductService {
     @Override
     public void deleteProduct(Principal principal, Long productId) {
         User user = utilsService.getUserByPrincipal(principal);
-        Product product = getProductById(productId);
+        Product product = utilsService.getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException
@@ -230,7 +225,7 @@ public class ProductService implements IProductService {
     @Override
     public void getFavorite(Principal principal, Long id) {
         User user = utilsService.getUserByPrincipal(principal);
-        Product productById = getProductById(id);
+        Product productById = utilsService.getProductById(id);
         validateFavorite(user, productById, "TRUE");
         Favorite favorite = Favorite.builder()
                 .user(user)
@@ -243,7 +238,7 @@ public class ProductService implements IProductService {
     @Transactional //проверить
     public void deleteFavorite(Principal principal, Long id) {
         User userByPrincipal = utilsService.getUserByPrincipal(principal);
-        Product productById = getProductById(id);
+        Product productById = utilsService.getProductById(id);
         validateFavorite(userByPrincipal, productById, "FALSE");
         Favorite byUserAndProduct = favoriteRepository.findByUserAndProduct(userByPrincipal, productById);
         userByPrincipal.getFavorites().remove(byUserAndProduct);
@@ -262,6 +257,5 @@ public class ProductService implements IProductService {
                     (HttpStatus.BAD_REQUEST, String.format(
                             ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
         }
-
     }
 }

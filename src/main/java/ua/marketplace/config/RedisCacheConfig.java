@@ -7,17 +7,26 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import java.time.Duration;
 
-@Configuration // Indicates that this class contains Spring bean definitions
+/**
+ * Configuration class for setting up Redis cache management.
+ * Indicates that this class contains Spring bean definitions.
+ */
+@Configuration
 public class RedisCacheConfig {
 
-    @Bean // Declares a method to produce a bean to be managed by the Spring container
+    /**
+     * Defines a Redis cache manager bean to be managed by the Spring container.
+     *
+     * @param connectionFactory The Redis connection factory to use for cache operations.
+     * @return A RedisCacheManager configured with default cache settings.
+     */
+    @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig() // Creates a Redis cache configuration with default settings
-            .entryTtl(Duration.ofMinutes(1)); // Sets the time-to-live (TTL) for cache entries to 1 minute
+        RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(1));
 
-        return RedisCacheManager.builder(connectionFactory) // Creates a Redis cache manager builder
-            .cacheDefaults(cacheConfiguration) // Sets the default cache configuration
-            .build(); // Builds and returns the Redis cache manager
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(cacheConfiguration)
+                .build();
     }
-
 }

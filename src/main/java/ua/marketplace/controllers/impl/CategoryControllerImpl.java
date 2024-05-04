@@ -1,11 +1,12 @@
-package ua.marketplace.controllers;
+package ua.marketplace.controllers.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ua.marketplace.controllers.ICategoryController;
 import ua.marketplace.entities.Category;
-import ua.marketplace.services.CategoryService;
+import ua.marketplace.services.impl.CategoryService;
 
 import java.util.List;
 
@@ -30,5 +31,4 @@ public class CategoryControllerImpl implements ICategoryController {
     public List<Category> getAllCategory() {
         return categoryService.getAllCategory();
     }
-
 }

@@ -1,4 +1,4 @@
-package ua.marketplace.controllers;
+package ua.marketplace.controllers.impl;
 
 import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
@@ -8,24 +8,33 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ua.marketplace.controllers.IUserController;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.UserDto;
-import ua.marketplace.services.UserService;
+import ua.marketplace.services.impl.UserService;
 
 import java.security.Principal;
 
+/**
+ * Controller class for managing user-related endpoints.
+ * Handles HTTP requests related to user profiles and actions.
+ */
 @RestController
 @RequestMapping("/v1/my-profile")
 @RequiredArgsConstructor
-public class UserControllerImp implements IUserController{
+public class UserControllerImp implements IUserController {
 
     private final UserService userService;
 
     /**
-     * This is the endpoint for viewing all user products.
+     * Retrieves all products associated with the logged-in user.
      *
-     * @param principal The principal (typically representing the logged-in user).
-     * @return A MainPageProductDto list containing information about all the user's products.
+     * @param number The page number for pagination (default: 0).
+     * @param size The page size for pagination (default: 10).
+     * @param sort The field to sort by (default: "creationDate").
+     * @param order The sort order (default: "ASC").
+     * @param principal The principal object representing the logged-in user.
+     * @return A Pagination object containing information about the user's products.
      */
     @GetMapping("/view/all")
     @ResponseStatus(HttpStatus.OK)
@@ -40,12 +49,28 @@ public class UserControllerImp implements IUserController{
         return userService.getViewMyProduct(number, size, sort, order, principal);
     }
 
+    /**
+     * Retrieves information about the logged-in user.
+     *
+     * @param principal The principal object representing the logged-in user.
+     * @return A UserDto object containing information about the user.
+     */
     @GetMapping("/info")
     @ResponseStatus(HttpStatus.OK)
     public UserDto getUserInfo(Principal principal){
         return userService.getUserInfo(principal);
     }
 
+    /**
+     * Retrieves all favorite products associated with the logged-in user.
+     *
+     * @param number The page number for pagination (default: 0).
+     * @param size The page size for pagination (default: 10).
+     * @param sort The field to sort by (default: "creationDate").
+     * @param order The sort order (default: "ASC").
+     * @param principal The principal object representing the logged-in user.
+     * @return A Pagination object containing information about the user's favorite products.
+     */
     @GetMapping("/favorite/all")
     @ResponseStatus(HttpStatus.OK)
     @Timed("getAllFavoriteForUser")

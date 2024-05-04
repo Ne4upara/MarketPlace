@@ -5,7 +5,9 @@ import lombok.*;
 import org.apache.commons.lang3.builder.ToStringExclude;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +18,7 @@ import java.util.Objects;
 @Table(name = "users")
 @Getter
 @Setter
-@ToString // Generates toString() method
+@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,30 +27,34 @@ public class User {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // The unique identifier for a user
+    private Long id;
 
     @Column(name = "phone_number", unique = true)
-    private String phoneNumber; // The user's phone number, unique for each user
+    private String phoneNumber;
 
     @Column(name = "first_name")
-    private String firstName; // The user's first name
+    private String firstName;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @ToString.Exclude // Exclude VerificationCode from toString() to avoid infinite recursion
-    private VerificationCode verificationCode; // The user's verification code
+    @ToString.Exclude
+    private VerificationCode verificationCode;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToStringExclude
     private List<Favorite> favorites;
 
     @Column(name = "role", insertable = false)
-    private String role; // The user's role, populated from the Role entity
+    private String role;
 
     @Column(name = "is_enabled", insertable = false)
-    private Boolean isEnabled; // The user's enabled status, populated from the UserStatus entity
+    private Boolean isEnabled;
 
     @Column(name = "creation_date")
-    private LocalDateTime creationDate; // The date and time when the user was created
+    private LocalDateTime creationDate;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ToString.Exclude
+    private OrderList orderList;
 
     /**
      * A method called before the entity is persisted to the database. Sets the creation date to the current date and time.
@@ -56,6 +62,13 @@ public class User {
     @PrePersist
     protected void onCreate() {
         creationDate = LocalDateTime.now();
+
+        if(this.orderList == null){
+            this.orderList = new OrderList();
+            this.orderList.setUser(this);
+            this.orderList.setProducts(new ArrayList<>());
+            this.orderList.setTotalPrice(BigDecimal.ZERO);
+        }
     }
 
     /**
@@ -83,4 +96,3 @@ public class User {
     }
 
 }
-

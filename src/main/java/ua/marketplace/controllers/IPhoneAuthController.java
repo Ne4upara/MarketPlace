@@ -77,5 +77,4 @@ public interface IPhoneAuthController {
             @ApiResponse(responseCode = "204", description = "Logout successfully")
     })
     void logout(HttpServletRequest request, HttpSession session);
-
 }

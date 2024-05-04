@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.repositoryes.PhotoRepository;
+import ua.marketplace.services.impl.ImageService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.lang.reflect.Method;
@@ -55,9 +56,8 @@ class ImageServiceTest {
         Product product = new Product();
 
         // When & Then
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            imageService.getPhotoLinks(photos, product);
-        });
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> imageService.getPhotoLinks(photos, product));
 
         assertEquals(HttpStatus.BAD_REQUEST + " \""
                         + String.format(ErrorMessageHandler.MAX_LOAD_PHOTO + "\"")

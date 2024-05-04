@@ -2,6 +2,7 @@ package ua.marketplace.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.web.bind.annotation.RequestParam;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.UserDto;
+import ua.marketplace.swagger.responses.ErrorMessageResponse;
 
 import java.security.Principal;
 
@@ -36,6 +38,12 @@ public interface IUserController {
 
     @Operation(summary = "Get all info user.",
             description = "Endpoint get all info user.")
+    @ApiResponses(value =  {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "401", description = "User not authorize", content = @Content(
+                    schema = @Schema(implementation = ErrorMessageResponse.class))),
+            @ApiResponse(responseCode = "403", description = "JWT token is missing", content = @Content())
+    })
     UserDto getUserInfo(Principal principal);
 
     @Operation(summary = "Get all user's favorite products.",

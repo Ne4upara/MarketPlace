@@ -5,6 +5,11 @@ import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Entity class representing a favorite association between a user and a product.
+ * Contains information about the association, including its ID, associated user,
+ * associated product, and creation date.
+ */
 @Entity
 @Table(name = "favorites")
 @Getter
@@ -29,6 +34,10 @@ public class Favorite {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
+    /**
+     * Callback method executed before the entity is persisted.
+     * Sets the creation date to the current date and time.
+     */
     @PrePersist
     protected void onCreate() {
         creationDate = LocalDateTime.now();

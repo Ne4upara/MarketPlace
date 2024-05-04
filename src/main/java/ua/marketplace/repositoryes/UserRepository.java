@@ -28,5 +28,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return true if a user with the specified phone number exists, false otherwise
      */
     Boolean existsByPhoneNumber(String phone);
-
 }
