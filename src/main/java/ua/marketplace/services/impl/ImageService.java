@@ -139,10 +139,11 @@ public class ImageService implements IImageService {
         List<String> uploadFiles = new ArrayList<>();
 
         try {
+            S3Client s3Client = s3Client();
             for (MultipartFile file : files) {
                 String randomName = utilsService.getRandomName() + file.getOriginalFilename();
 
-                s3Client().putObject(PutObjectRequest.builder()
+                s3Client.putObject(PutObjectRequest.builder()
                         .bucket(BUCKET)
                         .key(randomName)
                         .acl(ObjectCannedACL.PUBLIC_READ)
@@ -162,21 +163,21 @@ public class ImageService implements IImageService {
                 .build();
     }
 
-    public InputStream resizeImageTo700KB(MultipartFile file) throws IOException {
-        // Прочитать изображение в байтовый массив
-        BufferedImage image = ImageIO.read(file.getInputStream());
-
-        // Уменьшить размер и качество изображения до 700 КБайт с помощью библиотеки Thumbnailator
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Thumbnails.of(image)
-                .size(700, 700)  // Указать размер
-                .outputQuality(0.8) // Указать качество (от 0.0 до 1.0)
-                .outputFormat("jpg") // Указать формат изображения (можно изменить на другой, если нужно)
-                .toOutputStream(outputStream);
-
-        // Вернуть уменьшенное изображение в виде InputStream
-        return new ByteArrayInputStream(outputStream.toByteArray());
-    }
+//    public InputStream resizeImageTo700KB(MultipartFile file) throws IOException {
+//        // Прочитать изображение в байтовый массив
+//        BufferedImage image = ImageIO.read(file.getInputStream());
+//
+//        // Уменьшить размер и качество изображения до 700 КБайт с помощью библиотеки Thumbnailator
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        Thumbnails.of(image)
+//                .size(700, 700)  // Указать размер
+//                .outputQuality(0.8) // Указать качество (от 0.0 до 1.0)
+//                .outputFormat("jpg") // Указать формат изображения (можно изменить на другой, если нужно)
+//                .toOutputStream(outputStream);
+//
+//        // Вернуть уменьшенное изображение в виде InputStream
+//        return new ByteArrayInputStream(outputStream.toByteArray());
+//    }
 
 
 }
