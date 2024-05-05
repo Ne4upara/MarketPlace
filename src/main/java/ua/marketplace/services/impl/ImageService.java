@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,6 +40,7 @@ public class ImageService implements IImageService {
     private final UtilsService utilsService;
     private static final int MAX_PHOTOS_ALLOWED = 8;
     private static final String BUCKET = "testingbucket00-0-1";
+    private static final String URL = ErrorMessageHandler.URL_IMAGE_FOR_UPLOAD;
 
     /**
      * Retrieves a list of product photos based on the provided photo URLs and product.
@@ -137,25 +137,29 @@ public class ImageService implements IImageService {
     public ImageDto upLoadFile(List<MultipartFile> files, Principal principal, Long id) {
         utilsService.getUserByPrincipal(principal);
         List<String> uploadFiles = new ArrayList<>();
-        S3Client s3Client = S3Client.builder()
-                .region(Region.EU_CENTRAL_1)
-                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
-                .build();
+
         try {
             for (MultipartFile file : files) {
-                String randomName = utilsService.getRandomName() + file.getName();
+                String randomName = utilsService.getRandomName() + file.getOriginalFilename();
 
-                s3Client.putObject(PutObjectRequest.builder()
+                s3Client().putObject(PutObjectRequest.builder()
                         .bucket(BUCKET)
-                        .key(randomName + ".jpg")
+                        .key(randomName)
                         .acl(ObjectCannedACL.PUBLIC_READ)
                         .build(), RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
-                uploadFiles.add("https://testingbucket00-0-1.s3.eu-central-1.amazonaws.com/" + randomName + ".jpg");
+                uploadFiles.add(URL + randomName);
             }
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(ErrorMessageHandler.INVALID_CATEGORY, files));
         }
         return new ImageDto(uploadFiles);
+    }
+
+    private S3Client s3Client(){
+        return S3Client.builder()
+                .region(Region.EU_CENTRAL_1)
+                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .build();
     }
 
     public InputStream resizeImageTo700KB(MultipartFile file) throws IOException {
