@@ -9,11 +9,13 @@ import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsPro
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import ua.marketplace.dto.ImageDto;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
+import ua.marketplace.entities.User;
 import ua.marketplace.repositoryes.PhotoRepository;
 import ua.marketplace.services.IImageService;
 import ua.marketplace.utils.ErrorMessageHandler;
@@ -21,10 +23,7 @@ import net.coobird.thumbnailator.Thumbnails;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class ImageService implements IImageService {
     private final UtilsService utilsService;
     private static final int MAX_PHOTOS_ALLOWED = 8;
     private static final String BUCKET = "testingbucket00-0-1";
-    private static final String URL = ErrorMessageHandler.URL_IMAGE_FOR_UPLOAD;
+    private static final String URL = "https://testingbucket00-0-1.s3.eu-central-1.amazonaws.com/";
 
     /**
      * Retrieves a list of product photos based on the provided photo URLs and product.
@@ -134,26 +133,35 @@ public class ImageService implements IImageService {
         }
     }
 
-    public ImageDto upLoadFile(List<MultipartFile> files, Principal principal, Long id) {
-        utilsService.getUserByPrincipal(principal);
+    public List<String> upLoadFile(List<MultipartFile> files) {
         List<String> uploadFiles = new ArrayList<>();
 
-        try {
-            S3Client s3Client = s3Client();
             for (MultipartFile file : files) {
                 String randomName = utilsService.getRandomName() + file.getOriginalFilename();
 
-                s3Client.putObject(PutObjectRequest.builder()
-                        .bucket(BUCKET)
-                        .key(randomName)
-                        .acl(ObjectCannedACL.PUBLIC_READ)
-                        .build(), RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+                try {
+                    s3Client().putObject(PutObjectRequest.builder()
+                            .bucket(BUCKET)
+                            .key(randomName)
+                            .acl(ObjectCannedACL.PUBLIC_READ)
+                            .build(), RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+                } catch (IOException e) {
+                    throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+                }
                 uploadFiles.add(URL + randomName);
+                isMaxLink(uploadFiles.size());
             }
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(ErrorMessageHandler.INVALID_CATEGORY, files));
+
+        return uploadFiles;
+    }
+
+    public void deleteFile(List<ProductPhoto> photos){
+        for (ProductPhoto photo : photos) {
+            s3Client().deleteObject(DeleteObjectRequest.builder()
+                    .bucket(BUCKET)
+                    .key(photo.getPhotoLink().replace(URL, ""))
+                    .build());
         }
-        return new ImageDto(uploadFiles);
     }
 
     private S3Client s3Client(){
@@ -162,6 +170,8 @@ public class ImageService implements IImageService {
                 .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
                 .build();
     }
+
+
 
 //    public InputStream resizeImageTo700KB(MultipartFile file) throws IOException {
 //        // Прочитать изображение в байтовый массив

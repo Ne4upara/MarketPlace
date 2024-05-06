@@ -7,14 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import ua.marketplace.dto.ImageDto;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
-import ua.marketplace.entities.Category;
-import ua.marketplace.entities.Favorite;
-import ua.marketplace.entities.Product;
-import ua.marketplace.entities.User;
+import ua.marketplace.entities.*;
 import ua.marketplace.mapper.ProductMapper;
 import ua.marketplace.repositoryes.CategoryRepository;
 import ua.marketplace.repositoryes.FavoriteRepository;
@@ -219,6 +218,7 @@ public class ProductService implements IProductService {
                     (HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
 
+        imageService.deleteFile(product.getPhotos()); //new
         productRepository.delete(product);
     }
 
@@ -257,5 +257,35 @@ public class ProductService implements IProductService {
                     (HttpStatus.BAD_REQUEST, String.format(
                             ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
         }
+    }
+
+
+    public ProductDto test(Principal principal, ProductRequest request, List<MultipartFile> files) {
+        User user = utilsService.getUserByPrincipal(principal);
+        Product product = testtwo(request, user, files);
+
+        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(productRepository.save(product));
+    }
+
+    private Product testtwo(ProductRequest request, User user, List<MultipartFile> files) {
+
+        Product product = Product
+                .builder()
+                .productName(request.productName())
+                .productPrice(request.productPrice())
+                .productDescription(request.productDescription())
+                .category(getCategory(request.productCategory()))
+                .productType(request.productType())
+                .owner(user)
+                .sellerName(request.sellerName())
+                .sellerPhoneNumber(request.sellerPhoneNumber())
+                .sellerEmail(request.sellerEmail())
+                .location(request.location())
+                .build();
+
+        List<String> listPhotoLinks = imageService.upLoadFile(files);
+
+        product.setPhotos(imageService.getPhotoLinks(listPhotoLinks, product));
+        return product;
     }
 }

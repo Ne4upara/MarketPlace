@@ -153,10 +153,18 @@ public class ProductControllerImp implements IProductController {
         productService.deleteFavorite(principal, id);
     }
 
-    @PostMapping("/upload/{id}")
+//    @PostMapping("/upload")
+//    @ResponseStatus(HttpStatus.CREATED)
+//    public ImageDto uploadImage(@RequestParam("files") List<MultipartFile> files, Principal principal){
+//        return imageService.upLoadFile(files, principal);
+//    }
+
+    @PostMapping("/test")
+    @Timed("getCreateProduct")
     @ResponseStatus(HttpStatus.CREATED)
-    public ImageDto uploadImage(@RequestParam("files") List<MultipartFile> files, Principal principal,
-                                @PathVariable Long id){
-        return imageService.upLoadFile(files, principal, id);
+    @Counted(value = "create.request", description = "This counted for create request.")
+    public ProductDto test(Principal principal, @Valid @RequestPart("request") ProductRequest request,
+                           @RequestPart("files") List<MultipartFile> files) {
+        return productService.test(principal, request, files);
     }
 }
