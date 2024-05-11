@@ -18,6 +18,7 @@ import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Service class for utility operations.
@@ -89,5 +90,10 @@ public class UtilsService {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.PRODUCT_NOT_FOUND, id)));
+    }
+
+    public String getRandomName(){
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString();
     }
 }

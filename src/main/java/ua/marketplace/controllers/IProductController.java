@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
@@ -20,6 +21,7 @@ import ua.marketplace.swagger.responses.ErrorMessageResponse;
 import ua.marketplace.swagger.responses.ValidationErrorResponse;
 
 import java.security.Principal;
+import java.util.List;
 
 @Tag(name = "Product controller",
         description = "Endpoints for CRUD operations for products")
@@ -75,7 +77,8 @@ public interface IProductController {
             (@Parameter(description = "Principal object representing the authenticated user") Principal principal,
              @Parameter(description = "Request body containing product details", schema =
              @Schema(implementation = ProductRequest.class))
-             @Valid @RequestBody ProductRequest request);
+             @Valid @RequestPart("request") ProductRequest request,
+             @RequestPart("files") List<MultipartFile> files );
 
     @Operation(summary = "Update an existing product", description = "Endpoint to update an existing product")
     @ApiResponses(value = {
@@ -95,7 +98,8 @@ public interface IProductController {
                              @Parameter(description = "ID of the product to be updated") Long id,
                              @Parameter(description = "Request body containing updated product details",
                                      schema = @Schema(implementation = ProductRequest.class))
-                             @Valid @RequestBody ProductRequest request);
+                             @Valid @RequestPart("request") ProductRequest request,
+                             @RequestPart("files") List<MultipartFile> files);
 
     @Operation(summary = "Delete a product", description = "Endpoint to delete a product")
     @ApiResponses(value = {

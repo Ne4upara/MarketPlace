@@ -10,6 +10,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ua.marketplace.controllers.IProductController;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
@@ -17,6 +18,7 @@ import ua.marketplace.requests.ProductRequest;
 import ua.marketplace.services.impl.ProductService;
 
 import java.security.Principal;
+import java.util.List;
 
 /**
  * Controller class for managing product-related operations.
@@ -91,8 +93,9 @@ public class ProductControllerImp implements IProductController {
     @Timed("getCreateProduct")
     @ResponseStatus(HttpStatus.CREATED)
     @Counted(value = "create.request", description = "This counted for create request.")
-    public ProductDto createProduct(Principal principal, @Valid @RequestBody ProductRequest request) {
-        return productService.saveProduct(principal, request);
+    public ProductDto createProduct(Principal principal, @Valid @RequestPart("request") ProductRequest request,
+                                    @RequestPart("files") List<MultipartFile> files) {
+        return productService.saveProduct(principal, request, files);
     }
 
     /**
@@ -107,8 +110,9 @@ public class ProductControllerImp implements IProductController {
     @Timed("getUpdateProduct")
     @ResponseStatus(HttpStatus.OK)
     public ProductDto updateProduct
-    (Principal principal, @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
-        return productService.updateProduct(principal, id, request);
+    (Principal principal, @PathVariable Long id, @Valid @RequestPart("request") ProductRequest request,
+     @RequestPart("files") List<MultipartFile> files) {
+        return productService.updateProduct(principal, id, request, files);
     }
 
     /**

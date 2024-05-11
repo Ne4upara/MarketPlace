@@ -7,14 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import ua.marketplace.dto.ImageDto;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
-import ua.marketplace.entities.Category;
-import ua.marketplace.entities.Favorite;
-import ua.marketplace.entities.Product;
-import ua.marketplace.entities.User;
+import ua.marketplace.entities.*;
 import ua.marketplace.mapper.ProductMapper;
 import ua.marketplace.repositoryes.CategoryRepository;
 import ua.marketplace.repositoryes.FavoriteRepository;
@@ -119,14 +118,14 @@ public class ProductService implements IProductService {
      * @return ProductDto containing details of the newly saved product.
      */
     @Override
-    public ProductDto saveProduct(Principal principal, ProductRequest request) {
+    public ProductDto saveProduct(Principal principal, ProductRequest request,List<MultipartFile> files) {
         User user = utilsService.getUserByPrincipal(principal);
-        Product product = createProduct(request, user);
+        Product product = createProduct(request, user, files);
 
         return ProductMapper.PRODUCT_INSTANCE.productToProductDto(productRepository.save(product));
     }
 
-    private Product createProduct(ProductRequest request, User user) {
+    private Product createProduct(ProductRequest request, User user, List<MultipartFile> files) {
 
         Product product = Product
                 .builder()
@@ -142,7 +141,7 @@ public class ProductService implements IProductService {
                 .location(request.location())
                 .build();
 
-        product.setPhotos(imageService.getPhotoLinks(request.productPhotoLink(), product));
+        product.setPhotos(imageService.getPhotoLinks(files, product));
         return product;
     }
 
@@ -170,18 +169,19 @@ public class ProductService implements IProductService {
      * @throws ResponseStatusException if the product is not found or not authorized.
      */
     @Override
-    public ProductDto updateProduct(Principal principal, Long productId, ProductRequest request) {
+    public ProductDto updateProduct(Principal principal, Long productId,
+                                    ProductRequest request, List<MultipartFile> files) {
         User user = utilsService.getUserByPrincipal(principal);
         Product product = utilsService.getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
-        imageService.deleteExcessPhotos(request.productPhotoLink().size(), product);
+//        imageService.deleteExcessPhotos(files.size(), product);
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
-                    p.setPhotos(imageService.getUpdateLinks(request.productPhotoLink(), p));
+                    p.setPhotos(imageService.getUpdateLinks(files, p));
                     p.setProductPrice(request.productPrice());
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));
@@ -219,6 +219,7 @@ public class ProductService implements IProductService {
                     (HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
 
+        imageService.deleteFile(product.getPhotos()); //new
         productRepository.delete(product);
     }
 

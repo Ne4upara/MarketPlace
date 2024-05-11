@@ -31,6 +31,12 @@ public class ProductPhoto {
     @Column(name = "photo_link")
     private String photoLink;
 
+    @Column(name = "number_photo")
+    private Integer numberPhoto;
+
+    @Column(name = "original_name")
+    private String originalName;
+
     @Column(name = "main_page")
     private boolean mainPage;
 
