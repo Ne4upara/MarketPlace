@@ -74,6 +74,7 @@ public interface ProductMapper {
 
     default List<String> getAllPhotoLink(Product product) {
         return product.getPhotos().stream()
+                .filter(photo -> !photo.isMainPage())
                 .map(ProductPhoto::getPhotoLink)
                 .toList();
     }

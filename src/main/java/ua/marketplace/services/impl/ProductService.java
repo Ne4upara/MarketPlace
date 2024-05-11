@@ -118,14 +118,14 @@ public class ProductService implements IProductService {
      * @return ProductDto containing details of the newly saved product.
      */
     @Override
-    public ProductDto saveProduct(Principal principal, ProductRequest request) {
+    public ProductDto saveProduct(Principal principal, ProductRequest request,List<MultipartFile> files) {
         User user = utilsService.getUserByPrincipal(principal);
-        Product product = createProduct(request, user);
+        Product product = createProduct(request, user, files);
 
         return ProductMapper.PRODUCT_INSTANCE.productToProductDto(productRepository.save(product));
     }
 
-    private Product createProduct(ProductRequest request, User user) {
+    private Product createProduct(ProductRequest request, User user, List<MultipartFile> files) {
 
         Product product = Product
                 .builder()
@@ -141,7 +141,7 @@ public class ProductService implements IProductService {
                 .location(request.location())
                 .build();
 
-        product.setPhotos(imageService.getPhotoLinks(request.productPhotoLink(), product));
+        product.setPhotos(imageService.getPhotoLinks(files, product));
         return product;
     }
 
@@ -169,18 +169,19 @@ public class ProductService implements IProductService {
      * @throws ResponseStatusException if the product is not found or not authorized.
      */
     @Override
-    public ProductDto updateProduct(Principal principal, Long productId, ProductRequest request) {
+    public ProductDto updateProduct(Principal principal, Long productId,
+                                    ProductRequest request, List<MultipartFile> files) {
         User user = utilsService.getUserByPrincipal(principal);
         Product product = utilsService.getProductById(productId);
 
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
-        imageService.deleteExcessPhotos(request.productPhotoLink().size(), product);
+//        imageService.deleteExcessPhotos(files.size(), product);
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
-                    p.setPhotos(imageService.getUpdateLinks(request.productPhotoLink(), p));
+                    p.setPhotos(imageService.getUpdateLinks(files, p));
                     p.setProductPrice(request.productPrice());
                     p.setProductDescription(request.productDescription());
                     p.setCategory(getCategory(request.productCategory()));
@@ -257,35 +258,5 @@ public class ProductService implements IProductService {
                     (HttpStatus.BAD_REQUEST, String.format(
                             ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
         }
-    }
-
-
-    public ProductDto test(Principal principal, ProductRequest request, List<MultipartFile> files) {
-        User user = utilsService.getUserByPrincipal(principal);
-        Product product = testtwo(request, user, files);
-
-        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(productRepository.save(product));
-    }
-
-    private Product testtwo(ProductRequest request, User user, List<MultipartFile> files) {
-
-        Product product = Product
-                .builder()
-                .productName(request.productName())
-                .productPrice(request.productPrice())
-                .productDescription(request.productDescription())
-                .category(getCategory(request.productCategory()))
-                .productType(request.productType())
-                .owner(user)
-                .sellerName(request.sellerName())
-                .sellerPhoneNumber(request.sellerPhoneNumber())
-                .sellerEmail(request.sellerEmail())
-                .location(request.location())
-                .build();
-
-        List<String> listPhotoLinks = imageService.upLoadFile(files);
-
-        product.setPhotos(imageService.getPhotoLinks(listPhotoLinks, product));
-        return product;
     }
 }

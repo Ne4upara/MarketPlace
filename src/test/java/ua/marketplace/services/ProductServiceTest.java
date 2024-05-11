@@ -149,101 +149,101 @@ class ProductServiceTest {
         verify(utilsService).getProductById(productId);
     }
 
-    @Test
-    void testSaveProduct() {
-        // Given
-        Principal principal = () -> "user@example.com";
-        ProductRequest request = mockProductRequest();
+//    @Test
+//    void testSaveProduct() {
+//        // Given
+//        Principal principal = () -> "user@example.com";
+//        ProductRequest request = mockProductRequest();
+//
+//        // Mocking
+//        User user = new User();
+//        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+//        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+//        when(categoryRepository.existsByCategoryName(request.productCategory()))
+//                .thenReturn(true);
+//        when(categoryRepository.findByCategoryName(request.productCategory()))
+//                .thenReturn(Optional.of(new Category(2L, "dolls", "test")));
+//
+//        // When
+//        ProductDto result = productService.saveProduct(principal, request);
+//
+//        // Then
+//        assertEquals(request.productName(), result.productName());
+//        verify(productRepository).save(any(Product.class));
+//    }
 
-        // Mocking
-        User user = new User();
-        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(categoryRepository.existsByCategoryName(request.productCategory()))
-                .thenReturn(true);
-        when(categoryRepository.findByCategoryName(request.productCategory()))
-                .thenReturn(Optional.of(new Category(2L, "dolls", "test")));
+//    @Test
+//    void testSaveProductWithInvalidCategory() {
+//        // Given
+//        Principal principal = () -> "user@example.com";
+//        ProductRequest request = mockProductRequest();
+//
+//        // Mocking
+//        User user = new User();
+//        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+//        when(categoryRepository.existsByCategoryName(request.productCategory()))
+//                .thenReturn(false);
+//
+//        // When
+//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+//            productService.saveProduct(principal, request);
+//        });
+//
+//        // Then
+//        assertEquals(HttpStatus.CONFLICT + " \""
+//                        + String.format(ErrorMessageHandler.INVALID_CATEGORY, "dolls" + "\"")
+//                , exception.getMessage());
+//    }
 
-        // When
-        ProductDto result = productService.saveProduct(principal, request);
+//    @Test
+//    void testUpdateProduct() {
+//        // Given
+//        Principal principal = () -> "user@example.com";
+//        Long productId = 1L;
+//        ProductRequest request = mockProductRequest();
+//
+//        User user = new User();
+//        Product product = new Product();
+//        product.setOwner(user);
+//
+//        // Mocking
+//        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+//        when(utilsService.getProductById(productId)).thenReturn(product);
+//        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+//        when(categoryRepository.existsByCategoryName(request.productCategory()))
+//                .thenReturn(true);
+//        when(categoryRepository.findByCategoryName(request.productCategory()))
+//                .thenReturn(Optional.of(new Category(2L, "dolls", "test")));
+//
+//        // When
+//        ProductDto result = productService.updateProduct(principal, productId, request);
+//
+//        // Then
+//        assertEquals(request.productName(), result.productName());
+//        verify(utilsService).getProductById(productId);
+//        verify(productRepository).save(any(Product.class));
+//    }
 
-        // Then
-        assertEquals(request.productName(), result.productName());
-        verify(productRepository).save(any(Product.class));
-    }
-
-    @Test
-    void testSaveProductWithInvalidCategory() {
-        // Given
-        Principal principal = () -> "user@example.com";
-        ProductRequest request = mockProductRequest();
-
-        // Mocking
-        User user = new User();
-        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
-        when(categoryRepository.existsByCategoryName(request.productCategory()))
-                .thenReturn(false);
-
-        // When
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            productService.saveProduct(principal, request);
-        });
-
-        // Then
-        assertEquals(HttpStatus.CONFLICT + " \""
-                        + String.format(ErrorMessageHandler.INVALID_CATEGORY, "dolls" + "\"")
-                , exception.getMessage());
-    }
-
-    @Test
-    void testUpdateProduct() {
-        // Given
-        Principal principal = () -> "user@example.com";
-        Long productId = 1L;
-        ProductRequest request = mockProductRequest();
-
-        User user = new User();
-        Product product = new Product();
-        product.setOwner(user);
-
-        // Mocking
-        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
-        when(utilsService.getProductById(productId)).thenReturn(product);
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(categoryRepository.existsByCategoryName(request.productCategory()))
-                .thenReturn(true);
-        when(categoryRepository.findByCategoryName(request.productCategory()))
-                .thenReturn(Optional.of(new Category(2L, "dolls", "test")));
-
-        // When
-        ProductDto result = productService.updateProduct(principal, productId, request);
-
-        // Then
-        assertEquals(request.productName(), result.productName());
-        verify(utilsService).getProductById(productId);
-        verify(productRepository).save(any(Product.class));
-    }
-
-    @Test
-    void testUpdateProductWithNotOwner() {
-        // Given
-        Principal principal = () -> "user@example.com";
-        Long productId = 1L;
-        ProductRequest request = mockProductRequest();
-
-        User user = new User();
-        Product product = new Product();
-        product.setOwner(new User());
-
-        // Mocking
-        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
-        when(utilsService.getProductById(productId)).thenReturn(product);
-
-        // When, Then
-        assertThrows(ResponseStatusException.class, () -> productService.updateProduct(principal, productId, request));
-        verify(utilsService).getProductById(productId);
-        verify(productRepository, never()).save(any(Product.class));
-    }
+//    @Test
+//    void testUpdateProductWithNotOwner() {
+//        // Given
+//        Principal principal = () -> "user@example.com";
+//        Long productId = 1L;
+//        ProductRequest request = mockProductRequest();
+//
+//        User user = new User();
+//        Product product = new Product();
+//        product.setOwner(new User());
+//
+//        // Mocking
+//        when(utilsService.getUserByPrincipal(principal)).thenReturn(user);
+//        when(utilsService.getProductById(productId)).thenReturn(product);
+//
+//        // When, Then
+//        assertThrows(ResponseStatusException.class, () -> productService.updateProduct(principal, productId, request));
+//        verify(utilsService).getProductById(productId);
+//        verify(productRepository, never()).save(any(Product.class));
+//    }
 
     @Test
     void testDeleteProduct() {

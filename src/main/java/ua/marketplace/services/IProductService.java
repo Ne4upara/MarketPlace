@@ -4,11 +4,13 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.web.multipart.MultipartFile;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
 
 import java.security.Principal;
+import java.util.List;
 
 /**
  * Interface defining the contract for product-related operations.
@@ -35,7 +37,7 @@ public interface IProductService {
             @CacheEvict(value = "product", key = "#result.id"),
             @CacheEvict(value = "products", allEntries = true)
     })
-    ProductDto saveProduct(Principal principal, ProductRequest request);
+    ProductDto saveProduct(Principal principal, ProductRequest request, List<MultipartFile> files);
 
     /**
      * Updates an existing product.
@@ -49,7 +51,8 @@ public interface IProductService {
             @CacheEvict(value = "product", key = "#productId"),
             @CacheEvict(value = "products", allEntries = true)
     })
-    ProductDto updateProduct(Principal principal, Long productId, ProductRequest request);
+    ProductDto updateProduct(Principal principal, Long productId,
+                             ProductRequest request, List<MultipartFile> files);
 
     /**
      * Deletes a product.

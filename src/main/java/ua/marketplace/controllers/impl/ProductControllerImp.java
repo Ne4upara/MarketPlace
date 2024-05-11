@@ -12,11 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ua.marketplace.controllers.IProductController;
-import ua.marketplace.dto.ImageDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
-import ua.marketplace.services.impl.ImageService;
 import ua.marketplace.services.impl.ProductService;
 
 import java.security.Principal;
@@ -31,7 +29,6 @@ import java.util.List;
 public class ProductControllerImp implements IProductController {
 
     private final ProductService productService;
-    private final ImageService imageService;
 
     /**
      * Retrieves all products for the main page.
@@ -96,8 +93,9 @@ public class ProductControllerImp implements IProductController {
     @Timed("getCreateProduct")
     @ResponseStatus(HttpStatus.CREATED)
     @Counted(value = "create.request", description = "This counted for create request.")
-    public ProductDto createProduct(Principal principal, @Valid @RequestBody ProductRequest request) {
-        return productService.saveProduct(principal, request);
+    public ProductDto createProduct(Principal principal, @Valid @RequestPart("request") ProductRequest request,
+                                    @RequestPart("files") List<MultipartFile> files) {
+        return productService.saveProduct(principal, request, files);
     }
 
     /**
@@ -112,8 +110,9 @@ public class ProductControllerImp implements IProductController {
     @Timed("getUpdateProduct")
     @ResponseStatus(HttpStatus.OK)
     public ProductDto updateProduct
-    (Principal principal, @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
-        return productService.updateProduct(principal, id, request);
+    (Principal principal, @PathVariable Long id, @Valid @RequestPart("request") ProductRequest request,
+     @RequestPart("files") List<MultipartFile> files) {
+        return productService.updateProduct(principal, id, request, files);
     }
 
     /**
@@ -151,20 +150,5 @@ public class ProductControllerImp implements IProductController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFavorite(Principal principal, @PathVariable Long id){
         productService.deleteFavorite(principal, id);
-    }
-
-//    @PostMapping("/upload")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public ImageDto uploadImage(@RequestParam("files") List<MultipartFile> files, Principal principal){
-//        return imageService.upLoadFile(files, principal);
-//    }
-
-    @PostMapping("/test")
-    @Timed("getCreateProduct")
-    @ResponseStatus(HttpStatus.CREATED)
-    @Counted(value = "create.request", description = "This counted for create request.")
-    public ProductDto test(Principal principal, @Valid @RequestPart("request") ProductRequest request,
-                           @RequestPart("files") List<MultipartFile> files) {
-        return productService.test(principal, request, files);
     }
 }
