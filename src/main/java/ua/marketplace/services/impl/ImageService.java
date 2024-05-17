@@ -140,11 +140,12 @@ public class ImageService implements IImageService {
 
         if (filesSize == 0){
             ProductPhoto productPhoto = product.getPhotos().get(0);
+            delFil(productPhoto.getPhotoLink());
             productPhoto.setPhotoLink(ErrorMessageHandler.DEFAULT_IMAGE_LINK);
             productPhoto.setOriginalName("notName");
             photoRepository.save(productPhoto);
             ProductPhoto productPhoto1 = productPhotos.get(0);
-            delFil(productPhoto1.getOriginalName());
+            delFil(productPhoto1.getPhotoLink());
             productPhoto1.setPhotoLink(ErrorMessageHandler.DEFAULT_IMAGE_LINK);
             productPhoto1.setOriginalName("notName");
         }
