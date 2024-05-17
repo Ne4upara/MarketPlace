@@ -144,6 +144,7 @@ public class ImageService implements IImageService {
             productPhoto.setOriginalName("notName");
             photoRepository.save(productPhoto);
             ProductPhoto productPhoto1 = productPhotos.get(0);
+            delFil(productPhoto1.getOriginalName());
             productPhoto1.setPhotoLink(ErrorMessageHandler.DEFAULT_IMAGE_LINK);
             productPhoto1.setOriginalName("notName");
         }
