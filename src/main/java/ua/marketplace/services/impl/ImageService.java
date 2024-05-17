@@ -27,7 +27,9 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the {@link IImageService} interface for managing images associated with products.
@@ -47,10 +49,13 @@ public class ImageService implements IImageService {
     public List<ProductPhoto> getPhotoLinks(List<MultipartFile> files, Product product) {
         isMaxLink(files);
         List<ProductPhoto> productPhotos = createPhotoMainPage(files.get(0), product);
-
+        String photoLink = ErrorMessageHandler.DEFAULT_IMAGE_LINK;
+        String originalFilename = "notName";
         for (int i = 0; i < files.size(); i++) {
-            String photoLink = upLoadFile(files.get(i));
-            String originalFilename = files.get(i).getOriginalFilename();
+            if(!files.get(i).getOriginalFilename().isEmpty()){
+                photoLink = upLoadFile(files.get(i));
+                 originalFilename = files.get(i).getOriginalFilename();
+            }
             ProductPhoto productPhoto = createProductPhoto(
                     photoLink, product, originalFilename, false, i + 1);
             productPhotos.add(productPhoto);
@@ -85,15 +90,28 @@ public class ImageService implements IImageService {
      */
     @Override
     public List<ProductPhoto> getUpdateLinks(List<MultipartFile> files, Product product) {
-        List<ProductPhoto> productPhotos = product.getPhotos();//2
+        List<ProductPhoto> productPhotos = product.getPhotos().stream()
+                .filter(p -> !p.isMainPage())
+                .sorted(Comparator.comparingInt(ProductPhoto::getNumberPhoto))
+                .collect(Collectors.toList());
+        int filesSize = files.size();
+        if(files.size() == 1 && (files.get(0).getOriginalFilename().isEmpty())) {
+            filesSize = 0;
+        }
 
-        for (int i = 0; i < files.size(); i++) {//2
-            MultipartFile multipartFile = files.get(i);//0
-            if (i < productPhotos.size() - 1) {
-                ProductPhoto productPhoto = productPhotos.get(i + 1);//1
-                if (!productPhoto.getOriginalName().equals(multipartFile.getOriginalFilename())) {
+        for (int i = 0; i < filesSize; i++) {
+            MultipartFile multipartFile = files.get(i);
+            if (i < productPhotos.size()) {
+                ProductPhoto productPhoto = productPhotos.get(i);
+                if (!productPhoto.getOriginalName().equals(multipartFile.getOriginalFilename()) && !files.isEmpty()) {
                     delFil(productPhoto.getPhotoLink());
                     String newUrl = upLoadFile(multipartFile);
+                    if(i == 0){
+                        ProductPhoto productPhotoMain = product.getPhotos().get(0);
+                        productPhotoMain.setPhotoLink(newUrl);
+                        productPhotoMain.setOriginalName(multipartFile.getOriginalFilename());
+                        photoRepository.save(productPhotoMain);
+                    }
                     productPhoto.setPhotoLink(newUrl);
                     productPhoto.setOriginalName(multipartFile.getOriginalFilename());
                 }
@@ -105,11 +123,13 @@ public class ImageService implements IImageService {
             }
         }
 
-        int currentSize = product.getPhotos().size();//4
 
-        int newSize = files.size(); //2
-        if (newSize + 1 < currentSize) {//3/4
-            for (int i = currentSize - 1; i > newSize; i--) { //3 2
+
+        int currentSize = productPhotos.size();
+
+        int newSize = files.size();
+        if (newSize < currentSize) {
+            for (int i = currentSize -1; i >= newSize; i--) {
                 ProductPhoto photo = productPhotos.get(i);
                 delFil(photo.getPhotoLink());
                 Long id = photo.getId();
@@ -118,6 +138,15 @@ public class ImageService implements IImageService {
             }
         }
 
+        if (filesSize == 0){
+            ProductPhoto productPhoto = product.getPhotos().get(0);
+            productPhoto.setPhotoLink(ErrorMessageHandler.DEFAULT_IMAGE_LINK);
+            productPhoto.setOriginalName("notName");
+            photoRepository.save(productPhoto);
+            ProductPhoto productPhoto1 = productPhotos.get(0);
+            productPhoto1.setPhotoLink(ErrorMessageHandler.DEFAULT_IMAGE_LINK);
+            productPhoto1.setOriginalName("notName");
+        }
 
         return productPhotos;
     }
