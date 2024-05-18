@@ -39,7 +39,7 @@ public class ImageService implements IImageService {
             String photoLink;
             String originalFilename;
 
-            if (!Objects.requireNonNull(file.getOriginalFilename()).isEmpty()) {
+            if (file.getOriginalFilename() != null && !file.getOriginalFilename().isEmpty()) {
                 photoLink = s3Service.uploadFile(file);
                 originalFilename = file.getOriginalFilename();
             } else {

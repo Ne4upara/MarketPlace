@@ -176,7 +176,7 @@ public class ProductService implements IProductService {
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
-//        imageService.deleteExcessPhotos(files.size(), product);
+
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
