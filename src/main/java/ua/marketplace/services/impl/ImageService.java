@@ -36,10 +36,18 @@ public class ImageService implements IImageService {
         List<ProductPhoto> productPhotos = createPhotoMainPage(files.get(0), product);
         for (int i = 0; i < files.size(); i++) {
             MultipartFile file = files.get(i);
-            String photoLink = !Objects.requireNonNull(file.getOriginalFilename()).isEmpty() ?
-                    s3Service.uploadFile(file) : DEFAULT_IMAGE_LINK;
+            String photoLink;
+            String originalFilename;
+
+            if (!Objects.requireNonNull(file.getOriginalFilename()).isEmpty()) {
+                photoLink = s3Service.uploadFile(file);
+                originalFilename = file.getOriginalFilename();
+            } else {
+                photoLink = DEFAULT_IMAGE_LINK;
+                originalFilename = DEFAULT_NAME;
+            }
             ProductPhoto productPhoto = createProductPhoto(
-                    photoLink, product, file.getOriginalFilename(), false, i + 1);
+                    photoLink, product, originalFilename, false, i + 1);
             productPhotos.add(productPhoto);
         }
         return productPhotos;

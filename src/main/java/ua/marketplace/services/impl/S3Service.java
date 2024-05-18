@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import ua.marketplace.services.Is3Service;
+import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.io.IOException;
 
@@ -41,7 +42,7 @@ public class S3Service implements Is3Service {
                     .acl(ObjectCannedACL.PUBLIC_READ)
                     .build(), RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, ErrorMessageHandler.FAILED_UPLOAD);
         }
         return URL + randomName;
     }
