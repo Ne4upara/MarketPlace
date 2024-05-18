@@ -36,30 +36,13 @@ public class ImageService implements IImageService {
         List<ProductPhoto> productPhotos = createPhotoMainPage(files.get(0), product);
         for (int i = 0; i < files.size(); i++) {
             MultipartFile file = files.get(i);
-            PhotoData photoData = getPhotoData(file);
+            String photoLink = Objects.requireNonNull(file.getOriginalFilename()).isEmpty() ?
+                    DEFAULT_IMAGE_LINK : s3Service.uploadFile(file) ;
             ProductPhoto productPhoto = createProductPhoto(
-                    photoData.photoLink, product, photoData.originalFilename, false, i + 1);
+                    photoLink, product, file.getOriginalFilename(), false, i + 1);
             productPhotos.add(productPhoto);
         }
         return productPhotos;
-    }
-
-    private PhotoData getPhotoData(MultipartFile file) {
-        if (!Objects.requireNonNull(file.getOriginalFilename()).isEmpty()) {
-            return new PhotoData(s3Service.uploadFile(file), file.getOriginalFilename());
-        } else {
-            return new PhotoData(DEFAULT_IMAGE_LINK, DEFAULT_NAME);
-        }
-    }
-
-    private static class PhotoData {
-        String photoLink;
-        String originalFilename;
-
-        PhotoData(String photoLink, String originalFilename) {
-            this.photoLink = photoLink;
-            this.originalFilename = originalFilename;
-        }
     }
 
     private ProductPhoto createProductPhoto(
