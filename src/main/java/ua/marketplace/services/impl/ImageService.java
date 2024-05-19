@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the {@link IImageService} interface for managing images associated with products.
@@ -32,7 +33,7 @@ public class ImageService implements IImageService {
 
     @Override
     public List<ProductPhoto> getPhotoLinks(List<MultipartFile> files, Product product) {
-        validateMaxLink(files);
+        validateMaxLink(files.size());
         List<ProductPhoto> productPhotos = createPhotoMainPage(files.get(0), product);
         for (int i = 0; i < files.size(); i++) {
             MultipartFile file = files.get(i);
@@ -56,8 +57,8 @@ public class ImageService implements IImageService {
                 .build();
     }
 
-    private void validateMaxLink(List<MultipartFile> files) {
-        if (files.size() > MAX_PHOTOS_ALLOWED) {
+    private void validateMaxLink(int size) {
+        if (size > MAX_PHOTOS_ALLOWED) {
             throw new ResponseStatusException
                     (HttpStatus.BAD_REQUEST, String.format(ErrorMessageHandler.MAX_LOAD_PHOTO));
         }
@@ -65,10 +66,11 @@ public class ImageService implements IImageService {
 
     @Override
     public List<ProductPhoto> getUpdateLinks(List<MultipartFile> files, Product product) {
+
         List<ProductPhoto> productPhotos = product.getPhotos().stream()
                 .filter(p -> !p.isMainPage())
                 .sorted(Comparator.comparingInt(ProductPhoto::getNumberPhoto))
-                .toList();
+                .collect(Collectors.toList());
 
         int filesSize = adjustFileSize(files);
 
@@ -77,6 +79,7 @@ public class ImageService implements IImageService {
             if (i < productPhotos.size()) {
                 updatePhoto(productPhotos.get(i), multipartFile, i == 0 ? product.getPhotos().get(0) : null);
             } else {
+                validateMaxLink(productPhotos.size());
                 addNewPhoto(product, productPhotos, multipartFile, i);
             }
         }

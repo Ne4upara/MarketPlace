@@ -8,6 +8,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
@@ -32,6 +35,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource(locations="classpath:application-dev.properties")
+@Transactional
 @SuppressWarnings("PMD")
 class ProductServiceTest {
 
@@ -50,6 +55,7 @@ class ProductServiceTest {
 
 
     @Test
+    @Rollback
     void testGetAllProductsForMainPage() {
         // Given
         int pageNumber = 0;
@@ -76,6 +82,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testGetAllProductsByCategory() {
         // Given
         int pageNumber = 0;
@@ -110,6 +117,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testGetAllProductsByCategoryWithInvalidCategory() {
         // Given
         int pageNumber = 0;
@@ -131,6 +139,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testGetProductDetails() {
         // Given
         long productId = 1L;
@@ -246,6 +255,7 @@ class ProductServiceTest {
 //    }
 
     @Test
+    @Rollback
     void testDeleteProduct() {
         // Given
         Principal principal = () -> "userexamplecom";
@@ -268,6 +278,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testDeleteProduct_NotOwner() {
         // Given
         Principal principal = () -> "userexample";
@@ -288,6 +299,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testGetFavorite_AddFavoriteSuccessfully() {
         // Given
         Principal principal = () -> "user@example.com";
@@ -306,6 +318,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testGetFavorite_AddDuplicateFavorite() {
         // Given
         Principal principal = () -> "user@example.com";
@@ -325,6 +338,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testDeleteFavorite_RemoveFavoriteSuccessfully() {
 
         // Given
@@ -355,6 +369,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testDeleteFavorite_RemoveNonExistingFavorite() {
 
         //Given
@@ -371,6 +386,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testGetFavorite_InvalidFavorite() {
 
         // Given
@@ -391,6 +407,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @Rollback
     void testDeleteFavorite_InvalidFavorite() {
         // Given
         Principal principal = () -> "user@example.com";
