@@ -37,11 +37,37 @@ jobs:
     needs: build
     runs-on: ubuntu-20.04
 
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: marketplace
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/marketplace
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 1
+          done
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
