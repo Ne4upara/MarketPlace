@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.*;
  */
 @SuppressWarnings("PMD")
 @SpringBootTest
+@TestPropertySource(locations="classpath:application-dev.properties")
 class JwtRequestFilterTest {
 
     @Mock

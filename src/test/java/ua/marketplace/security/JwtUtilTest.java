@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.TestPropertySource;
 import ua.marketplace.repositoryes.BlackListRepository;
 
 import static org.mockito.Mockito.when;
@@ -17,6 +18,7 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings("PMD")
 @SpringBootTest
+@TestPropertySource(locations="classpath:application-dev.properties")
 class JwtUtilTest {
 
     @Mock

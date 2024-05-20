@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.context.TestPropertySource;
 import ua.marketplace.entities.User;
 import ua.marketplace.repositoryes.UserRepository;
 
@@ -21,6 +22,7 @@ import static org.mockito.Mockito.when;
  * Unit testing for the CustomUserDetailsService class.
  */
 @SpringBootTest
+@TestPropertySource(locations="classpath:application-dev.properties")
 class CustomUserDetailsServiceTest {
 
     @InjectMocks
