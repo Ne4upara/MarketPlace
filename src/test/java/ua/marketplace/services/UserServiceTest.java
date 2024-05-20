@@ -98,9 +98,6 @@ class UserServiceTest {
         when(favoriteRepository.findAllByUser(user, utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy)))
                 .thenReturn(favoritePage);
 
-        Page<Product> productPage = mock(Page.class);
-
-
         // When
         Pagination result = userService.getAllFavorite(pageNumber, pageSize, sortBy, orderBy, principal);
 
