@@ -5,10 +5,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.TestPropertySource;
+import ua.marketplace.BaseTest;
 import ua.marketplace.entities.User;
 import ua.marketplace.repositoryes.UserRepository;
 
@@ -21,14 +23,15 @@ import static org.mockito.Mockito.when;
 /**
  * Unit testing for the CustomUserDetailsService class.
  */
-@SpringBootTest
-@TestPropertySource(locations="classpath:application-dev.properties")
-class CustomUserDetailsServiceTest {
+
+class CustomUserDetailsServiceTest extends BaseTest {
 
     @InjectMocks
     CustomUserDetailsService service;
     @Mock
     private UserRepository repository;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     /**
      * Testing the loadUserByUsername method with a successful scenario.
@@ -61,12 +64,13 @@ class CustomUserDetailsServiceTest {
      */
     @Test
     void testLoadUserByUsernameWithUserNotFound() {
-
         // Given
-        when(repository.findByPhoneNumber(any())).thenReturn(Optional.empty());
+        String nonExistentUsername = "nonExistentUser";
 
-        // When/Then
-        assertThrows(UsernameNotFoundException.class, () -> service.loadUserByUsername("test"));
+        // When, Then
+        assertThrows(UsernameNotFoundException.class, () -> {
+            customUserDetailsService.loadUserByUsername(nonExistentUsername);
+        });
     }
 
 }

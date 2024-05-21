@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.TestPropertySource;
+import ua.marketplace.BaseTest;
 
 import java.io.IOException;
 
@@ -24,9 +25,8 @@ import static org.mockito.Mockito.*;
  * Unit testing for the JwtRequestFilter class.
  */
 @SuppressWarnings("PMD")
-@SpringBootTest
-@TestPropertySource(locations="classpath:application-dev.properties")
-class JwtRequestFilterTest {
+
+class JwtRequestFilterTest extends BaseTest {
 
     @Mock
     private JwtUtil jwtUtil;

@@ -1,6 +1,7 @@
 package ua.marketplace.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,13 +14,16 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import ua.marketplace.BaseTest;
 import ua.marketplace.config.TestCacheConfig;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.entities.Category;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
+import ua.marketplace.entities.User;
 import ua.marketplace.mapper.ProductMapper;
 import ua.marketplace.repositoryes.ProductRepository;
+import ua.marketplace.repositoryes.UserRepository;
 import ua.marketplace.requests.ProductRequest;
 
 import java.math.BigDecimal;
@@ -30,13 +34,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@WithMockUser(username = "test", password = "test")
-@Import(TestCacheConfig.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
+
 @Transactional
-class ProductControllerTest {
+//@WithMockUser(username = "testuser")
+class ProductControllerTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -92,7 +93,6 @@ class ProductControllerTest {
 
     @Test
     @Rollback
-    @Transactional
     void testCreateProduct() throws Exception {
         // Given
         ProductRequest request = mockProductRequest();
@@ -115,8 +115,8 @@ class ProductControllerTest {
                         .file(jsonPart)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
+                .andExpect(status().isCreated());
+//                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
     }
 
     @Test
@@ -148,8 +148,8 @@ class ProductControllerTest {
                             return req;
                         })
                 )
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
+                .andExpect(status().isOk());
+//                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
         productRepository.delete(product);
     }
@@ -166,8 +166,8 @@ class ProductControllerTest {
         mockMvc.perform(delete("/v1/products/delete/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
+                .andExpect(status().isNoContent());
+//                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
     }
 
@@ -182,8 +182,8 @@ class ProductControllerTest {
         mockMvc.perform(post("/v1/products/favorite/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
+                .andExpect(status().isOk());
+//                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
     }
 
     @Test
@@ -195,8 +195,8 @@ class ProductControllerTest {
         mockMvc.perform(delete("/v1/products/favorite/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
+                .andExpect(status().isOk());
+//                .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
     }
 
     private Product mockProduct() {
@@ -218,7 +218,6 @@ class ProductControllerTest {
     private ProductRequest mockProductRequest() {
         return new ProductRequest
                 ("Test Product",
-                        new ArrayList<>(),
                         BigDecimal.valueOf(10),
                         "test description",
                         "dolls",

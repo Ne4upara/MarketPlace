@@ -10,20 +10,17 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import ua.marketplace.BaseTest;
 import ua.marketplace.config.TestCacheConfig;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@WithMockUser(username = "test", password = "test")
-@Import(TestCacheConfig.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
+
 @Transactional
 @SuppressWarnings("PMD")
-class CategoryControllerTest {
+class CategoryControllerTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;

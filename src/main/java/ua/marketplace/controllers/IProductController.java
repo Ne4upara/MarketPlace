@@ -73,12 +73,13 @@ public interface IProductController {
             @ApiResponse(responseCode = "401", description = "Not authorized user",
                     content = @Content())
     })
-    ProductDto createProduct
-            (@Parameter(description = "Principal object representing the authenticated user") Principal principal,
-             @Parameter(description = "Request body containing product details", schema =
-             @Schema(implementation = ProductRequest.class))
-             @Valid @RequestPart("request") ProductRequest request,
-             @RequestPart("files") List<MultipartFile> files );
+    ProductDto createProduct(
+            @Parameter(description = "Principal object representing the authenticated user") Principal principal,
+            @Parameter(description = "Request body containing product details", schema =
+            @Schema(implementation = ProductRequest.class)) @Valid @RequestPart("request") ProductRequest request,
+            @Parameter(description = "Files associated with the product")
+            @RequestPart("files") List<MultipartFile> files);
+
 
     @Operation(summary = "Update an existing product", description = "Endpoint to update an existing product")
     @ApiResponses(value = {
@@ -99,6 +100,7 @@ public interface IProductController {
                              @Parameter(description = "Request body containing updated product details",
                                      schema = @Schema(implementation = ProductRequest.class))
                              @Valid @RequestPart("request") ProductRequest request,
+                             @Parameter(description = "Files associated with the product")
                              @RequestPart("files") List<MultipartFile> files);
 
     @Operation(summary = "Delete a product", description = "Endpoint to delete a product")

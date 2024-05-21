@@ -8,18 +8,15 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import ua.marketplace.BaseTest;
 import ua.marketplace.config.TestCacheConfig;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@WithMockUser(username = "test", password = "test")
-@Import(TestCacheConfig.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
-class UserControllerImpTest {
+
+class UserControllerImpTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -32,13 +29,13 @@ class UserControllerImpTest {
                         .param("size", "10")
                         .param("sort", "creationDate")
                         .param("order", "ASC"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk());
     }
 
     @Test
     void testGetUserInfo() throws Exception {
         mockMvc.perform(get("/v1/my-profile/info"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -48,6 +45,6 @@ class UserControllerImpTest {
                         .param("size", "10")
                         .param("sort", "creationDate")
                         .param("order", "ASC"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk());
     }
 }
