@@ -9,6 +9,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import ua.marketplace.config.TestCacheConfig;
 import ua.marketplace.config.TestSecurityConfig;
 import ua.marketplace.entities.User;
 import ua.marketplace.repositoryes.UserRepository;
@@ -16,7 +17,6 @@ import ua.marketplace.repositoryes.UserRepository;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(locations="classpath:application-dev.properties")
-@ContextConfiguration(classes = {TestConfig.class, TestSecurityConfig.class})
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @WithMockUser(value = "testuser")
