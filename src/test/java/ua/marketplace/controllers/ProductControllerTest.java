@@ -43,6 +43,8 @@ class ProductControllerTest extends BaseTest {
     private MockMvc mockMvc;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     @Rollback
@@ -125,6 +127,13 @@ class ProductControllerTest extends BaseTest {
         // Given
         ProductRequest request = mockProductRequest();
         Product product = mockProduct();
+
+        User user = User.builder()
+                .phoneNumber("test")
+                .firstName("test")
+                .build();
+        userRepository.save(user);
+        product.setOwner(user);
         productRepository.save(product);
 
         // Create a mock file

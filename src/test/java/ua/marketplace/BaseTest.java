@@ -19,7 +19,7 @@ import ua.marketplace.repositoryes.UserRepository;
 @Import(TestCacheConfig.class)
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@WithMockUser(value = "testuser")
+@WithMockUser(username = "test", password = "test")
 public abstract class BaseTest {
 
     @Autowired
