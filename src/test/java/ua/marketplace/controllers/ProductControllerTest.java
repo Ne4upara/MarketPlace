@@ -29,6 +29,7 @@ import ua.marketplace.requests.ProductRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -128,12 +129,8 @@ class ProductControllerTest extends BaseTest {
         ProductRequest request = mockProductRequest();
         Product product = mockProduct();
 
-        User user = User.builder()
-                .phoneNumber("test")
-                .firstName("test")
-                .build();
-        userRepository.save(user);
-        product.setOwner(user);
+        Optional<User> test = userRepository.findByPhoneNumber("test");
+        product.setOwner(test.get());
         productRepository.save(product);
 
         // Create a mock file
