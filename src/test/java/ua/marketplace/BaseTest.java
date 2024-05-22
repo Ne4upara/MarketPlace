@@ -28,8 +28,8 @@ public abstract class BaseTest {
     @BeforeEach
     public void setUp() {
         User user = new User();
-        user.setPhoneNumber("testuser");
-        user.setFirstName("password");
+        user.setPhoneNumber("test");
+        user.setFirstName("test");
         // Заполните другие необходимые поля
         userRepository.save(user);
     }
