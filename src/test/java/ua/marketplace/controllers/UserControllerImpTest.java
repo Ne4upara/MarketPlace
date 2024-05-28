@@ -6,7 +6,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import ua.marketplace.config.TestCacheConfig;
 
@@ -18,7 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @WithMockUser(username = "test", password = "test")
 @Import(TestCacheConfig.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
 class UserControllerImpTest {
 
     @Autowired
