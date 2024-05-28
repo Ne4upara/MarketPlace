@@ -3,7 +3,6 @@ package ua.marketplace.requests;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * Represents a request to create a new product.
