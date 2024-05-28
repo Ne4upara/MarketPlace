@@ -13,6 +13,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import ua.marketplace.BaseTest;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.repositoryes.UserRepository;
@@ -26,12 +27,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestPropertySource(locations="classpath:application-dev.properties")
+
 @Transactional
 @SuppressWarnings("PMD")
-class PhoneAuthControllerTest {
+class PhoneAuthControllerTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;

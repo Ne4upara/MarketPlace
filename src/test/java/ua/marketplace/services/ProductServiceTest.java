@@ -450,7 +450,6 @@ class ProductServiceTest {
     private ProductRequest mockProductRequest() {
         return new ProductRequest
                 ("Test Product",
-                        new ArrayList<>(),
                         BigDecimal.valueOf(10),
                         "test description",
                         "dolls",
