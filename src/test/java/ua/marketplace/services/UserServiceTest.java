@@ -6,6 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.entities.Favorite;
 import ua.marketplace.entities.Product;
@@ -24,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource(locations="classpath:application-dev.properties")
+@Transactional
 class UserServiceTest {
 
     @Mock
@@ -39,6 +44,7 @@ class UserServiceTest {
     private UserService userService;
 
     @Test
+    @Rollback
     void testGetViewMyProduct() {
         // Given
         int pageNumber = 0;
@@ -70,6 +76,7 @@ class UserServiceTest {
 
 
     @Test
+    @Rollback
     void testGetAllFavorite() {
         // Given
         int pageNumber = 0;
@@ -90,9 +97,6 @@ class UserServiceTest {
 
         when(favoriteRepository.findAllByUser(user, utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy)))
                 .thenReturn(favoritePage);
-
-        Page<Product> productPage = mock(Page.class);
-
 
         // When
         Pagination result = userService.getAllFavorite(pageNumber, pageSize, sortBy, orderBy, principal);

@@ -5,6 +5,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
@@ -24,6 +27,8 @@ import static org.mockito.Mockito.*;
 
 @SuppressWarnings("PMD")
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource(locations="classpath:application-dev.properties")
+@Transactional
 class PhoneNumberRegistrationServiceTest {
 
     @Mock
@@ -34,6 +39,7 @@ class PhoneNumberRegistrationServiceTest {
     private PhoneNumberRegistrationService registrationService;
 
     @Test
+    @Rollback
     void testInputPhoneNumberSuccessfully() {
 
         // Given
@@ -64,6 +70,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testInputPhoneNumberUserDoesNotExist() {
 
         // Given
@@ -78,6 +85,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testInputPhoneNumberWithTimeToResendingCodeNotEnd() {
         // Given
         PhoneNumberRequest request = new PhoneNumberRequest(
@@ -103,6 +111,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testInputPhoneCodeSuccessfully() {
 
         // Given
@@ -133,6 +142,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testInputPhoneCodeUserDoesNotExist() {
 
         // Given
@@ -148,6 +158,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testInputPhoneCodeInvalidCode() {
         // Given
         PhoneCodeRequest request = new PhoneCodeRequest(
@@ -174,6 +185,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testInputPhoneCodeTimeToResendCodeNotElapsed() {
 
         // Given
@@ -201,6 +213,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testInputPhoneCodeMaxAttemptsReached() {
         // Given
         PhoneCodeRequest request = new PhoneCodeRequest(
@@ -224,6 +237,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testInputPhoneCodeTimeUp() {
         // Given
         PhoneCodeRequest request = new PhoneCodeRequest(
@@ -247,6 +261,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testRegistrationUserSuccessfully() {
 
         // Given
@@ -274,6 +289,7 @@ class PhoneNumberRegistrationServiceTest {
     }
 
     @Test
+    @Rollback
     void testRegistrationUser_PhoneNumberAlreadyExists() {
 
         // Given

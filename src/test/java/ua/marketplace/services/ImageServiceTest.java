@@ -1,125 +1,136 @@
 package ua.marketplace.services;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import ua.marketplace.entities.Category;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.repositoryes.PhotoRepository;
 import ua.marketplace.services.impl.ImageService;
-import ua.marketplace.utils.ErrorMessageHandler;
+import ua.marketplace.services.impl.S3Service;
 
-import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("PMD")
 class ImageServiceTest {
 
     @Mock
     private PhotoRepository photoRepository;
-
+    
+    @Mock
+    private S3Service s3Service;
+    
     @InjectMocks
     private ImageService imageService;
 
-//    @Test
-//    void testGetPhotoLinks() {
-//        // Given
-//        List<String> photos = List.of("photo1.jpg", "photo2.jpg", "photo3.jpg");
-//        Product product = new Product();
-//
-//        // When
-//        List<ProductPhoto> result = imageService.getPhotoLinks(photos, product);
-//
-//        // Then
-//        assertNotNull(result);
-//        assertEquals(3, result.size());
-//        assertEquals(photos.get(0), result.get(0).getPhotoLink());
-//        assertTrue(result.get(0).isMainPage());
-//        assertFalse(result.get(1).isMainPage());
-//        assertFalse(result.get(2).isMainPage());
-//    }
+    private Product product;
+    private MultipartFile file1;
+    private MultipartFile file2;
+    private List<MultipartFile> files;
 
-//    @Test
-//    void testGetPhotoLinksWithOver8Img() {
-//        // Given
-//        List<String> photos = List.of("photo1.jpg", "photo2.jpg", "photo3.jpg", "photo4.jpg",
-//                "photo5.jpg", "photo6.jpg", "photo7.jpg", "photo8.jpg", "photo9.jpg");
-//        Product product = new Product();
-//
-//        // When & Then
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-//                () -> imageService.getPhotoLinks(photos, product));
-//
-//        assertEquals(HttpStatus.BAD_REQUEST + " \""
-//                        + String.format(ErrorMessageHandler.MAX_LOAD_PHOTO + "\"")
-//                , exception.getMessage());
-//    }
+    @BeforeEach
+    void setUp() {
+        product = mockProduct();
+        product.setPhotos(new ArrayList<>());
 
-//    @Test
-//    void testGetUpdateLinks() {
-//        // Given
-//        List<String> newPhotoLinks = List.of("new_photo1.jpg", "new_photo2.jpg");
-//        Product product = new Product();
-//        List<ProductPhoto> existingPhotos = new ArrayList<>();
-//        existingPhotos.add(new ProductPhoto());
-//        existingPhotos.add(new ProductPhoto());
-//        product.setPhotos(existingPhotos);
-//
-//        // When
-//        List<ProductPhoto> result = imageService.getUpdateLinks(newPhotoLinks, product);
-//
-//        // Then
-//        assertNotNull(result);
-//        assertEquals(2, result.size());
-//        assertEquals(newPhotoLinks.get(0), result.get(0).getPhotoLink());
-//        assertFalse(result.get(0).isMainPage());
-//        assertEquals(existingPhotos.get(0), result.get(0));
-//        assertEquals(newPhotoLinks.get(1), result.get(1).getPhotoLink());
-//        assertFalse(result.get(1).isMainPage());
-//    }
+        file1 = mock(MultipartFile.class);
+        file2 = mock(MultipartFile.class);
 
-    @Test
-    void testHandleEmptyNewPhotoLinks_Empty() throws Exception {
-        // Given
-        List<String> newPhotoLinks = List.of();
-        Product product = new Product();
-
-        // When
-        Method method = ImageService.class.getDeclaredMethod("handleEmptyNewPhotoLinks", List.class, Product.class);
-        method.setAccessible(true);
-        List<ProductPhoto> result = (List<ProductPhoto>) method.invoke(imageService, newPhotoLinks, product);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(ErrorMessageHandler.DEFAULT_IMAGE_LINK, result.get(0).getPhotoLink());
-        assertTrue(result.get(0).isMainPage());
+        files = new ArrayList<>();
+        files.add(file1);
+        files.add(file2);
     }
 
     @Test
-    void testDeleteExcessPhotos() {
+    void testGetPhotoLinks() {
         // Given
-        Product product = new Product();
-        List<ProductPhoto> photos = new ArrayList<>();
-        photos.add(ProductPhoto.builder().id(1L).build());
-        photos.add(ProductPhoto.builder().id(2L).build());
-        photos.add(ProductPhoto.builder().id(3L).build());
-        product.setPhotos(photos);
+        when(file1.getOriginalFilename()).thenReturn("file1.jpg");
+        when(file2.getOriginalFilename()).thenReturn("file2.jpg");
+        when(s3Service.uploadFile(file1)).thenReturn("url1");
+        when(s3Service.uploadFile(file2)).thenReturn("url2");
 
         // When
-        imageService.deleteExcessPhotos(2, product);
+        List<ProductPhoto> result = imageService.getPhotoLinks(files, mockProduct());
 
         // Then
-        assertEquals(2, product.getPhotos().size());
-        verify(photoRepository, times(1)).deleteByPhotoId(anyLong());
+        assertEquals(3, result.size());
+        assertEquals("url1", result.get(1).getPhotoLink());
+        assertEquals("url2", result.get(2).getPhotoLink());
+    }
+
+    @Test
+    void testGetPhotoLinks_DefaultImageLink() {
+        // Given
+        lenient().when(file1.getOriginalFilename()).thenReturn("");
+        lenient().when(file2.getOriginalFilename()).thenReturn("file2.jpg");
+        lenient().when(s3Service.uploadFile(file2)).thenReturn("url2");
+
+        // When
+        List<ProductPhoto> result = imageService.getPhotoLinks(files, mockProduct());
+
+        // Then
+        assertEquals(3, result.size());
+        assertEquals(ImageService.DEFAULT_IMAGE_LINK, result.get(1).getPhotoLink());
+        assertEquals("url2", result.get(2).getPhotoLink());
+    }
+
+    @Test
+    void testGetUpdateLinks_AddNewPhoto() {
+        // Given
+        ProductPhoto existingPhoto = new ProductPhoto();
+        existingPhoto.setMainPage(false);
+        existingPhoto.setNumberPhoto(1);
+        existingPhoto.setOriginalName("existing.jpg");
+        existingPhoto.setPhotoLink("existing_url");
+
+        product.getPhotos().add(existingPhoto);
+
+        when(file1.getOriginalFilename()).thenReturn("newFile.jpg");
+
+        // When
+        List<ProductPhoto> result = imageService.getUpdateLinks(files, product);
+
+        // Then
+        assertEquals(2, result.size());
+    }
+
+
+    @Test
+    void testValidateMaxLink_ThrowsException() {
+        // Given
+        List<MultipartFile> tooManyFiles = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            tooManyFiles.add(mock(MultipartFile.class));
+        }
+
+        // When & Then
+        assertThrows(ResponseStatusException.class, () -> imageService.getPhotoLinks(tooManyFiles, product));
+    }
+
+    private Product mockProduct() {
+        List<ProductPhoto> photo = new ArrayList<>();
+        Category category = new Category(1L, "dolls", "Ляльки, Пупси");
+        return Product
+                .builder()
+                .productName("test")
+                .photos(photo)
+                .productPrice(BigDecimal.valueOf(10))
+                .productDescription("test description")
+                .category(category)
+                .productType("new")
+                .owner(null)
+                .build();
     }
 }

@@ -27,8 +27,6 @@ public final class ErrorMessageHandler {
     public static final String REVIEW_NOT_FOUND = "Review not found";
     public static final String THIS_NOT_USERS_REVIEW = "This review not write by this user";
     public static final String FAILED_RATING_UPDATE = "Failed to update product rating";
-    public static final String DEFAULT_IMAGE_LINK = "https://i.pinimg.com/1200x/9f/ab/e5/9fabe5f90ca53f9a86306203f517f9fd.jpg";
-    public static final String URL_IMAGE_FOR_UPLOAD = "https://testingbucket00-0-1.s3.eu-central-1.amazonaws.com/";
-
+    public static final String FAILED_UPLOAD = "Failed to upload file";
     private ErrorMessageHandler() {}
 }

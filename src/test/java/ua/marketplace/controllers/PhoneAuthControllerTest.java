@@ -8,8 +8,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import ua.marketplace.entities.User;
 import ua.marketplace.entities.VerificationCode;
 import ua.marketplace.repositoryes.UserRepository;
@@ -25,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource(locations="classpath:application-dev.properties")
+@Transactional
 @SuppressWarnings("PMD")
 class PhoneAuthControllerTest {
 
@@ -34,6 +39,7 @@ class PhoneAuthControllerTest {
     private UserRepository userRepository;
 
     @Test
+    @Rollback
     void testRegisterSuccessfully() throws Exception {
 
         RegistrationRequest request = new RegistrationRequest(
@@ -49,6 +55,7 @@ class PhoneAuthControllerTest {
     }
 
     @Test
+    @Rollback
     void testRegistrationWithInvalidPatternRequest() throws Exception {
 
         RegistrationRequest request = new RegistrationRequest(
@@ -65,6 +72,7 @@ class PhoneAuthControllerTest {
     }
 
     @Test
+    @Rollback
     void testRegistrationWithInvalidSizeRequest() throws Exception {
 
         RegistrationRequest request = new RegistrationRequest(
@@ -81,6 +89,7 @@ class PhoneAuthControllerTest {
     }
 
     @Test
+    @Rollback
     void testLoginCodeSuccessfully() throws Exception {
 
         PhoneCodeRequest request = new PhoneCodeRequest(
@@ -102,11 +111,11 @@ class PhoneAuthControllerTest {
                         .content(asJsonString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(jsonPath("$.firstName").value("Test"))  //test, last delete
                 .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
     @Test
+    @Rollback
     void testLoginCodeInvalidPatternRequest() throws Exception {
 
         PhoneCodeRequest request = new PhoneCodeRequest(
@@ -125,6 +134,7 @@ class PhoneAuthControllerTest {
     }
 
     @Test
+    @Rollback
     void testLoginCodeInvalidSizeRequest() throws Exception {
 
         PhoneCodeRequest request = new PhoneCodeRequest(
@@ -142,14 +152,9 @@ class PhoneAuthControllerTest {
                         .value("Phone should be between 4 digits"));
     }
 
-    /**
-     * The test does not work correctly on H2 memory database.
-     * For a Postgres database, apply the following conditions:
-     * .andExpect(status().isOk())
-     * .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-     * .andExpect(jsonPath("$.phoneNumber").value(request.getPhoneNumber()));
-     */
+
     @Test
+    @Rollback
     void testLoginSuccessfully() throws Exception {
 
         PhoneNumberRequest request = new PhoneNumberRequest(
@@ -168,13 +173,12 @@ class PhoneAuthControllerTest {
         mockMvc.perform(post("/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
-                .andExpect(status().isConflict())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errorMessage")
-                        .value("Time to send a repeat code 1 minute"));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
+    @Rollback
     void testLoginFailed() throws Exception {
 
         PhoneNumberRequest request = new PhoneNumberRequest(
@@ -190,14 +194,10 @@ class PhoneAuthControllerTest {
     }
 
     @Test
+    @Rollback
     void testLogoutSuccessfully() throws Exception {
 
         MockHttpSession session = new MockHttpSession();
-        HttpServletRequest request = MockMvcRequestBuilders.post("/logout")
-                .header("Authorization", "Bearer your_token")
-                .session(session)
-                .buildRequest(session.getServletContext());
-
         mockMvc.perform(post("/v1/auth/logout")
                         .session(session))
                 .andExpect(status().isNoContent());

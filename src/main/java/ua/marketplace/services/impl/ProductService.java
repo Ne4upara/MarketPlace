@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import ua.marketplace.dto.ImageDto;
 import ua.marketplace.dto.MainPageProductDto;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
@@ -177,7 +176,7 @@ public class ProductService implements IProductService {
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
-//        imageService.deleteExcessPhotos(files.size(), product);
+
         Product updatedProduct = Stream.of(product)
                 .map(p -> {
                     p.setProductName(request.productName());
@@ -219,7 +218,7 @@ public class ProductService implements IProductService {
                     (HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
 
-        imageService.deleteFile(product.getPhotos()); //new
+        imageService.deleteFiles(product.getPhotos()); //new
         productRepository.delete(product);
     }
 

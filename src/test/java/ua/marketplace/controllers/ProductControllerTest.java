@@ -7,8 +7,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import ua.marketplace.config.TestCacheConfig;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.entities.Category;
@@ -30,6 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @WithMockUser(username = "test", password = "test")
 @Import(TestCacheConfig.class)
+@TestPropertySource(locations="classpath:application-dev.properties")
+@Transactional
 class ProductControllerTest {
 
     @Autowired
@@ -38,6 +44,7 @@ class ProductControllerTest {
     private ProductRepository productRepository;
 
     @Test
+    @Rollback
     void testGetAllProductsForMainPage() throws Exception {
 
         //Given,When,Then
@@ -48,6 +55,7 @@ class ProductControllerTest {
     }
 
     @Test
+    @Rollback
     void testGetAllProductsByCategorySuccessfully() throws Exception {
 
         //Given,When,Then
@@ -58,6 +66,7 @@ class ProductControllerTest {
     }
 
     @Test
+    @Rollback
     void testGetAllProductsByCategoryWithInvalidCategory() throws Exception {
 
         //Given,When,Then
@@ -68,45 +77,77 @@ class ProductControllerTest {
 
 
     @Test
+    @Rollback
     void testGetProductDetailsById() throws Exception {
         //Given
         Product product = mockProduct();
-        productRepository.save(product);
+        Product saved = productRepository.save(product);
 
         //When,Then
-        mockMvc.perform(get("/v1/products/s/view/details/1")
+        mockMvc.perform(get("/v1/products/s/view/details/"+saved.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(String.valueOf(ProductMapper.PRODUCT_INSTANCE.productToProductDto(product))))
                 .andExpect(status().isOk());
-
-        productRepository.delete(product);
     }
 
     @Test
+    @Rollback
+    @Transactional
     void testCreateProduct() throws Exception {
-        //Given
+        // Given
         ProductRequest request = mockProductRequest();
+        String jsonRequest = asJsonString(request);
 
-        //When,Then
-        mockMvc.perform(post("/v1/products/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(request)))
+        // Create a mock file
+        MockMultipartFile mockFile = mockFile();
+
+        // Create a mock JSON request part
+        MockMultipartFile jsonPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                jsonRequest.getBytes()
+        );
+
+        // When, Then
+        mockMvc.perform(multipart("/v1/products/create")
+                        .file(mockFile)
+                        .file(jsonPart)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
-
     }
 
     @Test
+    @Rollback
     void testUpdateProduct() throws Exception {
-        //Given
+        // Given
         ProductRequest request = mockProductRequest();
         Product product = mockProduct();
         productRepository.save(product);
 
-        //When,Then
-        mockMvc.perform(put("/v1/products/update/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(request)))
+        // Create a mock file
+        MockMultipartFile mockFile = mockFile();
+
+        // Create a mock JSON request part
+        MockMultipartFile jsonPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                asJsonString(request).getBytes()
+        );
+
+        // When, Then
+        mockMvc.perform(multipart("/v1/products/update/" + product.getId())
+                        .file(mockFile)
+                        .file(jsonPart)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(req -> {
+                            req.setMethod("PUT");
+                            return req;
+                        })
+                )
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorMessage").value("User not authorized"));
 
@@ -114,6 +155,7 @@ class ProductControllerTest {
     }
 
     @Test
+    @Rollback
     void testDeleteProduct() throws Exception {
         //Given
         ProductRequest request = mockProductRequest();
@@ -130,6 +172,7 @@ class ProductControllerTest {
     }
 
     @Test
+    @Rollback
     void testAddFavoriteProduct() throws Exception {
 
         ProductRequest request = mockProductRequest();
@@ -144,6 +187,7 @@ class ProductControllerTest {
     }
 
     @Test
+    @Rollback
     void testRemoveFavoriteProduct() throws Exception {
 
         ProductRequest request = mockProductRequest();
@@ -160,6 +204,7 @@ class ProductControllerTest {
         Category category = new Category(1L, "Test", "ТЕСТ");
         return Product
                 .builder()
+                .id(1L)
                 .productName("test")
                 .photos(photo)
                 .productPrice(BigDecimal.valueOf(10))
@@ -191,5 +236,13 @@ class ProductControllerTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private MockMultipartFile mockFile() {
+        return new MockMultipartFile(
+                "files",
+                "test.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "This is a test file content".getBytes());
     }
 }

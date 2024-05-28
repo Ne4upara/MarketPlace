@@ -32,8 +32,7 @@ public interface IImageService {
     /**
      * Deletes excess photos for the product based on the new size.
      *
-     * @param newSize The new size of the photos.
-     * @param product The product for which to delete excess photos.
+     * @param photos The product for which to delete excess photos.
      */
-    void deleteExcessPhotos(int newSize, Product product);
+    void deleteFiles(List<ProductPhoto> photos);
 }
