@@ -15,8 +15,6 @@ public record ProductRequest(
         @Size(min = 5, max = 100, message = "Product's name should be between 5 and 100 chars")
         String productName,
 
-       List<String> productPhotoLink,
-
         @NotNull(message = "Product must have a price")
         @Positive(message = "Product price must be positive")
         @Digits(integer = 10, fraction = 2, message = "Product price must have up to 2 decimal places")
