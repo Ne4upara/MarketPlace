@@ -28,5 +28,6 @@ public final class ErrorMessageHandler {
     public static final String THIS_NOT_USERS_REVIEW = "This review not write by this user";
     public static final String FAILED_RATING_UPDATE = "Failed to update product rating";
     public static final String FAILED_UPLOAD = "Failed to upload file";
+    public static final String INVALID_FILE = "Invalid file format %s. File must be JPEG or PNG format";
     private ErrorMessageHandler() {}
 }

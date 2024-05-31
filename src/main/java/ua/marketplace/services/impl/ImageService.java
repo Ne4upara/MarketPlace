@@ -33,6 +33,7 @@ public class ImageService implements IImageService {
 
     @Override
     public List<ProductPhoto> getPhotoLinks(List<MultipartFile> files, Product product) {
+        validateImageFiles(files);
         validateMaxLink(files.size());
         List<ProductPhoto> productPhotos = createPhotoMainPage(files.get(0), product);
         for (int i = 0; i < files.size(); i++) {
@@ -44,6 +45,31 @@ public class ImageService implements IImageService {
             productPhotos.add(productPhoto);
         }
         return productPhotos;
+    }
+
+    private void validateImageFiles(List<MultipartFile> files) {
+        for (MultipartFile file : files) {
+            String fileName = file.getOriginalFilename();
+            if (!isImageFile(fileName)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        String.format(ErrorMessageHandler.INVALID_FILE,file.getOriginalFilename()));
+            }
+        }
+    }
+
+    private boolean isImageFile(String fileName) {
+        if (fileName == null) {
+            return false;
+        }
+
+        if(fileName.isEmpty()){
+            return true;
+        }
+        String lowerCaseFileName = fileName.toLowerCase();
+        return lowerCaseFileName.endsWith(".jpeg") ||
+                lowerCaseFileName.endsWith(".jpg") ||
+                lowerCaseFileName.endsWith(".png");
     }
 
     private ProductPhoto createProductPhoto(
