@@ -10,10 +10,8 @@ import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.repositoryes.PhotoRepository;
 import ua.marketplace.services.IImageService;
 import ua.marketplace.utils.ErrorMessageHandler;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -66,7 +64,7 @@ public class ImageService implements IImageService {
         if(fileName.isEmpty()){
             return true;
         }
-        String lowerCaseFileName = fileName.toLowerCase();
+        String lowerCaseFileName = fileName.toLowerCase(Locale.ENGLISH);
         return lowerCaseFileName.endsWith(".jpeg") ||
                 lowerCaseFileName.endsWith(".jpg") ||
                 lowerCaseFileName.endsWith(".png");
