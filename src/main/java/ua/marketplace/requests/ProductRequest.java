@@ -31,7 +31,6 @@ public record ProductRequest(
         String productType,
 
         @Size(min = 2, max = 30, message = "Name should be between 2 and 15 characters")
-        @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄґҐ]+$", message = "Name should contain only letters (Latin or Cyrillic)")
         String sellerName,
 
         @Size(min = 13, max = 13, message = "Phone should be between 13 digits")

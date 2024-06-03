@@ -51,7 +51,7 @@ public class ImageService implements IImageService {
             if (!isImageFile(fileName)) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
-                        String.format(ErrorMessageHandler.INVALID_FILE,file.getOriginalFilename()));
+                        String.format(ErrorMessageHandler.INCORRECT_FILE_FORMAT,file.getOriginalFilename()));
             }
         }
     }

@@ -24,7 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static ua.marketplace.utils.ErrorMessageHandler.INVALID_FILE;
+import static ua.marketplace.utils.ErrorMessageHandler.INCORRECT_FILE_FORMAT;
 
 @ExtendWith(MockitoExtension.class)
 class ImageServiceTest {
@@ -84,7 +84,7 @@ class ImageServiceTest {
         // Then
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, executable);
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals(String.format(INVALID_FILE, "file1.txt"), exception.getReason());
+        assertEquals(String.format(INCORRECT_FILE_FORMAT, "file1.txt"), exception.getReason());
     }
 
     @Test
