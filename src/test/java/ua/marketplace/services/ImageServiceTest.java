@@ -3,9 +3,11 @@ package ua.marketplace.services;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.Category;
@@ -22,6 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static ua.marketplace.utils.ErrorMessageHandler.INCORRECT_FILE_FORMAT;
 
 @ExtendWith(MockitoExtension.class)
 class ImageServiceTest {
@@ -54,7 +57,7 @@ class ImageServiceTest {
     }
 
     @Test
-    void testGetPhotoLinks() {
+    void testGetPhotoLinksSuccess() {
         // Given
         when(file1.getOriginalFilename()).thenReturn("file1.jpg");
         when(file2.getOriginalFilename()).thenReturn("file2.jpg");
@@ -68,6 +71,20 @@ class ImageServiceTest {
         assertEquals(3, result.size());
         assertEquals("url1", result.get(1).getPhotoLink());
         assertEquals("url2", result.get(2).getPhotoLink());
+    }
+
+    @Test
+    void testGetPhotoLinksWithInvalidFormat() {
+        // Given
+        when(file1.getOriginalFilename()).thenReturn("file1.txt");
+
+        // When
+        Executable executable = () -> imageService.getPhotoLinks(files, product);
+
+        // Then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, executable);
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(String.format(INCORRECT_FILE_FORMAT, "file1.txt"), exception.getReason());
     }
 
     @Test

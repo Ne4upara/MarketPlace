@@ -30,8 +30,7 @@ public record ProductRequest(
         @Pattern(regexp = "^(new|used)$", message = "Product type must be either 'new' or 'used'")
         String productType,
 
-        @Size(min = 2, max = 15, message = "Name should be between 2 and 15 characters")
-        @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄґҐ]+$", message = "Name should contain only letters (Latin or Cyrillic)")
+        @Size(min = 2, max = 30, message = "Name should be between 2 and 15 characters")
         String sellerName,
 
         @Size(min = 13, max = 13, message = "Phone should be between 13 digits")
