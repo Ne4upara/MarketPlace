@@ -11,11 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ua.marketplace.controllers.IProductController;
+import ua.marketplace.controllers.ProductController;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.ProductDto;
 import ua.marketplace.requests.ProductRequest;
-import ua.marketplace.services.impl.ProductService;
+import ua.marketplace.services.impl.ProductServiceImpl;
 
 import java.security.Principal;
 import java.util.List;
@@ -26,9 +26,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/products")
 @RequiredArgsConstructor
-public class ProductControllerImp implements IProductController {
+public class ProductControllerImp implements ProductController {
 
-    private final ProductService productService;
+    private final ProductServiceImpl productService;
 
     /**
      * Retrieves all products for the main page.
@@ -78,7 +78,7 @@ public class ProductControllerImp implements IProductController {
     @ResponseStatus(HttpStatus.OK)
     @Timed("getProductDetails")
     public ProductDto getProductDetailsById(@PathVariable Long id, HttpSession session) {
-        productService.incrementViewProduct(session, id);
+        productService.incrementCountOfViewInProduct(session, id);
         return productService.getProductDetails(id);
     }
 
@@ -136,8 +136,8 @@ public class ProductControllerImp implements IProductController {
      */
     @PostMapping("/favorite/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void getFavoriteProduct(Principal principal, @PathVariable Long id){
-        productService.getFavorite(principal, id);
+    public void addProductToFavorite(Principal principal, @PathVariable Long id) {
+        productService.getFavoriteProducts(principal, id);
     }
 
     /**
@@ -148,7 +148,7 @@ public class ProductControllerImp implements IProductController {
      */
     @DeleteMapping("/favorite/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteFavorite(Principal principal, @PathVariable Long id){
-        productService.deleteFavorite(principal, id);
+    public void deleteProductFromFavorite(Principal principal, @PathVariable Long id) {
+        productService.deleteProductFromFavorite(principal, id);
     }
 }

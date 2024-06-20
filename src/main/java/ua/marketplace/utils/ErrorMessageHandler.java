@@ -29,5 +29,6 @@ public final class ErrorMessageHandler {
     public static final String FAILED_RATING_UPDATE = "Failed to update product rating";
     public static final String FAILED_UPLOAD = "Failed to upload file";
     public static final String INCORRECT_FILE_FORMAT = "Invalid file format %s. File must be JPEG or PNG format";
+
     private ErrorMessageHandler() {}
 }

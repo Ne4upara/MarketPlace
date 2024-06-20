@@ -15,7 +15,7 @@ import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
 import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
-import ua.marketplace.services.impl.UserService;
+import ua.marketplace.services.impl.UserServiceImpl;
 import ua.marketplace.services.impl.UtilsService;
 
 import java.security.Principal;
@@ -41,7 +41,7 @@ class UserServiceTest {
     private FavoriteRepository favoriteRepository;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Test
     @Rollback
@@ -65,7 +65,7 @@ class UserServiceTest {
                 .thenReturn(productPage);
 
         // When
-        Pagination result = userService.getViewMyProduct(pageNumber, pageSize, sortBy, orderBy, principal);
+        Pagination result = userService.getMyProducts(pageNumber, pageSize, sortBy, orderBy, principal);
 
         // Then
         assertNotNull(result);
@@ -99,7 +99,7 @@ class UserServiceTest {
                 .thenReturn(favoritePage);
 
         // When
-        Pagination result = userService.getAllFavorite(pageNumber, pageSize, sortBy, orderBy, principal);
+        Pagination result = userService.getAllFavoriteProducts(pageNumber, pageSize, sortBy, orderBy, principal);
 
         // Then
         assertEquals(pageNumber, result.pageNumber());

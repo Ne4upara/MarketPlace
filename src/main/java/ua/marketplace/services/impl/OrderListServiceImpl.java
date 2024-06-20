@@ -6,13 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.dto.OrderListDto;
-import ua.marketplace.dto.OrderUserInfoDto;
+import ua.marketplace.dto.OrderListUserInfoDto;
 import ua.marketplace.entities.OrderList;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.User;
 import ua.marketplace.mapper.OrderListMapper;
 import ua.marketplace.repositoryes.OrderListRepository;
-import ua.marketplace.services.IOrderList;
+import ua.marketplace.services.OrderListService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.math.BigDecimal;
@@ -21,11 +21,11 @@ import java.util.ArrayList;
 
 /**
  * Service class for managing order lists.
- * Implements the IOrderList interface.
+ * Implements the OrderListService interface.
  */
 @Service
 @RequiredArgsConstructor
-public class OrderListService implements IOrderList {
+public class OrderListServiceImpl implements OrderListService {
 
     private final OrderListRepository orderListRepository;
     private final UtilsService utilsService;
@@ -38,7 +38,7 @@ public class OrderListService implements IOrderList {
      */
     @Override
     public OrderListDto viewOrderList(Principal principal) {
-        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderListDto(getBucketByPrincipal(principal));
+        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderListDto(getOrderListByPrincipal(principal));
     }
 
     /**
@@ -50,14 +50,14 @@ public class OrderListService implements IOrderList {
      */
     @Override
     @Transactional
-    public OrderUserInfoDto addToBucket(Long productId, Principal principal) {
+    public OrderListUserInfoDto addProductToOrderList(Long productId, Principal principal) {
 
         Product productById = utilsService.getProductById(productId);
 
-        OrderList orderList = getBucketByPrincipal(principal);
+        ua.marketplace.entities.OrderList orderList = getOrderListByPrincipal(principal);
         orderList.getProducts().add(productById);
         orderList.setTotalPrice(orderList.getTotalPrice().add(productById.getProductPrice()));
-        OrderList savedOrderList = orderListRepository.save(orderList);
+        ua.marketplace.entities.OrderList savedOrderList = orderListRepository.save(orderList);
         return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(savedOrderList);
     }
 
@@ -71,24 +71,24 @@ public class OrderListService implements IOrderList {
      */
     @Override
     @Transactional
-    public OrderUserInfoDto deleteFromOrderList(Long productId, Principal principal) {
+    public OrderListUserInfoDto deleteFromOrderList(Long productId, Principal principal) {
 
         Product productById = utilsService.getProductById(productId);
-        OrderList orderList = getBucketByPrincipal(principal);
+        ua.marketplace.entities.OrderList orderList = getOrderListByPrincipal(principal);
 
-        productExistInBucket(orderList, productById);
+        isExistInOrderList(orderList, productById);
 
         orderList.getProducts().remove(productById);
         orderList.setTotalPrice(subtractTotalPrice(orderList,productById));
-        OrderList savedOrderList = orderListRepository.save(orderList);
+        ua.marketplace.entities.OrderList savedOrderList = orderListRepository.save(orderList);
         return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(savedOrderList);
     }
 
-    private OrderList getBucketByPrincipal(Principal principal) {
+    private OrderList getOrderListByPrincipal(Principal principal) {
         User userByPrincipal = utilsService.getUserByPrincipal(principal);
-        OrderList orderList = userByPrincipal.getOrderList();
+        ua.marketplace.entities.OrderList orderList = userByPrincipal.getOrderList();
         if(orderList == null) {
-            OrderList createdOrderList = new OrderList();
+            ua.marketplace.entities.OrderList createdOrderList = new ua.marketplace.entities.OrderList();
             createdOrderList.setUser(userByPrincipal);
             createdOrderList.setProducts(new ArrayList<>());
             return createdOrderList;
@@ -97,14 +97,14 @@ public class OrderListService implements IOrderList {
             return orderList;
     }
 
-    private void productExistInBucket(OrderList orderList, Product product) {
+    private void isExistInOrderList(OrderList orderList, Product product) {
         if (!orderList.getProducts().contains(product)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     String.format(ErrorMessageHandler.PRODUCT_NOT_FOUND, product.getId()));
         }
     }
 
-    private BigDecimal subtractTotalPrice(OrderList orderList, Product product){
+    private BigDecimal subtractTotalPrice(OrderList orderList, Product product) {
         orderList.setTotalPrice(orderList.getTotalPrice().subtract(product.getProductPrice()));
         if(orderList.getTotalPrice().doubleValue() <= 0){
             return BigDecimal.ZERO;

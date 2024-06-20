@@ -1,6 +1,5 @@
 package ua.marketplace.services;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -15,7 +14,7 @@ import java.util.List;
 /**
  * Interface defining the contract for product-related operations.
  */
-public interface IProductService {
+public interface ProductService {
 
     /**
      * Retrieves details of a product by its ID.
@@ -92,7 +91,7 @@ public interface IProductService {
     Pagination getAllProductsByCategory
     (int pageNumber, int pageSize, String sortBy, String orderBy, String category);
 
-    void getFavorite(Principal principal, Long id);
+    void getFavoriteProducts(Principal principal, Long id);
 
-    void deleteFavorite(Principal principal, Long id);
+    void deleteProductFromFavorite(Principal principal, Long id);
 }

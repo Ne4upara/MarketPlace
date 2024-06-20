@@ -18,8 +18,8 @@ import ua.marketplace.repositoryes.CategoryRepository;
 import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.requests.ProductRequest;
-import ua.marketplace.services.impl.ImageService;
-import ua.marketplace.services.impl.ProductService;
+import ua.marketplace.services.impl.ProductPhotoServiceImpl;
+import ua.marketplace.services.impl.ProductServiceImpl;
 import ua.marketplace.services.impl.UtilsService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
@@ -46,11 +46,11 @@ class ProductServiceTest {
     @Mock
     private UtilsService utilsService;
     @Mock
-    private ImageService imageService;
+    private ProductPhotoServiceImpl imageService;
     @Mock
     private FavoriteRepository favoriteRepository;
     @InjectMocks
-    private ProductService productService;
+    private ProductServiceImpl productService;
 
 
     @Test
@@ -309,7 +309,7 @@ class ProductServiceTest {
         when(utilsService.getProductById(any())).thenReturn(product);
 
         // When
-        productService.getFavorite(principal, product.getId());
+        productService.getFavoriteProducts(principal, product.getId());
 
         // Then
         verify(favoriteRepository, times(1)).save(any(Favorite.class));
@@ -332,7 +332,7 @@ class ProductServiceTest {
         when(favoriteRepository.existsByUserAndProduct(user, product)).thenReturn(true);
 
         // When, Then
-        assertThrows(ResponseStatusException.class, () -> productService.getFavorite(principal, productId));
+        assertThrows(ResponseStatusException.class, () -> productService.getFavoriteProducts(principal, productId));
     }
 
     @Test
@@ -360,7 +360,7 @@ class ProductServiceTest {
                 .thenReturn(favorite);
 
         // When
-        productService.deleteFavorite(principal, product.getId());
+        productService.deleteProductFromFavorite(principal, product.getId());
 
         // Then
         verify(favoriteRepository, times(1)).delete(any(Favorite.class));
@@ -380,7 +380,7 @@ class ProductServiceTest {
         lenient().when(favoriteRepository.findByUserAndProduct(any(User.class), any(Product.class))).thenReturn(null);
 
         // When, Then
-        assertThrows(ResponseStatusException.class, () -> productService.deleteFavorite(principal, product.getId()));
+        assertThrows(ResponseStatusException.class, () -> productService.deleteProductFromFavorite(principal, product.getId()));
     }
 
     @Test
@@ -401,7 +401,7 @@ class ProductServiceTest {
 
         // When, Then
         assertThrows(ResponseStatusException.class,
-                () -> productService.getFavorite(principal, product.getId()));
+                () -> productService.getFavoriteProducts(principal, product.getId()));
     }
 
     @Test
@@ -427,7 +427,7 @@ class ProductServiceTest {
 
         // Then
         assertThrows(ResponseStatusException.class,
-                () -> productService.deleteFavorite(principal, product.getId()));
+                () -> productService.deleteProductFromFavorite(principal, product.getId()));
     }
 
     private Product mockProduct() {

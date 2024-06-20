@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Service interface for managing categories.
  */
-public interface ICategoryService {
+public interface CategoryService {
 
     /**
      * Retrieves a list of all categories.

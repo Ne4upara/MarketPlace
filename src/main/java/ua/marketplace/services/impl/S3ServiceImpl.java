@@ -12,14 +12,14 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import ua.marketplace.services.Is3Service;
+import ua.marketplace.services.S3Service;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class S3Service implements Is3Service {
+public class S3ServiceImpl implements S3Service {
 
     private final UtilsService utilsService;
     private static final String BUCKET = "testingbucket00-0-1";

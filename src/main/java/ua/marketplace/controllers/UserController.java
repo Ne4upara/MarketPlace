@@ -19,7 +19,7 @@ import java.security.Principal;
 
 @Tag(name = "User controller",
         description = "Endpoints for CRUD operations for users")
-public interface IUserController {
+public interface UserController {
 
     @Operation(summary = "Get all my products.",
             description = "Endpoint to retrieve all my products." +
@@ -28,7 +28,7 @@ public interface IUserController {
             @ApiResponse(responseCode = "200", description = "Successful operation"),
             @ApiResponse(responseCode = "403", description = "JWT token is missing", content = @Content())
     })
-    Pagination getViewMyProduct(
+    Pagination getMyProducts(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
             @Valid @RequestParam(defaultValue = "creationDate")
@@ -53,7 +53,7 @@ public interface IUserController {
             @ApiResponse(responseCode = "200", description = "Successful operation"),
             @ApiResponse(responseCode = "403", description = "JWT token is missing",content = @Content())
     })
-    Pagination getAllFavorite(
+    Pagination getAllFavoriteProducts(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
             @Valid @RequestParam(defaultValue = "creationDate")
