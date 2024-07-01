@@ -13,6 +13,6 @@ public record UserDto(
         String phoneNumber,
         String firstName,
         List<Long> favorite_id,
-        OrderUserInfoDto order_list
+        OrderListUserInfoDto order_list
 ) {
 }

@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Service interface for managing images associated with products.
  */
-public interface IImageService {
+public interface ProductPhotoService {
 
     /**
      * Retrieves a list of product photos based on the provided photo URLs and product.

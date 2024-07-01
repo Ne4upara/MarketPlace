@@ -4,16 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ua.marketplace.entities.Category;
 import ua.marketplace.repositoryes.CategoryRepository;
-import ua.marketplace.services.ICategoryService;
+import ua.marketplace.services.CategoryService;
 
 import java.util.List;
 
 /**
- * Implementation of the {@link ICategoryService} interface for managing categories.
+ * Implementation of the {@link ua.marketplace.services.CategoryService} interface for managing categories.
  */
 @Service
 @RequiredArgsConstructor
-public class CategoryService implements ICategoryService {
+public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 

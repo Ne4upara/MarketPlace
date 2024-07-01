@@ -3,10 +3,10 @@ package ua.marketplace.controllers.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ua.marketplace.controllers.IOrderListController;
+import ua.marketplace.controllers.OrderListController;
 import ua.marketplace.dto.OrderListDto;
-import ua.marketplace.dto.OrderUserInfoDto;
-import ua.marketplace.services.impl.OrderListService;
+import ua.marketplace.dto.OrderListUserInfoDto;
+import ua.marketplace.services.impl.OrderListServiceImpl;
 
 import java.security.Principal;
 
@@ -17,9 +17,9 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/v1/order_list")
 @RequiredArgsConstructor
-public class OrderListControllerImp implements IOrderListController {
+public class OrderListControllerImp implements OrderListController {
 
-    private final OrderListService orderListService;
+    private final OrderListServiceImpl orderListService;
 
     /**
      * Retrieves the order list for the authenticated user.
@@ -28,7 +28,7 @@ public class OrderListControllerImp implements IOrderListController {
      * @return The DTO representing the order list.
      */
     @GetMapping("/view")
-    public OrderListDto getOrderList(Principal principal){
+    public OrderListDto getOrderList(Principal principal) {
        return orderListService.viewOrderList(principal);
     }
 
@@ -41,8 +41,8 @@ public class OrderListControllerImp implements IOrderListController {
      */
     @PostMapping("/add/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public OrderUserInfoDto addProductToOrderList(Principal principal, @PathVariable Long id){
-        return orderListService.addToBucket(id,principal);
+    public OrderListUserInfoDto addProductToOrderList(Principal principal, @PathVariable Long id) {
+        return orderListService.addProductToOrderList(id,principal);
     }
 
     /**
@@ -54,7 +54,7 @@ public class OrderListControllerImp implements IOrderListController {
      */
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public OrderUserInfoDto deleteProductFromOrderList(Principal principal, @PathVariable Long id){
+    public OrderListUserInfoDto deleteProductFromOrderList(Principal principal, @PathVariable Long id) {
         return orderListService.deleteFromOrderList(id,principal);
     }
 }

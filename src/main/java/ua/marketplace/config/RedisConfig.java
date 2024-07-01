@@ -12,7 +12,7 @@ import java.time.Duration;
  * Indicates that this class contains Spring bean definitions.
  */
 @Configuration
-public class RedisCacheConfig {
+public class RedisConfig {
 
     /**
      * Defines a Redis cache manager bean to be managed by the Spring container.
@@ -21,7 +21,7 @@ public class RedisCacheConfig {
      * @return A RedisCacheManager configured with default cache settings.
      */
     @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    public RedisCacheManager manageCache(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(1));
 

@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
-import ua.marketplace.dto.CodeDto;
+import ua.marketplace.dto.SmsCodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
@@ -21,7 +21,7 @@ import ua.marketplace.swagger.responses.ValidationErrorResponse;
 
 @Tag(name = "Authorization controller",
         description = "Endpoints for registration and authorization users")
-public interface IPhoneAuthController {
+public interface PhoneAuthController {
 
     @Operation(summary = "User login",
             description = "Endpoint for sending user verification codes")
@@ -44,7 +44,7 @@ public interface IPhoneAuthController {
             description = "Endpoint for verification SMS-code")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = CodeDto.class))),
+                    content = @Content(schema = @Schema(implementation = SmsCodeDto.class))),
             @ApiResponse(responseCode = "400", description = "The code was entered incorrectly",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class))),
             @ApiResponse(responseCode = "409", description =
@@ -52,7 +52,7 @@ public interface IPhoneAuthController {
                             "/ SMS-code time is up(5 min)",
                     content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
-    CodeDto inputCode(@Parameter(description = "Request body containing user phone number", schema =
+    SmsCodeDto inputCode(@Parameter(description = "Request body containing user phone number", schema =
     @Schema(implementation = PhoneCodeRequest.class))
                       @Valid @RequestBody PhoneCodeRequest request);
 

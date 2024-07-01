@@ -8,21 +8,21 @@ import org.springframework.web.server.ResponseStatusException;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.repositoryes.PhotoRepository;
-import ua.marketplace.services.IImageService;
+import ua.marketplace.services.ProductPhotoService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of the {@link IImageService} interface for managing images associated with products.
+ * Implementation of the {@link ProductPhotoService} interface for managing images associated with products.
  */
 @Service
 @RequiredArgsConstructor
-public class ImageService implements IImageService {
+public class ProductPhotoServiceImpl implements ProductPhotoService {
 
     private final PhotoRepository photoRepository;
-    private final S3Service s3Service;
+    private final S3ServiceImpl s3Service;
     private static final int MAX_PHOTOS_ALLOWED = 8;
     private static final String DEFAULT_NAME = "noName";
     public static final String DEFAULT_IMAGE_LINK =

@@ -8,10 +8,10 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ua.marketplace.controllers.IUserController;
+import ua.marketplace.controllers.UserController;
 import ua.marketplace.dto.Pagination;
 import ua.marketplace.dto.UserDto;
-import ua.marketplace.services.impl.UserService;
+import ua.marketplace.services.impl.UserServiceImpl;
 
 import java.security.Principal;
 
@@ -22,9 +22,9 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/v1/my-profile")
 @RequiredArgsConstructor
-public class UserControllerImp implements IUserController {
+public class UserControllerImp implements UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     /**
      * Retrieves all products associated with the logged-in user.
@@ -39,14 +39,14 @@ public class UserControllerImp implements IUserController {
     @GetMapping("/view/all")
     @ResponseStatus(HttpStatus.OK)
     @Timed("getViewUserProduct")
-    public Pagination getViewMyProduct(
+    public Pagination getMyProducts(
             @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
             @Valid @RequestParam(defaultValue = "10") @Positive int size,
             @Valid @RequestParam(defaultValue = "creationDate")
             @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
             @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
-            Principal principal){
-        return userService.getViewMyProduct(number, size, sort, order, principal);
+            Principal principal) {
+        return userService.getMyProducts(number, size, sort, order, principal);
     }
 
     /**
@@ -57,7 +57,7 @@ public class UserControllerImp implements IUserController {
      */
     @GetMapping("/info")
     @ResponseStatus(HttpStatus.OK)
-    public UserDto getUserInfo(Principal principal){
+    public UserDto getUserInfo(Principal principal) {
         return userService.getUserInfo(principal);
     }
 
@@ -74,13 +74,13 @@ public class UserControllerImp implements IUserController {
     @GetMapping("/favorite/all")
     @ResponseStatus(HttpStatus.OK)
     @Timed("getAllFavoriteForUser")
-    public Pagination getAllFavorite(
+    public Pagination getAllFavoriteProducts(
         @Valid @RequestParam(defaultValue = "0") @PositiveOrZero int number,
         @Valid @RequestParam(defaultValue = "10") @Positive int size,
         @Valid @RequestParam(defaultValue = "creationDate")
         @Pattern(regexp = "creationDate|productName|productPrice|id") String sort,
         @Valid @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC") String order,
-        Principal principal){
-        return userService.getAllFavorite(number, size, sort, order, principal);
+        Principal principal) {
+        return userService.getAllFavoriteProducts(number, size, sort, order, principal);
     }
 }

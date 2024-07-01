@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ua.marketplace.controllers.ICategoryController;
+import ua.marketplace.controllers.CategoryController;
 import ua.marketplace.entities.Category;
-import ua.marketplace.services.impl.CategoryService;
+import ua.marketplace.services.impl.CategoryServiceImpl;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/categories")
 @RequiredArgsConstructor
-public class CategoryControllerImpl implements ICategoryController {
+public class CategoryControllerImpl implements CategoryController {
 
-    private final CategoryService categoryService;
+    private final CategoryServiceImpl categoryService;
 
     /**
      * Retrieves a list of all categories.

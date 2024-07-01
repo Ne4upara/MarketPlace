@@ -7,7 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ua.marketplace.entities.Category;
 import ua.marketplace.repositoryes.CategoryRepository;
-import ua.marketplace.services.impl.CategoryService;
+import ua.marketplace.services.impl.CategoryServiceImpl;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ class CategoryServiceTest {
     @Mock
     private CategoryRepository categoryRepository;
     @InjectMocks
-    private CategoryService categoryService;
+    private CategoryServiceImpl categoryService;
 
     @Test
     void testGetAllCategory() {

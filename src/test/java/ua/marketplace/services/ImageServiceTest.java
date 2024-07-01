@@ -14,8 +14,8 @@ import ua.marketplace.entities.Category;
 import ua.marketplace.entities.Product;
 import ua.marketplace.entities.ProductPhoto;
 import ua.marketplace.repositoryes.PhotoRepository;
-import ua.marketplace.services.impl.ImageService;
-import ua.marketplace.services.impl.S3Service;
+import ua.marketplace.services.impl.ProductPhotoServiceImpl;
+import ua.marketplace.services.impl.S3ServiceImpl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,10 +33,10 @@ class ImageServiceTest {
     private PhotoRepository photoRepository;
     
     @Mock
-    private S3Service s3Service;
+    private S3ServiceImpl s3Service;
     
     @InjectMocks
-    private ImageService imageService;
+    private ProductPhotoServiceImpl imageService;
 
     private Product product;
     private MultipartFile file1;
@@ -99,7 +99,7 @@ class ImageServiceTest {
 
         // Then
         assertEquals(3, result.size());
-        assertEquals(ImageService.DEFAULT_IMAGE_LINK, result.get(1).getPhotoLink());
+        assertEquals(ProductPhotoServiceImpl.DEFAULT_IMAGE_LINK, result.get(1).getPhotoLink());
         assertEquals("url2", result.get(2).getPhotoLink());
     }
 

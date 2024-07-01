@@ -25,7 +25,7 @@ import java.util.List;
 
 @Tag(name = "Product controller",
         description = "Endpoints for CRUD operations for products")
-public interface IProductController {
+public interface ProductController {
 
     @Operation(summary = "Get all products for main page",
             description = "Endpoint to retrieve all products for the main page." +
@@ -124,7 +124,7 @@ public interface IProductController {
             @ApiResponse(responseCode = "400", description = "You cannot add a product a second time"
             ,content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
-    void getFavoriteProduct(Principal principal, @PathVariable Long id);
+    void addProductToFavorite(Principal principal, @PathVariable Long id);
 
 
     @Operation(summary = "Delete product favorite.",
@@ -134,5 +134,5 @@ public interface IProductController {
             @ApiResponse(responseCode = "400", description = "You cannot remove a non-existent product"
                     , content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class)))
     })
-    void deleteFavorite(Principal principal, @PathVariable Long id);
+    void deleteProductFromFavorite(Principal principal, @PathVariable Long id);
 }

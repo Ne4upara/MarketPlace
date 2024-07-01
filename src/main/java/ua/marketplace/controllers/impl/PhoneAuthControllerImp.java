@@ -7,15 +7,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ua.marketplace.controllers.IPhoneAuthController;
-import ua.marketplace.dto.CodeDto;
+import ua.marketplace.controllers.PhoneAuthController;
+import ua.marketplace.dto.SmsCodeDto;
 import ua.marketplace.dto.PhoneNumberDto;
 import ua.marketplace.entities.User;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
 import ua.marketplace.security.JwtUtil;
-import ua.marketplace.services.impl.PhoneNumberRegistrationService;
+import ua.marketplace.services.impl.PhoneNumberRegistrationServiceImpl;
 
 /**
  * Controller class for handling authentication-related requests.
@@ -23,9 +23,9 @@ import ua.marketplace.services.impl.PhoneNumberRegistrationService;
 @RestController
 @RequestMapping("/v1/auth")
 @RequiredArgsConstructor
-public class PhoneAuthControllerImp implements IPhoneAuthController {
+public class PhoneAuthControllerImp implements PhoneAuthController {
 
-    private final PhoneNumberRegistrationService phoneNumberService;
+    private final PhoneNumberRegistrationServiceImpl phoneNumberService;
     private final JwtUtil jwtUtil;
 
     /**
@@ -46,14 +46,14 @@ public class PhoneAuthControllerImp implements IPhoneAuthController {
      * Handling the input of a phone code for registration.
      *
      * @param request PhoneCodeRequest containing the phone number and input code.
-     * @return CodeDto containing the JWT token or validation errors.
+     * @return SmsCodeDto containing the JWT token or validation errors.
      */
     @PostMapping("/login/code")
     @ResponseStatus(HttpStatus.OK)
-    public CodeDto inputCode
+    public SmsCodeDto inputCode
     (@Valid @RequestBody PhoneCodeRequest request) {
         User user = phoneNumberService.inputPhoneCode(request);
-        return new CodeDto(jwtUtil.generateToken(user.getPhoneNumber()));
+        return new SmsCodeDto(jwtUtil.generateToken(user.getPhoneNumber()));
     }
 
     /**
@@ -67,7 +67,7 @@ public class PhoneAuthControllerImp implements IPhoneAuthController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public PhoneNumberDto registration
     (@Valid @RequestBody RegistrationRequest request) {
-        User user = phoneNumberService.registrationUser(request);
+        User user = phoneNumberService.registration(request);
         return new PhoneNumberDto(user.getPhoneNumber());
     }
 

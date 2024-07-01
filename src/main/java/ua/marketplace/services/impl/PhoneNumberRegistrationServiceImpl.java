@@ -11,18 +11,18 @@ import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
-import ua.marketplace.services.IPhoneNumberRegistrationService;
+import ua.marketplace.services.PhoneNumberRegistrationService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Implementation of the {@link IPhoneNumberRegistrationService} interface for handling phone number registration and login operations.
+ * Implementation of the {@link ua.marketplace.services.PhoneNumberRegistrationService} interface for handling phone number registration and login operations.
  */
 @Service
 @RequiredArgsConstructor
-public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationService {
+public class PhoneNumberRegistrationServiceImpl implements PhoneNumberRegistrationService {
 
     private static final int MAX_LOGIN_ATTEMPTS = 3;
     private static final int TIME_BEFORE_ACCESS = 5;
@@ -128,7 +128,7 @@ public class PhoneNumberRegistrationService implements IPhoneNumberRegistrationS
      * @throws ResponseStatusException An exception that occurs if a user with the specified phone number already exists.
      */
     @Override
-    public User registrationUser(RegistrationRequest request) {
+    public User registration(RegistrationRequest request) {
         validatePhoneNumberNotExist(request.phoneNumber());
         User user = createUserWithVerificationCode(request.firstName(), request.phoneNumber());
         return userRepository.save(user);

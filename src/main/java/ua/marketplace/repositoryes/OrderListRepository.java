@@ -6,7 +6,7 @@ import ua.marketplace.entities.OrderList;
 import ua.marketplace.entities.User;
 
 /**
- * Repository interface for accessing and managing OrderList entities in the database.
+ * Repository interface for accessing and managing OrderListService entities in the database.
  * Extends JpaRepository for basic CRUD operations.
  */
 @Repository

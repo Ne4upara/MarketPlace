@@ -8,13 +8,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ua.marketplace.dto.OrderListDto;
-import ua.marketplace.dto.OrderUserInfoDto;
+import ua.marketplace.dto.OrderListUserInfoDto;
 
 import java.security.Principal;
 
-@Tag(name = "OrderList controller",
+@Tag(name = "OrderListService controller",
         description = "Endpoints for add/delete/view operations for order list")
-public interface IOrderListController {
+public interface OrderListController {
 
     @Operation(summary = "Get user order list",
             description = "Endpoint to view user order list")
@@ -30,11 +30,11 @@ public interface IOrderListController {
             description = "Endpoint to add product to order list")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = OrderUserInfoDto.class))),
+                    content = @Content(schema = @Schema(implementation = OrderListUserInfoDto.class))),
             @ApiResponse(responseCode = "403", description = "User not authorized"),
             @ApiResponse(responseCode = "404", description = "Product with this ID not found")
     })
-    OrderUserInfoDto addProductToOrderList (
+    OrderListUserInfoDto addProductToOrderList (
             @Parameter(description = "Principal object representing the authenticated user")Principal principal,
             @Parameter(description = "ID of the product to be added to order list") Long id);
 
@@ -42,11 +42,11 @@ public interface IOrderListController {
             description = "Endpoint to Delete product to order list")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = OrderUserInfoDto.class))),
+                    content = @Content(schema = @Schema(implementation = OrderListUserInfoDto.class))),
             @ApiResponse(responseCode = "403", description = "User not authorized"),
             @ApiResponse(responseCode = "404", description = "Product with this ID not found")
     })
-    OrderUserInfoDto deleteProductFromOrderList (
+    OrderListUserInfoDto deleteProductFromOrderList (
             @Parameter(description = "Principal object representing the authenticated user")Principal principal,
             @Parameter(description = "ID of the product to be deleted to order list")Long id);
 }

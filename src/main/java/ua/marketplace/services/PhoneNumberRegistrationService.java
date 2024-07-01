@@ -9,7 +9,7 @@ import ua.marketplace.requests.RegistrationRequest;
 /**
  * Interface defining the contract for phone number registration service and login transactions.
  */
-public interface IPhoneNumberRegistrationService {
+public interface PhoneNumberRegistrationService {
 
     /**
      * Handles login by phone number.
@@ -33,5 +33,5 @@ public interface IPhoneNumberRegistrationService {
      * @param request RegistrationRequest containing the username and phone number.
      * @return User representing the registered user.
      */
-    User registrationUser(RegistrationRequest request);
+    User registration(RegistrationRequest request);
 }

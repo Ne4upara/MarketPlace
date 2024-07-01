@@ -18,7 +18,7 @@ import ua.marketplace.repositoryes.CategoryRepository;
 import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
 import ua.marketplace.requests.ProductRequest;
-import ua.marketplace.services.IProductService;
+import ua.marketplace.services.ProductService;
 import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.security.Principal;
@@ -26,15 +26,15 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Implementation of the {@link IProductService} interface for managing product-related operations.
+ * Implementation of the {@link ua.marketplace.services.ProductService} interface for managing product-related operations.
  */
 @Service
 @RequiredArgsConstructor
-public class ProductService implements IProductService {
+public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final ImageService imageService;
+    private final ProductPhotoServiceImpl imageService;
     private final FavoriteRepository favoriteRepository;
     private final UtilsService utilsService;
 
@@ -101,7 +101,7 @@ public class ProductService implements IProductService {
         return ProductMapper.PRODUCT_INSTANCE.productToProductDto(utilsService.getProductById(id));
     }
 
-    public void incrementViewProduct(HttpSession session, Long id){ //Надо тестировать!!
+    public void incrementCountOfViewInProduct(HttpSession session, Long id){ //Надо тестировать!!
         String attributeName = "visited_product_" + id;
         if (session.getAttribute(attributeName) == null) {
             productRepository.incrementProductViews(id);
@@ -223,7 +223,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void getFavorite(Principal principal, Long id) {
+    public void getFavoriteProducts(Principal principal, Long id) {
         User user = utilsService.getUserByPrincipal(principal);
         Product productById = utilsService.getProductById(id);
         validateFavorite(user, productById, "TRUE");
@@ -236,7 +236,7 @@ public class ProductService implements IProductService {
 
     @Override
     @Transactional //проверить
-    public void deleteFavorite(Principal principal, Long id) {
+    public void deleteProductFromFavorite(Principal principal, Long id) {
         User userByPrincipal = utilsService.getUserByPrincipal(principal);
         Product productById = utilsService.getProductById(id);
         validateFavorite(userByPrincipal, productById, "FALSE");

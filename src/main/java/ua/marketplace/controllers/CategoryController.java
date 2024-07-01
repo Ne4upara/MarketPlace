@@ -10,7 +10,7 @@ import ua.marketplace.entities.Category;
 
 import java.util.List;
 
-public interface ICategoryController {
+public interface CategoryController {
 
     @Operation(summary = "Get all Category",
             description = "Endpoint to retrieve all product categories (id, url link, name for catalog view.")
