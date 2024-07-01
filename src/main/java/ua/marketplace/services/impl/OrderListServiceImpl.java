@@ -54,10 +54,10 @@ public class OrderListServiceImpl implements OrderListService {
 
         Product productById = utilsService.getProductById(productId);
 
-        ua.marketplace.entities.OrderList orderList = getOrderListByPrincipal(principal);
+        OrderList orderList = getOrderListByPrincipal(principal);
         orderList.getProducts().add(productById);
         orderList.setTotalPrice(orderList.getTotalPrice().add(productById.getProductPrice()));
-        ua.marketplace.entities.OrderList savedOrderList = orderListRepository.save(orderList);
+        OrderList savedOrderList = orderListRepository.save(orderList);
         return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(savedOrderList);
     }
 
@@ -74,21 +74,21 @@ public class OrderListServiceImpl implements OrderListService {
     public OrderListUserInfoDto deleteFromOrderList(Long productId, Principal principal) {
 
         Product productById = utilsService.getProductById(productId);
-        ua.marketplace.entities.OrderList orderList = getOrderListByPrincipal(principal);
+        OrderList orderList = getOrderListByPrincipal(principal);
 
         isExistInOrderList(orderList, productById);
 
         orderList.getProducts().remove(productById);
         orderList.setTotalPrice(subtractTotalPrice(orderList,productById));
-        ua.marketplace.entities.OrderList savedOrderList = orderListRepository.save(orderList);
+        OrderList savedOrderList = orderListRepository.save(orderList);
         return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(savedOrderList);
     }
 
     private OrderList getOrderListByPrincipal(Principal principal) {
         User userByPrincipal = utilsService.getUserByPrincipal(principal);
-        ua.marketplace.entities.OrderList orderList = userByPrincipal.getOrderList();
+        OrderList orderList = userByPrincipal.getOrderList();
         if(orderList == null) {
-            ua.marketplace.entities.OrderList createdOrderList = new ua.marketplace.entities.OrderList();
+            OrderList createdOrderList = new OrderList();
             createdOrderList.setUser(userByPrincipal);
             createdOrderList.setProducts(new ArrayList<>());
             return createdOrderList;
