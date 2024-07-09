@@ -26,7 +26,7 @@ public interface UserMapper {
      * @param favorites The set of favorite associations for the user.
      * @return The corresponding UserDto.
      */
-    @Mapping(target = "favorite_id", expression = "java(getAllFavorite(favorites))")
+    @Mapping(target = "favorite_id", expression = "java(getAllFavoriteProducts(favorites))")
     @Mapping(target = "order_list",
             expression = "java(OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(user.getOrderList()))")
     UserDto userToUserDTO(User user, Set<Favorite> favorites );
@@ -37,7 +37,7 @@ public interface UserMapper {
      * @param favorites The set of favorite associations for the user.
      * @return The list of all favorite product IDs.
      */
-    default List<Long> getAllFavorite(Set<Favorite> favorites) {
+    default List<Long> getAllFavoriteProducts(Set<Favorite> favorites) {
         return favorites.stream()
                 .map(favorite -> favorite.getProduct().getId())
                 .toList();

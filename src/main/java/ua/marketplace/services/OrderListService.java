@@ -1,7 +1,7 @@
 package ua.marketplace.services;
 
 import ua.marketplace.dto.OrderListDto;
-import ua.marketplace.dto.OrderUserInfoDto;
+import ua.marketplace.dto.OrderListUserInfoDto;
 
 import java.security.Principal;
 
@@ -9,7 +9,7 @@ import java.security.Principal;
  * Interface for managing order lists.
  * Provides methods for viewing, adding to, and deleting from an order list.
  */
-public interface IOrderList {
+public interface OrderListService {
     /**
      * Retrieves the order list associated with the authenticated user.
      *
@@ -25,7 +25,7 @@ public interface IOrderList {
      * @param principal The principal representing the authenticated user.
      * @return The DTO representing the updated order list for the main page.
      */
-    OrderUserInfoDto addToBucket(Long productId, Principal principal);
+    OrderListUserInfoDto addProductToOrderList(Long productId, Principal principal);
 
     /**
      * Deletes a product from the order list associated with the authenticated user.
@@ -34,5 +34,5 @@ public interface IOrderList {
      * @param principal The principal representing the authenticated user.
      * @return The DTO representing the updated order list for the main page.
      */
-    OrderUserInfoDto deleteFromOrderList(Long productId, Principal principal);
+    OrderListUserInfoDto deleteFromOrderList(Long productId, Principal principal);
 }

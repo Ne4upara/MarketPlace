@@ -16,7 +16,7 @@ import ua.marketplace.repositoryes.VerificationCodeRepository;
 import ua.marketplace.requests.PhoneCodeRequest;
 import ua.marketplace.requests.PhoneNumberRequest;
 import ua.marketplace.requests.RegistrationRequest;
-import ua.marketplace.services.impl.PhoneNumberRegistrationService;
+import ua.marketplace.services.impl.PhoneNumberRegistrationServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -36,7 +36,7 @@ class PhoneNumberRegistrationServiceTest {
     @Mock
     private VerificationCodeRepository verificationCodeRepository;
     @InjectMocks
-    private PhoneNumberRegistrationService registrationService;
+    private PhoneNumberRegistrationServiceImpl registrationService;
 
     @Test
     @Rollback
@@ -283,7 +283,7 @@ class PhoneNumberRegistrationServiceTest {
         when(userRepository.existsByPhoneNumber(request.phoneNumber())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(expectedUser);
 
-        User result = registrationService.registrationUser(request);
+        User result = registrationService.registration(request);
 
         assertEquals(expectedUser, result);
     }
@@ -301,7 +301,7 @@ class PhoneNumberRegistrationServiceTest {
 
         // When, Then
         ResponseStatusException exception = assertThrows
-                (ResponseStatusException.class, () -> registrationService.registrationUser(request));
+                (ResponseStatusException.class, () -> registrationService.registration(request));
         assertEquals("409 CONFLICT \"Phone already exists: " + request.phoneNumber() + "\"",
                 exception.getMessage());
     }

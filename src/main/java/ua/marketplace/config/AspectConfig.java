@@ -1,4 +1,4 @@
-package ua.marketplace.utils;
+package ua.marketplace.config;
 
 import io.micrometer.core.aop.CountedAspect;
 import io.micrometer.core.aop.TimedAspect;
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  */
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class Config {
+public class AspectConfig {
 
     /**
      * Configures the counted aspect.

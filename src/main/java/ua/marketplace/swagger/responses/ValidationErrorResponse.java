@@ -10,7 +10,7 @@ import java.util.Map;
  * specific fields in the request.
  */
 public record ValidationErrorResponse(
-        @Schema(description = "Validation errors") // Describes the errorMessage field in the Swagger documentation
+        @Schema(description = "Validation errors")
         Map<String, String> errorMessage
 ) {
 }

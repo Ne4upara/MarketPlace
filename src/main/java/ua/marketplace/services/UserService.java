@@ -9,7 +9,7 @@ import java.security.Principal;
 /**
  * Service interface for managing user-related operations.
  */
-public interface IUserService {
+public interface UserService {
 
     /**
      * Retrieves products paginated for view all my products.
@@ -22,7 +22,7 @@ public interface IUserService {
      * @return Pagination object containing the paginated list of products for the main page.
      */
     @Cacheable(value = "products", key = "{#pageNumber, #pageSize, #sortBy, #orderBy, #principal}")
-    Pagination getViewMyProduct (
+    Pagination getMyProducts(
             int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal);
 
     /**
@@ -35,7 +35,7 @@ public interface IUserService {
      * @param principal  The principal representing the logged-in user.
      * @return Pagination object containing the paginated list of favorite products for the user.
      */
-    Pagination getAllFavorite(
+    Pagination getAllFavoriteProducts(
             int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal);
 
     /**

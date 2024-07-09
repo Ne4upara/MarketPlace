@@ -9,7 +9,7 @@ import java.security.Principal; // Principal is used for authentication
  * Provides methods for rating, updating ratings, and deleting ratings for products.
  */
 //TODO
-public interface IProductRatingService {
+public interface ProductRatingService {
 
     /**
      * Rates a product based on the given request.

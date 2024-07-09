@@ -13,7 +13,7 @@ import ua.marketplace.entities.User;
 import ua.marketplace.mapper.UserMapper;
 import ua.marketplace.repositoryes.FavoriteRepository;
 import ua.marketplace.repositoryes.ProductRepository;
-import ua.marketplace.services.IUserService;
+import ua.marketplace.services.UserService;
 
 import java.security.Principal;
 import java.util.List;
@@ -21,11 +21,11 @@ import java.util.Set;
 
 /**
  * Service class for managing user-related operations.
- * Implements the {@link IUserService} interface.
+ * Implements the {@link ua.marketplace.services.UserService} interface.
  */
 @Service
 @RequiredArgsConstructor
-public class UserService implements IUserService {
+public class UserServiceImpl implements UserService {
 
     private final UtilsService utilsService;
     private final ProductRepository productRepository;
@@ -42,7 +42,7 @@ public class UserService implements IUserService {
      * @return Pagination object containing the paginated list of products for the main page.
      */
     @Override
-    public Pagination getViewMyProduct(
+    public Pagination getMyProducts(
             int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal) {
         User user = utilsService.getUserByPrincipal(principal);
         Pageable pageable = utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy);
@@ -66,7 +66,7 @@ public class UserService implements IUserService {
      * @return Pagination object containing the paginated list of favorite products for the user.
      */
     @Override
-    public Pagination getAllFavorite(
+    public Pagination getAllFavoriteProducts(
             int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal) {
         User user = utilsService.getUserByPrincipal(principal);
         Pageable pageable = utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy);
@@ -86,7 +86,7 @@ public class UserService implements IUserService {
      * @return UserDto object containing user information.
      */
     @Override
-    public UserDto getUserInfo(Principal principal){
+    public UserDto getUserInfo(Principal principal) {
         User user = utilsService.getUserByPrincipal(principal);
         Set<Favorite> favorites = favoriteRepository.findByUser(user);
         return UserMapper.USER_MAPPER.userToUserDTO(user, favorites);
