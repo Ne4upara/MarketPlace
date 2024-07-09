@@ -137,7 +137,7 @@ public class ProductControllerImp implements ProductController {
     @PostMapping("/favorite/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addProductToFavorite(Principal principal, @PathVariable Long id) {
-        productService.getFavoriteProducts(principal, id);
+        productService.addProductToFavorite(principal, id);
     }
 
     /**

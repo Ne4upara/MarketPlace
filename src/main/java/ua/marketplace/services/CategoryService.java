@@ -14,5 +14,5 @@ public interface CategoryService {
      *
      * @return A list of all categories.
      */
-    List<Category> getAllCategory();
+    List<Category> getAllCategories();
 }

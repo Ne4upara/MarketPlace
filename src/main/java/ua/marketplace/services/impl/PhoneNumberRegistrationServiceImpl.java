@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Implementation of the {@link ua.marketplace.services.PhoneNumberRegistrationService} interface for handling phone number registration and login operations.
+ * Implementation of the {@link PhoneNumberRegistrationService} interface for handling phone number registration and login operations.
  */
 @Service
 @RequiredArgsConstructor
@@ -69,7 +69,6 @@ public class PhoneNumberRegistrationServiceImpl implements PhoneNumberRegistrati
         if (isBefore) {
             return userTimeAccess.isBefore(LocalDateTime.now());
         }
-
         return userTimeAccess.isAfter(LocalDateTime.now());
     }
 
@@ -99,14 +98,17 @@ public class PhoneNumberRegistrationServiceImpl implements PhoneNumberRegistrati
 
     private void validateCode(VerificationCode verificationCode, String inputCode) {
         if (!verificationCode.getCode().equals(inputCode)) {
-            if (verificationCode.getLoginAttempt() >= MAX_LOGIN_ATTEMPTS) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.USED_UP_ALL);
-            }
-
-            verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + BigDecimal.ONE.intValue());
-            verificationCodeRepository.save(verificationCode);
+            incrementLoginAttempt(verificationCode);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessageHandler.CODE_WAS_ENTERED_INCORRECT);
         }
+    }
+
+    private void incrementLoginAttempt(VerificationCode verificationCode) {
+        if (verificationCode.getLoginAttempt() >= MAX_LOGIN_ATTEMPTS) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.USED_UP_ALL);
+        }
+        verificationCode.setLoginAttempt(verificationCode.getLoginAttempt() + 1);
+        verificationCodeRepository.save(verificationCode);
     }
 
     private void validateTime(VerificationCode verificationCode) {
@@ -142,19 +144,19 @@ public class PhoneNumberRegistrationServiceImpl implements PhoneNumberRegistrati
     }
 
     private User createUserWithVerificationCode(String firstName, String phoneNumber) {
-        User user = createdUser(firstName, phoneNumber);
-        user.setVerificationCode(createdVerificationCode(user));
+        User user = createUser(firstName, phoneNumber);
+        user.setVerificationCode(createVerificationCode(user));
         return user;
     }
 
-    private VerificationCode createdVerificationCode(User user) {
+    private VerificationCode createVerificationCode(User user) {
         return VerificationCode.builder()
                 .code("1111")   //Вставить метод генерации кода
                 .user(user)
                 .build();
     }
 
-    private User createdUser(String firstName, String phoneNumber) {
+    private User createUser(String firstName, String phoneNumber) {
         return User.builder()
                 .firstName(firstName)
                 .phoneNumber(phoneNumber)

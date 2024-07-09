@@ -91,7 +91,7 @@ public interface ProductService {
     Pagination getAllProductsByCategory
     (int pageNumber, int pageSize, String sortBy, String orderBy, String category);
 
-    void getFavoriteProducts(Principal principal, Long id);
+    void addProductToFavorite(Principal principal, Long id);
 
     void deleteProductFromFavorite(Principal principal, Long id);
 }
