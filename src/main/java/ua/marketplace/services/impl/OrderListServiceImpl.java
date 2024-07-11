@@ -38,7 +38,8 @@ public class OrderListServiceImpl implements OrderListService {
      */
     @Override
     public OrderListDto viewOrderList(Principal principal) {
-        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderListDto(getOrderListByPrincipal(principal));
+        OrderList orderList = getOrderListByPrincipal(principal);
+        return convertToOrderListDto(orderList);
     }
 
     /**
@@ -51,14 +52,11 @@ public class OrderListServiceImpl implements OrderListService {
     @Override
     @Transactional
     public OrderListUserInfoDto addProductToOrderList(Long productId, Principal principal) {
-
-        Product productById = utilsService.getProductById(productId);
-
+        Product productById = getProductById(productId);
         OrderList orderList = getOrderListByPrincipal(principal);
-        orderList.getProducts().add(productById);
-        orderList.setTotalPrice(orderList.getTotalPrice().add(productById.getProductPrice()));
+        addToOrderList(productById,orderList);
         OrderList savedOrderList = orderListRepository.save(orderList);
-        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(savedOrderList);
+        return convertToOrderListUserInfoDto(savedOrderList);
     }
 
     /**
@@ -72,32 +70,53 @@ public class OrderListServiceImpl implements OrderListService {
     @Override
     @Transactional
     public OrderListUserInfoDto deleteFromOrderList(Long productId, Principal principal) {
-
-        Product productById = utilsService.getProductById(productId);
+        Product productById = getProductById(productId);
         OrderList orderList = getOrderListByPrincipal(principal);
-
-        isExistInOrderList(orderList, productById);
-
-        orderList.getProducts().remove(productById);
-        orderList.setTotalPrice(subtractTotalPrice(orderList,productById));
+        ensureProductExistsInOrderList(orderList, productById);
+        removeFromOrderList(productById, orderList);
         OrderList savedOrderList = orderListRepository.save(orderList);
-        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(savedOrderList);
+        return convertToOrderListUserInfoDto(savedOrderList);
+    }
+
+    private Product getProductById(Long id) {
+        return utilsService.getProductById(id);
+    }
+
+    private OrderListUserInfoDto convertToOrderListUserInfoDto(OrderList orderList) {
+        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderUserInfoDto(orderList);
+    }
+
+    private OrderListDto convertToOrderListDto(OrderList orderList) {
+        return OrderListMapper.ORDER_LIST_MAPPER_INSTANCE.orderListToOrderListDto(orderList);
     }
 
     private OrderList getOrderListByPrincipal(Principal principal) {
         User userByPrincipal = utilsService.getUserByPrincipal(principal);
         OrderList orderList = userByPrincipal.getOrderList();
-        if(orderList == null) {
-            OrderList createdOrderList = new OrderList();
-            createdOrderList.setUser(userByPrincipal);
-            createdOrderList.setProducts(new ArrayList<>());
-            return createdOrderList;
-        }
-
+        if(orderList != null) {
             return orderList;
+        }
+        return createNewOrderList(userByPrincipal);
     }
 
-    private void isExistInOrderList(OrderList orderList, Product product) {
+    private OrderList createNewOrderList(User user) {
+        OrderList newOrderList = new OrderList();
+        newOrderList.setUser(user);
+        newOrderList.setProducts(new ArrayList<>());
+        return newOrderList;
+    }
+
+    private void addToOrderList(Product product, OrderList orderList) {
+        orderList.getProducts().add(product);
+        orderList.setTotalPrice(orderList.getTotalPrice().add(product.getProductPrice()));
+    }
+
+    private void removeFromOrderList(Product product, OrderList orderList) {
+        orderList.getProducts().remove(product);
+        orderList.setTotalPrice(subtractTotalPrice(orderList,product));
+    }
+
+    private void ensureProductExistsInOrderList(OrderList orderList, Product product) {
         if (!orderList.getProducts().contains(product)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     String.format(ErrorMessageHandler.PRODUCT_NOT_FOUND, product.getId()));
@@ -105,11 +124,7 @@ public class OrderListServiceImpl implements OrderListService {
     }
 
     private BigDecimal subtractTotalPrice(OrderList orderList, Product product) {
-        orderList.setTotalPrice(orderList.getTotalPrice().subtract(product.getProductPrice()));
-        if(orderList.getTotalPrice().doubleValue() <= 0){
-            return BigDecimal.ZERO;
-        } else {
-            return orderList.getTotalPrice();
-        }
+        BigDecimal newTotalPrice = orderList.getTotalPrice().subtract(product.getProductPrice());
+        return newTotalPrice.compareTo(BigDecimal.ZERO) <= 0 ? BigDecimal.ZERO : newTotalPrice;
     }
 }

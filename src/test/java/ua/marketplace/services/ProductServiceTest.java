@@ -102,6 +102,7 @@ class ProductServiceTest {
         when(utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy)).thenReturn(pageRequest);
         when(productRepository.findByCategory(any(Category.class), any(Pageable.class))).thenReturn(page);
 
+
         // When
         Pagination result = productService.getAllProductsByCategory(pageNumber, pageSize, sortBy, orderBy, categoryName);
 
@@ -309,7 +310,7 @@ class ProductServiceTest {
         when(utilsService.getProductById(any())).thenReturn(product);
 
         // When
-        productService.getFavoriteProducts(principal, product.getId());
+        productService.addProductToFavorite(principal, product.getId());
 
         // Then
         verify(favoriteRepository, times(1)).save(any(Favorite.class));
@@ -332,7 +333,7 @@ class ProductServiceTest {
         when(favoriteRepository.existsByUserAndProduct(user, product)).thenReturn(true);
 
         // When, Then
-        assertThrows(ResponseStatusException.class, () -> productService.getFavoriteProducts(principal, productId));
+        assertThrows(ResponseStatusException.class, () -> productService.addProductToFavorite(principal, productId));
     }
 
     @Test
@@ -401,7 +402,7 @@ class ProductServiceTest {
 
         // When, Then
         assertThrows(ResponseStatusException.class,
-                () -> productService.getFavoriteProducts(principal, product.getId()));
+                () -> productService.addProductToFavorite(principal, product.getId()));
     }
 
     @Test

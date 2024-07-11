@@ -29,6 +29,6 @@ public class CategoryControllerImpl implements CategoryController {
     @Override
     @GetMapping("/list")
     public List<Category> getAllCategory() {
-        return categoryService.getAllCategory();
+        return categoryService.getAllCategories();
     }
 }

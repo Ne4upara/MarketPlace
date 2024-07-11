@@ -38,7 +38,7 @@ class CategoryServiceTest {
         when(categoryRepository.findAll()).thenReturn(expect);
 
         //When
-        List<Category> result = categoryService.getAllCategory();
+        List<Category> result = categoryService.getAllCategories();
 
         //Then
         assertEquals(expect, result);

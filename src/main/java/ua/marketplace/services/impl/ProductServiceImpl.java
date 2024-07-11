@@ -23,7 +23,6 @@ import ua.marketplace.utils.ErrorMessageHandler;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Implementation of the {@link ua.marketplace.services.ProductService} interface for managing product-related operations.
@@ -49,14 +48,24 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Pagination getAllProductsForMainPage(int pageNumber, int pageSize, String sortBy, String orderBy) {
-        Page<Product> pageAll = productRepository.findAll(utilsService.getPageRequest(
-                pageNumber, pageSize, sortBy, orderBy));
+        Page<Product> pageAll = createPageAll(pageNumber, pageSize, sortBy, orderBy);
         List<MainPageProductDto> pageAllContent = utilsService.convertProductListToDto(pageAll);
+        return createPagination(pageAll, pageAllContent);
+    }
 
-        return new Pagination(pageAll.getNumber(),
-                pageAll.getTotalElements(),
-                pageAll.getTotalPages(),
-                pageAllContent);
+    private Page<Product> createPageAll(int pageNumber, int pageSize, String sortBy, String orderBy) {
+        return productRepository.findAll(createPageable(pageNumber, pageSize, sortBy, orderBy));
+    }
+
+    private Pageable createPageable(int pageNumber, int pageSize, String sortBy, String orderBy) {
+        return  utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy);
+    }
+
+    private Pagination createPagination (Page<Product> page, List<MainPageProductDto> content) {
+        return new Pagination(page.getNumber(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                content);
     }
 
     /**
@@ -72,19 +81,21 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Pagination getAllProductsByCategory
     (int pageNumber, int pageSize, String sortBy, String orderBy, String category) {
+        Category byCategoryName = getCategoryByName(category);
+        Pageable pageable = createPageable(pageNumber, pageSize, sortBy, orderBy);
+        Page<Product> pageByCategory = createPageByCategory(pageable,byCategoryName);
+        List<MainPageProductDto> pageContent = utilsService.convertProductListToDto(pageByCategory);
+        return createPagination(pageByCategory, pageContent);
+    }
 
-        Category byCategoryName = categoryRepository.findByCategoryName(category)
+    private Category getCategoryByName(String category) {
+        return categoryRepository.findByCategoryName(category)
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.NOT_FOUND, String.format(ErrorMessageHandler.INVALID_CATEGORY, category)));
+    }
 
-        Pageable pageable = utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy);
-        Page<Product> pageAll = productRepository.findByCategory(byCategoryName, pageable);
-        List<MainPageProductDto> pageAllContent = utilsService.convertProductListToDto(pageAll);
-
-        return new Pagination(pageAll.getNumber(),
-                pageAll.getTotalElements(),
-                pageAll.getTotalPages(),
-                pageAllContent);
+    private Page<Product> createPageByCategory(Pageable pageable, Category category) {
+        return productRepository.findByCategory(category, pageable);
     }
 
     /**
@@ -98,15 +109,28 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getProductDetails(Long id) {
 //        productRepository.incrementProductViews(id); //Треба протестити
-        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(utilsService.getProductById(id));
+        Product productById = utilsService.getProductById(id);
+        return convertToProductDto(productById);
+    }
+
+    private ProductDto convertToProductDto(Product product) {
+        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(product);
     }
 
     public void incrementCountOfViewInProduct(HttpSession session, Long id){ //Надо тестировать!!
         String attributeName = "visited_product_" + id;
         if (session.getAttribute(attributeName) == null) {
-            productRepository.incrementProductViews(id);
-            session.setAttribute(attributeName, "up");
+            incrementProductViewById(id);
+            markProductAsVisited(session, attributeName);
         }
+    }
+
+    private void incrementProductViewById(Long id) {
+        productRepository.incrementProductViews(id);
+    }
+
+    private void markProductAsVisited(HttpSession session, String attributeName) {
+        session.setAttribute(attributeName, "up");
     }
 
     /**
@@ -120,12 +144,11 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto saveProduct(Principal principal, ProductRequest request,List<MultipartFile> files) {
         User user = utilsService.getUserByPrincipal(principal);
         Product product = createProduct(request, user, files);
-
-        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+        return convertToProductDto(savedProduct);
     }
 
     private Product createProduct(ProductRequest request, User user, List<MultipartFile> files) {
-
         Product product = Product
                 .builder()
                 .productName(request.productName())
@@ -139,7 +162,6 @@ public class ProductServiceImpl implements ProductService {
                 .sellerEmail(request.sellerEmail())
                 .location(request.location())
                 .build();
-
         product.setPhotos(imageService.getPhotoLinks(files, product));
         return product;
     }
@@ -172,33 +194,29 @@ public class ProductServiceImpl implements ProductService {
                                     ProductRequest request, List<MultipartFile> files) {
         User user = utilsService.getUserByPrincipal(principal);
         Product product = utilsService.getProductById(productId);
+        checkUserOwnership(product, user);
+        updateProductDetails(product, request, files);
+        Product updatedProduct = productRepository.save(product);
+        return convertToProductDto(updatedProduct);
+    }
 
+    private void checkUserOwnership(Product product, User user) {
         if (!isProductCreatedByUser(product, user)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
         }
-
-        Product updatedProduct = Stream.of(product)
-                .map(p -> {
-                    p.setProductName(request.productName());
-                    p.setPhotos(imageService.getUpdateLinks(files, p));
-                    p.setProductPrice(request.productPrice());
-                    p.setProductDescription(request.productDescription());
-                    p.setCategory(getCategory(request.productCategory()));
-                    p.setProductType(request.productType());
-
-                    return p;
-                })
-                .map(productRepository::save)
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException
-                        (HttpStatus.BAD_REQUEST, ErrorMessageHandler.FAILED_PRODUCT_UPDATE));
-
-
-        return ProductMapper.PRODUCT_INSTANCE.productToProductDto(updatedProduct);
     }
 
     private boolean isProductCreatedByUser(Product product, User user) {
         return product.getOwner().equals(user);
+    }
+
+    private void updateProductDetails(Product product, ProductRequest request, List<MultipartFile> files) {
+        product.setProductName(request.productName());
+        product.setPhotos(imageService.getUpdateLinks(files, product));
+        product.setProductPrice(request.productPrice());
+        product.setProductDescription(request.productDescription());
+        product.setCategory(getCategory(request.productCategory()));
+        product.setProductType(request.productType());
     }
 
     /**
@@ -212,24 +230,27 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Principal principal, Long productId) {
         User user = utilsService.getUserByPrincipal(principal);
         Product product = utilsService.getProductById(productId);
-
-        if (!isProductCreatedByUser(product, user)) {
-            throw new ResponseStatusException
-                    (HttpStatus.CONFLICT, ErrorMessageHandler.THIS_NOT_USERS_PRODUCT);
-        }
-
-        imageService.deleteFiles(product.getPhotos()); //new
+        checkUserOwnership(product, user);
+        deleteProductPhoto(product); //new
         productRepository.delete(product);
     }
 
+    private void deleteProductPhoto(Product product) {
+        imageService.deleteFiles(product.getPhotos());
+    }
+
     @Override
-    public void getFavoriteProducts(Principal principal, Long id) {
+    public void addProductToFavorite(Principal principal, Long id) {
         User user = utilsService.getUserByPrincipal(principal);
         Product productById = utilsService.getProductById(id);
         validateFavorite(user, productById, "TRUE");
+        saveFavorite(user, productById);
+    }
+
+    private void saveFavorite(User user, Product product) {
         Favorite favorite = Favorite.builder()
                 .user(user)
-                .product(productById)
+                .product(product)
                 .build();
         favoriteRepository.save(favorite);
     }
@@ -237,25 +258,36 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional //проверить
     public void deleteProductFromFavorite(Principal principal, Long id) {
-        User userByPrincipal = utilsService.getUserByPrincipal(principal);
-        Product productById = utilsService.getProductById(id);
-        validateFavorite(userByPrincipal, productById, "FALSE");
-        Favorite byUserAndProduct = favoriteRepository.findByUserAndProduct(userByPrincipal, productById);
-        userByPrincipal.getFavorites().remove(byUserAndProduct);
-        productById.getFavorites().remove(byUserAndProduct);
-        favoriteRepository.delete(byUserAndProduct);
+        User user = utilsService.getUserByPrincipal(principal);
+        Product product = utilsService.getProductById(id);
+        validateFavorite(user, product, "FALSE");
+        Favorite byUserAndProduct = findFavoriteByUserAndProduct(user, product);
+        removeFavoriteAssociationsAndDelete(byUserAndProduct, user, product);
     }
 
-    private void validateFavorite(User user, Product product, String exists) {
-        if (Boolean.FALSE.equals(favoriteRepository.existsByUserAndProduct(user, product)) && "FALSE".equals(exists)) {
-            throw new ResponseStatusException
-                    (HttpStatus.BAD_REQUEST, String.format(
-                            ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
+    private Favorite findFavoriteByUserAndProduct(User user, Product product) {
+        return favoriteRepository.findByUserAndProduct(user, product);
+    }
+
+    private void  removeFavoriteAssociationsAndDelete(Favorite favorite, User user, Product product) {
+        user.getFavorites().remove(favorite);
+        product.getFavorites().remove(favorite);
+        favoriteRepository.delete(favorite);
+    }
+
+    private void validateFavorite(User user, Product product, String expectedStatus) {
+        boolean favoriteExists = favoriteRepository.existsByUserAndProduct(user, product);
+
+        if ("FALSE".equals(expectedStatus) && !favoriteExists) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    String.format(ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
         }
-        if (Boolean.TRUE.equals(favoriteRepository.existsByUserAndProduct(user, product)) && "TRUE".equals(exists)) {
-            throw new ResponseStatusException
-                    (HttpStatus.BAD_REQUEST, String.format(
-                            ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
+
+        if ("TRUE".equals(expectedStatus) && favoriteExists) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    String.format(ErrorMessageHandler.INVALID_FAVORITE, product.getId()));
         }
     }
 }

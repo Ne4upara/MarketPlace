@@ -46,13 +46,20 @@ public class UserServiceImpl implements UserService {
             int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal) {
         User user = utilsService.getUserByPrincipal(principal);
         Pageable pageable = utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy);
-        Page<Product> pageAll = productRepository.findAllByOwner(user, pageable);
+        Page<Product> pageAll = findAllByOwner(user, pageable);
         List<MainPageProductDto> pageAllContent = utilsService.convertProductListToDto(pageAll);
+        return createPagination(pageAll, pageAllContent);
+    }
 
-        return new Pagination(pageAll.getNumber(),
-                pageAll.getTotalElements(),
-                pageAll.getTotalPages(),
-                pageAllContent);
+    private Page<Product> findAllByOwner(User user,Pageable pageable) {
+       return productRepository.findAllByOwner(user, pageable);
+    }
+
+    private Pagination createPagination (Page<Product> page, List<MainPageProductDto> content) {
+        return new Pagination(page.getNumber(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                content);
     }
 
     /**
@@ -70,13 +77,21 @@ public class UserServiceImpl implements UserService {
             int pageNumber, int pageSize, String sortBy, String orderBy, Principal principal) {
         User user = utilsService.getUserByPrincipal(principal);
         Pageable pageable = utilsService.getPageRequest(pageNumber, pageSize, sortBy, orderBy);
-        Page<Favorite> favoritesPage = favoriteRepository.findAllByUser(user, pageable);
+        Page<Favorite> favoritesPage = getFavoritesPage(user, pageable);
         Page<Product> productFavorite = favoritesPage.map(Favorite::getProduct);
         List<MainPageProductDto> pageAllContent = utilsService.convertProductListToDto(productFavorite);
-        return new Pagination(favoritesPage.getNumber(),
-                favoritesPage.getTotalElements(),
-                favoritesPage.getTotalPages(),
-                pageAllContent);
+        return getPaginationByFavorite(favoritesPage, pageAllContent);
+    }
+
+    private Page<Favorite> getFavoritesPage(User user, Pageable pageable) {
+        return favoriteRepository.findAllByUser(user, pageable);
+    }
+
+    private Pagination getPaginationByFavorite(Page<Favorite> favorites, List<MainPageProductDto> content) {
+        return new Pagination(favorites.getNumber(),
+                favorites.getTotalElements(),
+                favorites.getTotalPages(),
+                content);
     }
 
     /**
@@ -88,7 +103,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserInfo(Principal principal) {
         User user = utilsService.getUserByPrincipal(principal);
-        Set<Favorite> favorites = favoriteRepository.findByUser(user);
+        Set<Favorite> favorites = getFavoritesByUser(user);
+        return convertToUserDto(user, favorites);
+    }
+
+    private Set<Favorite> getFavoritesByUser(User user) {
+        return favoriteRepository.findByUser(user);
+    }
+
+    private UserDto convertToUserDto(User user, Set<Favorite> favorites) {
         return UserMapper.USER_MAPPER.userToUserDTO(user, favorites);
     }
 }
